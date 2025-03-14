@@ -1,8 +1,11 @@
 node_modules/**
+package-lock.json
 .vscode
 *.code-workspace
 /dist*
 
-bundle.sfc
 
 _*
+
+bundle.sfc
+loader.min.js

@@ -55,7 +55,7 @@ Both the loader and components include development-friendly features like docume
 production deployment, these can be stripped using tools like terser:
 
 ```bash
-npx terser sfc/loader.js -o sfc/loader.min.js -c drop_console -m
+npx terser loader.js -o loader.min.js -c drop_console -m
 ```
 
 Bundling multiple controls into a single bundle file is supported by a simple javascript bundler that can be started as command line
