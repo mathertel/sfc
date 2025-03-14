@@ -5,6 +5,9 @@
   "license": "BSD 3-Clause",
   "author": "Matthias Hertel",
   "type": "module",
+  "bin": {
+    "pack-sfc": "bin/packsfc.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   }
