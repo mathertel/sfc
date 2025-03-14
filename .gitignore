@@ -3,4 +3,6 @@ node_modules/**
 *.code-workspace
 /dist*
 
+bundle.sfc
+
 _*
