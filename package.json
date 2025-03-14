@@ -1,0 +1,11 @@
+{
+  "name": "sfc",
+  "version": "1.0.0",
+  "description": "Using Single File Components (SFC) client side by loading components from the browser.",
+  "license": "BSD 3-Clause",
+  "author": "Matthias Hertel",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
