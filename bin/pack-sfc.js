@@ -19,7 +19,9 @@ const sfcExt = ".sfc";
 // ===== Command line support =====
 
 const options = yargs(process.argv.slice(2))
-  .usage('Usage: $0 [options] <sfc-names> ...')
+  .usage('Usage: npx pack-sfc [options] <sfc-names> ... -o <outfile>')
+  .example('npx pack-sfc u-code u-toast -o bundle', 'pack u-code.sfc and u-toast.sfc into bundle.sfc')
+  .example('npx pack-sfc -p=0 u-code u-toast', 'pack u-code.sfc and u-toast.sfc without minifying')
   .option('v', { alias: 'verbose', describe: 'Verbose logging', type: 'boolean', demandOption: false, default: false })
   .option('p', { alias: 'pack', describe: 'pack resulting file', type: 'boolean', demandOption: false, default: true })
   .option('o', { alias: 'outfile', describe: 'name of the output file', type: 'string', demandOption: false, default: "bundle" + sfcExt })
