@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Pie Chart Test</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-toast');
+  </script>
+</head>
+
+  <body class="sitelayout" style="--main-width: 60em;" >
+  <u-toast style="--log-color: white"></u-toast>
+  <header>
+    <h1>Toast Test Page</h1>
+  </header>
+
+  <main>
+    <p>
+      <button id="doLog">Log</button>
+      <button id="doError">Error</button>
+    </p>
+
+    <hr>
+
+    <h2>Implementation of a web component for displaying toast messages</h2>
+
+    <p>The component displays messages of type 'log', 'info', 'error' using fly-in toast message box that
+      automatically can disappear after some time.</p>
+
+    <p>The loader script must be included in the page.</p>
+
+    <pre><code>&lt;script src=&quot;/loader.js&quot;&gt;&lt;/script&gt;</code></pre>
+
+    <p>The <code>u-toast</code> tag can be loaded using:</p>
+
+    <pre><code>var allSFCLoaded = window.loadComponent('u-toast');</code></pre>
+
+    <p>The <code>u-toast</code> tag should be placed at the beginning of the html body.</p>
+
+    <pre><code>&lt;u-toast&gt;&lt;/u-toast&gt;</code></pre>
+
+    <p>This element is typically added to the html body element and will position itself on the top right corner above
+      any html.</p>
+
+    <h2>Style Attributes</h2>
+
+    <p>The following css variables are available to change the colors of the toast message box per type:</p>
+
+    <ul>
+      <li>--log-color &mdash; color for log messages</li>
+      <li>--info-color &mdash; color for info messages</li>
+      <li>--error-color &mdash; color for error messages</li>
+    </ul>
+
+    <p>Example:</p>
+
+    <pre><code>&lt;u-toast style=&quot;--log-color:pink&quot;&gt;&lt;/u-toast&gt;</code></pre>
+
+    <h2>JavaScript accessible methods</h2>
+
+    <p>The tag supports the following methods:</p>
+
+    <ul>
+      <li>log(msg, options = {}) -- Display a log message.</li>
+      <li>info(msg, options = {}) -- Display an info message.</li>
+      <li>error(msg, options = {}) -- Display an error message.</li>
+    </ul>
+
+    <h2>Options</h2>
+
+    <p>The options are used to further configure how a toast message is displayed:</p>
+
+    <ul>
+      <li>close -- A boolean specifying if a toast message includes an explicit close button.</li>
+      <li>duration -- A numeric value to specify the time until the message closes automatically. Specify duration=0
+        for no automatic closing.</li>
+    </ul>
+
+    <p>Have a look at the source of this page to see how the example buttons use the api of this wen component.</p>
+
+  </main>
+
+  <script>
+    var toastElement = document.querySelector('u-toast');
+
+    window.addEventListener('DOMContentLoaded', async function() {
+      document.querySelector('#doLog').addEventListener('click', evt => {
+        toastElement.log('log text...');
+      });
+
+      document.querySelector('#doError').addEventListener('click', evt => {
+        toastElement.error('log text...');
+      });
+
+      await allSFCLoaded;
+      toastElement.log('Hello Toaster!');
+      toastElement.error('Failed !');
+      window.setTimeout(() => {
+        toastElement.info('progress...');
+      }, 2000);
+    });
+  </script>
+</body>
+
+</html>

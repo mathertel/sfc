@@ -7,6 +7,7 @@
 
   <title>Line Chart Test</title>
 
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
   <style>
     u-linechart {
       box-shadow: 0 0 0.1rem 0.2rem lime;
@@ -19,9 +20,11 @@
   </script>
 </head>
 
-<body>
-  <h1>Line Chart Test</h1>
-
+<body class="sitelayout" style="--main-width: 60em;" >
+  <header>
+    <h1>Line Chart Test</h1>
+  </header>
+<main>
   <p> <button id="doClear">clear</button> <button id="doDraw1">draw1</button> <button id="doDraw2">draw2</button>
     <button id="doDraw3">draw3</button> <button id="doDraw4">draw4</button>
   </p>
@@ -59,6 +62,10 @@
 
   <p>Any color can be used in the color properties that is understood by SVG.
     It can passed in the options when crating a chart of a hLine.</p>
+
+    <p>Have a look at the source of this page to see how the example buttons use the api of this wen component.</p>
+  
+  </main>
 
   <script>
     var myChart = document.querySelector('#myLineChart');
