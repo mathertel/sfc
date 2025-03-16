@@ -16,55 +16,30 @@
 
   <script src="/loader.js"></script>
   <script>
-    var allSFCLoaded = window.loadComponent(['u-linechart']);
+    var allSFCLoaded = window.loadComponent(['u-linechart', 'u-markdown']);
   </script>
 </head>
 
-<body class="sitelayout" style="--main-width: 60em;" >
+<body class="sitelayout" style="--main-width: 60em;">
   <header>
     <h1>Line Chart Test</h1>
   </header>
-<main>
-  <p> <button id="doClear">clear</button> <button id="doDraw1">draw1</button> <button id="doDraw2">draw2</button>
-    <button id="doDraw3">draw3</button> <button id="doDraw4">draw4</button>
-  </p>
-  <p>
-    <input type="checkbox" id="useBezier">useBezier&nbsp;
-    <input type="checkbox" id="useMarkers">useMarkers&nbsp;
-  </p>
+  <main>
+    <nav>
+      <button id="doClear">clear</button> <button id="doDraw1">draw1</button> <button id="doDraw2">draw2</button>
+      <button id="doDraw3">draw3</button> <button id="doDraw4">draw4</button>
+    </nav>
+    <nav>
+      <input type="checkbox" id="useBezier">useBezier&nbsp;
+      <input type="checkbox" id="useMarkers">useMarkers&nbsp;
+    </nav>
 
-  <p>API Documentation available at <a
-      href="https://homeding.github.io/dev/microchart-line.htm">https://homeding.github.io/dev/microchart-line.htm</a>
-  </p>
+    <u-linechart id="myLineChart" style="width:800px;height:300px"></u-linechart>
 
-  <u-linechart id="myLineChart" style="width:800px;height:300px"></u-linechart>
+    <hr>
 
-  <h3>The phases of drawing</h3>
+    <u-markdown src="../doc/u-linechart.md"></u-markdown>
 
-  <p>The draw function will not actual create the chart; this is deferred to allow some adjustments by the ruler
-    graphs. E.g. when data in the range 1-99 is in use the VAxis may change the range to 0-100 so some good data
-    levels can be displayed in the ruler area.
-  </p>
-
-  <ul>
-    <li>When new data is added or data is modified the drawing process is deferred by using a timer.
-      This timer enables to add all required elements before actual creating the full chart.
-    </li>
-    <li>The the box containing all data points is calculated and stored in the displayBox.
-      When the displayBox was not changed the rulers do not have to be re-created but the data bound graphs will.
-    </li>
-    <li>
-      All graphs now can be drawn using the scale of the displayBox.
-    </li>
-  </ul>
-
-  <h3>Line Chart Colors</h3>
-
-  <p>Any color can be used in the color properties that is understood by SVG.
-    It can passed in the options when crating a chart of a hLine.</p>
-
-    <p>Have a look at the source of this page to see how the example buttons use the api of this wen component.</p>
-  
   </main>
 
   <script>

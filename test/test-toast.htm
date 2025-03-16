@@ -9,10 +9,13 @@
 
   <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
   <style>
+    code {
+      background-color: var(--code-back);
+    }
   </style>
   <script src="/loader.js"></script>
   <script>
-    var allSFCLoaded = window.loadComponent('u-toast');
+    var allSFCLoaded = window.loadComponent('u-toast,u-markdown');
   </script>
 </head>
 
@@ -23,68 +26,14 @@
   </header>
 
   <main>
-    <p>
+    <nav>
       <button id="doLog">Log</button>
       <button id="doError">Error</button>
-    </p>
+    </nav>
 
     <hr>
 
-    <h2>Implementation of a web component for displaying toast messages</h2>
-
-    <p>The component displays messages of type 'log', 'info', 'error' using fly-in toast message box that
-      automatically can disappear after some time.</p>
-
-    <p>The loader script must be included in the page.</p>
-
-    <pre><code>&lt;script src=&quot;/loader.js&quot;&gt;&lt;/script&gt;</code></pre>
-
-    <p>The <code>u-toast</code> tag can be loaded using:</p>
-
-    <pre><code>var allSFCLoaded = window.loadComponent('u-toast');</code></pre>
-
-    <p>The <code>u-toast</code> tag should be placed at the beginning of the html body.</p>
-
-    <pre><code>&lt;u-toast&gt;&lt;/u-toast&gt;</code></pre>
-
-    <p>This element is typically added to the html body element and will position itself on the top right corner above
-      any html.</p>
-
-    <h2>Style Attributes</h2>
-
-    <p>The following css variables are available to change the colors of the toast message box per type:</p>
-
-    <ul>
-      <li>--log-color &mdash; color for log messages</li>
-      <li>--info-color &mdash; color for info messages</li>
-      <li>--error-color &mdash; color for error messages</li>
-    </ul>
-
-    <p>Example:</p>
-
-    <pre><code>&lt;u-toast style=&quot;--log-color:pink&quot;&gt;&lt;/u-toast&gt;</code></pre>
-
-    <h2>JavaScript accessible methods</h2>
-
-    <p>The tag supports the following methods:</p>
-
-    <ul>
-      <li>log(msg, options = {}) -- Display a log message.</li>
-      <li>info(msg, options = {}) -- Display an info message.</li>
-      <li>error(msg, options = {}) -- Display an error message.</li>
-    </ul>
-
-    <h2>Options</h2>
-
-    <p>The options are used to further configure how a toast message is displayed:</p>
-
-    <ul>
-      <li>close -- A boolean specifying if a toast message includes an explicit close button.</li>
-      <li>duration -- A numeric value to specify the time until the message closes automatically. Specify duration=0
-        for no automatic closing.</li>
-    </ul>
-
-    <p>Have a look at the source of this page to see how the example buttons use the api of this wen component.</p>
+    <u-markdown src="../doc/u-toast.md"></u-markdown>
 
   </main>
 

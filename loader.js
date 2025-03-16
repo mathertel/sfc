@@ -122,6 +122,11 @@ window.loadComponent = (function() {
     def.extends = scriptObj.getAttribute('extends');
     def.baseURL = url;
 
+    // relative links in sfc are resolved as relative to the sfc file. 
+    def.uTemplate.content.querySelectorAll('script').forEach((obj) => {
+      obj.src = new URL(obj.src, url).href;
+    });
+
     if (def.extends) {
       customElements.define(tagName, def, { extends: def.extends });
       if (def.uStyle) document.head.appendChild(def.uStyle.cloneNode(true));

@@ -35,8 +35,8 @@ References:
 
 
 <template>
-  <script src="/sfc/markdown-it.js"       defer onload="this.isLoaded = true;"></script>
-  <script src="/sfc/markdown-it-attrs.js" defer onload="this.isLoaded = true;"></script>
+  <script src="markdown-it.js"       defer onload="this.isLoaded = true;"></script>
+  <script src="markdown-it-attrs.js" defer onload="this.isLoaded = true;"></script>
   <div></div>
 </template>
 
@@ -45,6 +45,10 @@ References:
   display: block;
   height: 100%;
 }
+code {
+      background-color: antiquewhite;
+    }
+
 </style>
 
 <script>
