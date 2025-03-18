@@ -1,134 +1,274 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Line Chart Test</title>
 
-  <title>Line Chart Test</title>
-
-  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
-  <style>
-    u-linechart {
-      box-shadow: 0 0 0.1rem 0.2rem lime;
-    }
-  </style>
-
-  <script src="/loader.js"></script>
-  <script>
-    var allSFCLoaded = window.loadComponent(['u-linechart', 'u-markdown']);
-  </script>
-</head>
-
-<body class="sitelayout" style="--main-width: 60em;">
-  <header>
-    <h1>Line Chart Test</h1>
-  </header>
-  <main>
-    <nav>
-      <button id="doClear">clear</button> <button id="doDraw1">draw1</button> <button id="doDraw2">draw2</button>
-      <button id="doDraw3">draw3</button> <button id="doDraw4">draw4</button>
-    </nav>
-    <nav>
-      <input type="checkbox" id="useBezier">useBezier&nbsp;
-      <input type="checkbox" id="useMarkers">useMarkers&nbsp;
-    </nav>
-
-    <u-linechart id="myLineChart" style="width:800px;height:300px"></u-linechart>
-
-    <hr>
-
-    <u-markdown src="../doc/u-linechart.md"></u-markdown>
-
-  </main>
-
-  <script>
-    var myChart = document.querySelector('#myLineChart');
-
-    function lineClear() { myChart.clear(); }
-
-    function lineDraw1() {
-      myChart.clear();
-
-      myChart.add('HAxis');
-      myChart.add('VAxis');
-
-      myChart.add('hline', { data: 0 });
-
-      myChart.add('line', {
-        linetype: document.querySelector('#useBezier').checked ? 'bezier' : 'line',
-        marker: document.querySelector('#useMarkers').checked
-      });
-
-      var data = [{ x: 0, y: 2 }, { x: 1, y: 4 }, { x: 2, y: 6 }, { x: 3, y: 5 }, { x: 4, y: 7 }];
-      myChart.draw(data);
-    }
-
-    function lineDraw2() {
-      myChart.clear();
-
-      var chart = myChart.add('line', {
-        linetype: document.querySelector('#useBezier').checked ? 'bezier' : 'steps',
-        marker: document.querySelector('#useMarkers').checked,
-        color: 'red'
-      });
-
-      myChart.add('VAxis');
-      myChart.add('HAxis');
-
-      var data = [{ x: 0, y: 2 }, { x: 1, y: 5 }, { x: 2, y: 4 }, { x: 3, y: 6 }, { x: 4, y: 5 }, { x: 5, y: 7 }];
-      myChart.draw(data);
-    }
-
-    function lineDraw3() {
-      myChart.clear();
-      // debugger;
-      var chart = myChart.add('line', { linetype: 'line' });
-
-      myChart.add('vaxis');
-      myChart.add('haxis');
-      myChart.add('hlINE', { data: 0 });
-      myChart.add('indicator', { yFormat: 'num:3' });
-
-      var data = [];
-      for (n = 0; n < 300; n++) {
-        data.push({ x: n, y: Math.sin(n / 10) * 16 })
+    <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+    <style>
+      u-linechart {
+        box-shadow: 0 0 0.1rem 0.2rem lime;
       }
-      myChart.draw(data);
-    }
+    </style>
 
-    function lineDraw4() {
-      myChart.clear();
-      var now = Date.now() / 1000;
+    <script src="/loader.js"></script>
+    <script>
+      var allSFCLoaded = window.loadComponent(['u-linechart', 'u-markdown']);
+    </script>
+  </head>
 
-      var chart = myChart.add('line', { linetype: 'line', color: 'green' });
+  <body class="sitelayout" style="--main-width: 60em">
+    <header>
+      <h1>Line Chart Test</h1>
+    </header>
+    <main>
+      <nav class="text">
+        <button id="doClear">clear</button> <button id="doDraw1">draw1</button>
+        <button id="doDraw2">draw2</button> <button id="doDraw3">draw3</button>
+        <button id="doDraw4">draw4</button>
+      </nav>
+      <nav class="text">
+        Line Type:
+        <input type="radio" name="linetype" id="useLine" checked />Line&nbsp;
+        <input type="radio" name="linetype" id="useSteps" />Steps&nbsp;
+        <input type="radio" name="linetype" id="useBezier" />Bezier&nbsp;
+      </nav>
+      <nav class="text">
+        Line Options: <input type="checkbox" id="useMarkers" />Markers&nbsp;
+      </nav>
 
-      myChart.add([
-        { type: 'HAxis', options: { format: 'datetime', color: 'green' } },
-        { type: 'hline', options: { data: 0, color: 'lime' } },
-        { type: 'hline', options: { data: 2, color: 'transparent' } },
-        { type: 'hline', options: { data: -2, color: 'transparent' } },
-        { type: 'indicator', options: { xFormat: 'datetime', yFormat: 'num:5', color: 'blue' } }]);
+      <hr />
 
-      var data = [];
-      for (n = 0; n < 300; n++) {
-        data.push({ x: now + (n * 1400), y: Math.sin(n / 12) })
+      <u-linechart
+        id="myLineChart"
+        style="width: 800px; height: 300px"
+      ></u-linechart>
+
+      <hr />
+
+      <u-markdown src="../doc/u-linechart.md"></u-markdown>
+    </main>
+
+    <script>
+      var myChart = document.querySelector('#myLineChart');
+
+      function linetype() {
+        let type = 'line';
+        if (document.querySelector('#useLine').checked) type = 'line';
+        if (document.querySelector('#useSteps').checked) type = 'steps';
+        if (document.querySelector('#useBezier').checked) type = 'bezier';
+        return type;
       }
-      myChart.draw(data);
-    }
+      function lineClear() {
+        myChart.clear();
+      }
 
-    window.addEventListener('load', async function() {
-      await allSFCLoaded;
-      lineDraw3();
+      function lineDraw1() {
+        myChart.clear();
 
-      document.getElementById('doClear').addEventListener('click', lineClear);
-      document.getElementById('doDraw1').addEventListener('click', lineDraw1);
-      document.getElementById('doDraw2').addEventListener('click', lineDraw2);
-      document.getElementById('doDraw3').addEventListener('click', lineDraw3);
-      document.getElementById('doDraw4').addEventListener('click', lineDraw4);
+        myChart.add('HAxis');
+        myChart.add('VAxis');
 
-    });
-  </script>
-</body>
+        myChart.add('hline', { data: 0 });
 
+        myChart.add('line', {
+          linetype: linetype(),
+          marker: document.querySelector('#useMarkers').checked,
+        });
+
+        var data = [
+          { x: 0, y: 2 },
+          { x: 1, y: 4 },
+          { x: 2, y: 6 },
+          { x: 3, y: 5 },
+          { x: 4, y: 7 },
+        ];
+        myChart.draw(data);
+      }
+
+      function lineDraw2() {
+        myChart.clear();
+
+        var chart = myChart.add('line', {
+          linetype: linetype(),
+          marker: document.querySelector('#useMarkers').checked,
+          color: 'red',
+        });
+
+        myChart.add('VAxis');
+        myChart.add('HAxis');
+
+        var data = [
+          { x: 0, y: 2 },
+          { x: 1, y: 5 },
+          { x: 2, y: 4 },
+          { x: 3, y: 6 },
+          { x: 4, y: 5 },
+          { x: 5, y: 7 },
+        ];
+        myChart.draw(data);
+      }
+
+      function lineDraw3() {
+        myChart.clear();
+        // debugger;
+        var chart = myChart.add('line', {
+          linetype: linetype(),
+          marker: document.querySelector('#useMarkers').checked,
+          color: 'blue',
+        });
+
+        myChart.add('vaxis', { format: 'num:4' });
+        myChart.add('haxis', { format: 'datetime' });
+        myChart.add('hlINE', { data: 20 });
+        myChart.add('indicator', { xFormat: 'datetime', yFormat: 'num:2' });
+
+        var data = [
+          { x: 1742231000, y: 21.33 },
+          { x: 1742232000, y: 21.25 },
+          { x: 1742233000, y: 21.05 },
+          { x: 1742234000, y: 21.05 },
+          { x: 1742235000, y: 21.1 },
+          { x: 1742236000, y: 21.15 },
+          { x: 1742237000, y: 21.25 },
+          { x: 1742238000, y: 21.25 },
+          { x: 1742239000, y: 21.25 },
+          { x: 1742240000, y: 21.27 },
+          { x: 1742241000, y: 21.2 },
+          { x: 1742242000, y: 21.2 },
+          { x: 1742243000, y: 21.15 },
+          { x: 1742244000, y: 21.15 },
+          { x: 1742245000, y: 21.1 },
+          { x: 1742246000, y: 21.15 },
+          { x: 1742247000, y: 21.07 },
+          { x: 1742248000, y: 21.03 },
+          { x: 1742249000, y: 21.35 },
+          { x: 1742250000, y: 21.45 },
+          { x: 1742251000, y: 21.7 },
+          { x: 1742252000, y: 21.82 },
+          { x: 1742253000, y: 21.83 },
+          { x: 1742254000, y: 21.8 },
+          { x: 1742255000, y: 21.75 },
+          { x: 1742256000, y: 21.73 },
+          { x: 1742257000, y: 21.68 },
+          { x: 1742258000, y: 21.63 },
+          { x: 1742259000, y: 21.6 },
+          { x: 1742260000, y: 21.58 },
+          { x: 1742261000, y: 21.55 },
+          { x: 1742262000, y: 21.45 },
+          { x: 1742263000, y: 21.33 },
+          { x: 1742264000, y: 21.35 },
+          { x: 1742265000, y: 21.2 },
+          { x: 1742266000, y: 21.25 },
+          { x: 1742267000, y: 21.0 },
+          { x: 1742268000, y: 20.98 },
+          { x: 1742269000, y: 20.9 },
+          { x: 1742270000, y: 20.9 },
+          { x: 1742271000, y: 20.75 },
+          { x: 1742272000, y: 20.75 },
+          { x: 1742273000, y: 20.65 },
+          { x: 1742274000, y: 20.67 },
+          { x: 1742275000, y: 20.53 },
+          { x: 1742276000, y: 20.55 },
+          { x: 1742277000, y: 20.5 },
+          { x: 1742278000, y: 20.42 },
+          { x: 1742279000, y: 20.4 },
+          { x: 1742280000, y: 20.4 },
+          { x: 1742281000, y: 20.28 },
+          { x: 1742282000, y: 20.3 },
+          { x: 1742283000, y: 20.25 },
+          { x: 1742284000, y: 20.27 },
+          { x: 1742285000, y: 20.1 },
+          { x: 1742286000, y: 20.1 },
+          { x: 1742287000, y: 20.0 },
+          { x: 1742288000, y: 19.95 },
+          { x: 1742289000, y: 19.9 },
+          { x: 1742290000, y: 19.9 },
+          { x: 1742291000, y: 19.83 },
+          { x: 1742292000, y: 19.83 },
+          { x: 1742293000, y: 19.73 },
+          { x: 1742294000, y: 19.75 },
+          { x: 1742295000, y: 19.75 },
+          { x: 1742296000, y: 19.7 },
+          { x: 1742297000, y: 19.63 },
+          { x: 1742298000, y: 19.63 },
+          { x: 1742299000, y: 19.65 },
+          { x: 1742300000, y: 19.65 },
+          { x: 1742301000, y: 19.8 },
+          { x: 1742302000, y: 19.83 },
+          { x: 1742303000, y: 20.0 },
+          { x: 1742304000, y: 20.05 },
+          { x: 1742305000, y: 20.05 },
+          { x: 1742306000, y: 20.1 },
+          { x: 1742307000, y: 20.3 },
+          { x: 1742308000, y: 20.3 },
+          { x: 1742309000, y: 20.23 },
+          { x: 1742310000, y: 20.15 },
+          { x: 1742311000, y: 20.03 },
+          { x: 1742312000, y: 20.03 },
+          { x: 1742313000, y: 20.0 },
+          { x: 1742314000, y: 20.0 },
+          { x: 1742315000, y: 20.03 },
+          { x: 1742316000, y: 20.05 },
+          { x: 1742317000, y: 20.1 },
+          { x: 1742318000, y: 20.15 },
+          { x: 1742319000, y: 20.1 },
+          { x: 1742320000, y: 20.18 },
+          { x: 1742321000, y: 20.5 },
+          { x: 1742322000, y: 20.55 },
+          { x: 1742323000, y: 20.65 },
+          { x: 1742324000, y: 20.63 },
+          { x: 1742325000, y: 20.93 },
+          { x: 1742326000, y: 21.0 },
+          { x: 1742327000, y: 21.2 },
+          { x: 1742328000, y: 21.2 },
+          { x: 1742329000, y: 21.05 },
+          { x: 1742330000, y: 21.02 },
+        ];
+
+        myChart.draw(data);
+      }
+
+      function lineDraw4() {
+        myChart.clear();
+        var now = Date.now() / 1000;
+
+        var chart = myChart.add('line', {
+          linetype: linetype(),
+          marker: document.querySelector('#useMarkers').checked,
+          color: 'green',
+        });
+
+        myChart.add([
+          { type: 'HAxis', options: { format: 'datetime', color: 'green' } },
+          { type: 'hline', options: { data: 0, color: 'lime' } },
+          { type: 'hline', options: { data: 2, color: 'transparent' } },
+          { type: 'hline', options: { data: -2, color: 'transparent' } },
+          {
+            type: 'indicator',
+            options: { xFormat: 'datetime', yFormat: 'num:5', color: 'blue' },
+          },
+        ]);
+
+        var data = [];
+        for (n = 0; n < 300; n++) {
+          data.push({ x: now + n * 1400, y: Math.sin(n / 12) });
+        }
+        myChart.draw(data);
+      }
+
+      window.addEventListener('load', async function () {
+        await allSFCLoaded;
+        lineDraw3();
+
+        document.getElementById('doClear').addEventListener('click', lineClear);
+        document.getElementById('doDraw1').addEventListener('click', lineDraw1);
+        document.getElementById('doDraw2').addEventListener('click', lineDraw2);
+        document.getElementById('doDraw3').addEventListener('click', lineDraw3);
+        document.getElementById('doDraw4').addEventListener('click', lineDraw4);
+      });
+    </script>
+  </body>
 </html>

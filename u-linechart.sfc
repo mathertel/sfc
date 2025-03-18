@@ -788,6 +788,7 @@ export default class ULineChart extends UComponent {
         this.shadowRoot.getElementById('panel'),
         this.shadowRoot.querySelector('#ind'),
         this.graphs[0]);
+      this.indicator.setOptions(options);
 
     } else {
       console.error('ULine', `unknown graph type '${type}'`);

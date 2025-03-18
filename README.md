@@ -1,4 +1,4 @@
-# Single-File Web Components (SFC)
+# Single-File Custom Elements (SFC)
 
 Single File Components (SFC) got popular as they allow to define the code for a component in one place.
 
@@ -66,3 +66,8 @@ npx packsfc <components> -o bundle.htm
 
 Both will massively reduce the required download size.
 
+## See Also
+
+* [Components](doc/index.md)
+* [Test Pages](test/index.htm)
+* 

@@ -1,11 +1,13 @@
 # Web component to display a line chart
 
-The `<line-chart>` web component can be used to create line chart visualizations by displaying 
+The `<u-linechart>` component can be used to create line chart visualizations by displaying 
 a series of values using a line on a x/y area with optional axis and reference lines.
 
 It is a pure JavaScript based implementation that uses SVG to display the graph and axis wrapped into a SFC control.
 
 The JSON object passed as parameter defines the options for the chart and includes the data of the line chart.
+
+![linechart example](/doc/u-linechart.png){ style="width:400px"}
 
 ## Add Elements
 
@@ -148,9 +150,11 @@ ranges analog vertical axis implementation.
 
   Any color can be used in the color properties that is understood by SVG. It can passed in the options when crating a chart of a hLine.
 
-  Have a look at the source of this page to see how the example buttons use the api of this web component.
+-->
 
- -->
+Have a look at the source of the [Line Chart Test Page](/test/test-linechart.htm) to see how the example buttons use the
+api of this web component.
+
  
  ## See also
 
