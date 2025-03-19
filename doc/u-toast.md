@@ -12,7 +12,7 @@ The loader script and the custom element definition must be included in the page
 ```html
 <script src="/loader.js"></script>
 <script>
-var allSFCLoaded = window.loadComponent('u-toast');
+window.loadComponent('u-toast');
 </script>
 ```
 
