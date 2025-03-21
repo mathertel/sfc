@@ -123,14 +123,14 @@ window.loadComponent = (function() {
     def.baseURL = url;
 
     // relative links in sfc are resolved as relative to the sfc file. 
-    def.uTemplate.content.querySelectorAll('script').forEach((obj) => {
+    def.uTemplate?.content.querySelectorAll('script').forEach((obj) => {
       obj.src = new URL(obj.src, url).href;
     });
 
     if (def.extends) {
       customElements.define(tagName, def, { extends: def.extends });
       if (def.uStyle) document.head.appendChild(def.uStyle.cloneNode(true));
-      console.debug('SFC', `${def.for}.${tagName} defined.`);
+      console.debug('SFC', `${def.extends}.${tagName} defined.`);
 
     } else {
       customElements.define(tagName, def);

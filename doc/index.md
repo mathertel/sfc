@@ -14,3 +14,7 @@
 ## [PieChart Component](u-piechart.md)
 
 ![Pie Chart Example](u-piechart.png)
+
+## [Extended Time Component](u-time.md)
+
+![Extended Time Example](u-time.png)

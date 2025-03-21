@@ -1,57 +1,20 @@
 <!--
 
-Implementation of a web component that enriches the functionality of regular <time> elements
-  to support locale specific formatting.
+File: u-time.sfc
 
-<time is='my-time' datestyle='' timestyle"='' datetime=''>
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
-datetime
+Implementation of a custom element that enriches the functionality of regular <time> elements to support locale specific
+formatting of date & time values.
 
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl
+Documentation is available at <https://github.com/mathertel/sfc/blob/main/doc/u-time.md>
 
-<dl>
-  <dt><code>datetime</code></dt>
-  <dd><p>...</p></dd>
-</dl>
-
-
-(description)
-
-## HTML Attributes
-
-## JavaScript accessible attributes
-
-https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
-
-
-It may represent one of the following:
-
-A time on a 24-hour clock.
-A precise date in the Gregorian calendar (with optional time and timezone information).
-A valid time duration.
-
-customElements.define("my-time", ExpandingList, { extends: "time" });
-
-
-
-const fmt = new Intl.DateTimeFormat(navigator.languages, {
-  dateStyle: this._dateStyle,
-  timeStyle: this._timeStyle,
-});
-this.textContent = fmt.format(date);
-
+Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2024'></time>
 
 -->
 
-<style>
-    time[is="u-time"] {
-      color: red;
-    }
-</style>
+<!-- <style></style> -->
 
 <script extends="time">
   export default class MyTime extends HTMLTimeElement {

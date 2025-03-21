@@ -1,18 +1,23 @@
 <!--
 
-Implementation of a web component that enriches the functionality of regular <code> elements
-  to support copying the displayed code to the clipboard.
+File: u-code.sfc
 
-A copy icon is shown on the right upper corner that is animated for some milliseconds to show that the clipboard is updated.
+Implementation of a custom element that enriches the functionality of regular <code> elements to support copying the
+displayed code to the clipboard.
 
-<code is='u-code'> ... </code>
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+A copy icon is shown on the right upper corner that is animated for some milliseconds to show that the clipboard is
+updated.
+
+Example: <code is='u-code'> ...  </code>
 
 -->
 
 <style>
   code[is="u-code"] {
     position: relative;
-    color: red;
 
     &::after {
       position: absolute;

@@ -1,6 +1,6 @@
 # Web Component to display toast messages
 
-The component displays messages of type 'log', 'info', 'error' using fly-in toast message box that automatically can
+The <u-toast> component displays messages of type 'log', 'info', 'error' using fly-in toast message box that automatically can
 disappear after some time.
 
 ![u-toast messages](u-toast.png)
