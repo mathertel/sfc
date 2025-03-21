@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>u-code Test Page</title>
+
+    <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+    <style>
+      xcode[is='u-code'] {
+        box-shadow: 0 0 0.1rem 0.2rem lime;
+      }
+    </style>
+    <script src="/loader.js"></script>
+    <script>
+      var allSFCLoaded = window.loadComponent('u-code,u-markdown');
+    </script>
+  </head>
+
+  <body class="sitelayout" style="--main-width: 60em">
+    <header>
+      <h1>u-code Test Page</h1>
+    </header>
+
+    <main>
+      <hr />
+      <pre><code is="u-code">const tObj = document.querySelector('time');
+
+window.loadComponent('all,u-code,u-color').then(() => {
+  console.log('Page', 'all components loaded.');
+});</code></pre>
+      <hr />
+
+      <u-markdown src="../doc/u-code.md"></u-markdown>
+    </main>
+
+    <script>
+    </script>
+  </body>
+</html>

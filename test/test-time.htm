@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>u-time Test Page</title>
+
+    <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+    <style>
+      time[is='u-time'] {
+        display: inline-block;
+        padding: 0.2rem;
+        box-shadow: 0 0 0.1rem 0.2rem lime;
+      }
+    </style>
+    <script src="/loader.js"></script>
+    <script>
+      var allSFCLoaded = window.loadComponent('u-time,u-markdown');
+    </script>
+  </head>
+
+  <body class="sitelayout" style="--main-width: 60em">
+    <u-time style="--log-color: gray"></u-time>
+    <header>
+      <h1>u-time Test Page</h1>
+    </header>
+
+    <main>
+      <nav class="text">
+        values: <button id="t1">Five to Noon</button> <button id="t2">Now</button>
+      </nav>
+
+      <nav class="text">
+        format: <button id="fd">date</button> <button id="ft">time</button> <button id="f1">short</button>
+        <button id="f4">full</button>
+      </nav>
+      
+      <hr />
+
+      <p>The time is
+        <time is="u-time" datetime="2025-02-28 14:02" datestyle="long" timestyle="short">kkk</time>.</p>
+
+      <hr />
+
+      <u-markdown src="../doc/u-time.md"></u-markdown>
+    </main>
+
+    <script>
+      const tObj = document.querySelector('time');
+
+      document.querySelector('#t1').addEventListener('click', (e) => {
+        tObj.setAttribute('datetime', '2024-12-25 12:00:00');
+      });
+
+      document.querySelector('#t2').addEventListener('click', (e) => {
+        tObj.setAttribute('datetime', Date.now());
+      });
+
+      document.querySelector('#fd').addEventListener('click', (e) => {
+        tObj.setAttribute('datestyle', 'medium');
+        tObj.setAttribute('timestyle', '');
+      });
+
+      document.querySelector('#ft').addEventListener('click', (e) => {
+        tObj.setAttribute('datestyle', '');
+        tObj.setAttribute('timestyle', 'medium');
+      });
+
+      document.querySelector('#f1').addEventListener('click', (e) => {
+        tObj.setAttribute('datestyle', 'short');
+        tObj.setAttribute('timestyle', 'short');
+      });
+
+      document.querySelector('#f4').addEventListener('click', (e) => {
+        tObj.setAttribute('datestyle', 'full');
+        tObj.setAttribute('timestyle', 'full');
+      });
+
+    </script>
+  </body>
+</html>

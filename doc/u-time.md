@@ -17,7 +17,7 @@ window.loadComponent('u-time');
 </script>
 ```
 
-The `u-time` tag can be placed at the destination and the size can be applied in the style attribute:
+The `u-time` extended `<time>` tag can be placed at the destination and the size can be applied in the style attribute:
 
 ```html
 <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2024'></time>
