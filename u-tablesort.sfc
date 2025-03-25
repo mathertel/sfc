@@ -1,0 +1,125 @@
+<!--
+
+File: u-tablesort.sfc
+
+The `u-tablesort` custom element implementation extends the functionality of the standard `<table>` element to support
+sorting of the table content by the values of a column.
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+A copy icon is shown on the right upper corner that is animated for some milliseconds to show that the clipboard is
+updated.
+
+Example: <table is='u-tablesort'> ...  </table>
+
+-->
+
+<style>
+  table[is='u-tablesort'] {
+    cursor: pointer;
+  }
+</style>
+
+<script extends="table">
+  export default class UTableSort extends HTMLTableElement {
+    connectedCallback() {
+      this.addEventListener('click', this.on_click);
+    }
+
+    compareText(a, b) {
+      if (a.key < b.key) {
+        return -1;
+      } else if (a.key > b.key) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } // compareText
+
+    compareDate(a, b) {
+      if (!a.key) {
+        return -1;
+      }
+      if (!b.key) {
+        return 1;
+      }
+      var aDate = new Date(a.key);
+      var bDate = new Date(b.key);
+      if (aDate < bDate) {
+        return -1;
+      } else if (aDate > bDate) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } // compareDate
+
+    compareNum(a, b) {
+      if (!a.key) return -1;
+      if (!b.key) return 1;
+      var aNum = parseFloat(a.key);
+      var bNum = parseFloat(b.key);
+      if (aNum < bNum) {
+        return -1;
+      } else if (aNum > bNum) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } // compareNum
+
+    sortTable(col, fCmp) {
+      // get the body element of the table as we like to analyze and shift rows around.
+      // @type HTMLTableSectionElement
+      var tbody = this.querySelector('tbody');
+
+      // create a list of {key,value} elements to be sorted
+      var data = [];
+      tbody.querySelectorAll('tr').forEach((tr) => {
+        data.push({
+          key: tr.children[col].innerText.toLowerCase(),
+          val: tr,
+        });
+      });
+      // sort and apply to table in ascending order
+      data.sort(fCmp).forEach((r) => tbody.appendChild(r.val));
+    } // sortTable()
+
+    // find the index of a child element in a parent element.
+    elementIndex(
+      /** @type HTMLElement */ parent,
+      /** @type HTMLElement */ node
+    ) {
+      var idx = -1;
+      if (parent && node) {
+        var e = parent.firstElementChild;
+        while (e) {
+          idx++;
+          if (e === node) {
+            return idx;
+          }
+          e = e.nextElementSibling;
+        }
+      }
+      return -1;
+    } // elementIndex()
+
+    on_click(/** @type MouseEvent */ e) {
+      var tar = /** @type HTMLElement */ (e.target);
+      if (tar.tagName === 'TH') {
+        const sortType = tar.getAttribute('sort');
+        if (sortType !== null) {
+          var n = this.elementIndex(tar.parentElement, tar);
+          if (sortType == 'text' || sortType == '') {
+            this.sortTable(n, this.compareText);
+          } else if (sortType == 'num') {
+            this.sortTable(n, this.compareNum);
+          } else if (sortType == 'date') {
+            this.sortTable(n, this.compareDate);
+          }
+        } // if
+      } // if
+    } // on_click()
+  } // class
+</script>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Table Sort Test</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    .dataTab {
+      border-collapse: collapse;
+      background-color: white;
+      border: solid 1px #203050;
+      padding: 0;
+      color: #203050;
+    }
+
+    .dataTab tr:nth-child(even) {
+      background: #ddd
+    }
+
+    .dataTab tr:nth-child(odd) {
+      background: #eee
+    }
+
+    .dataTab td,
+    .dataTab th {
+      border: solid 1px #203050;
+      padding: 0.25em 0.8em;
+    }
+
+    .dataTab thead th {
+      background-color: #203050;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent(['u-tablesort', 'u-markdown']);
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>Table Sort Test</h1>
+  </header>
+  <main>
+    <table is="u-tablesort" class="dataTab">
+      <thead>
+        <tr>
+          <th sort="num">id</th>
+          <th sort>web site</th>
+          <th sort>purpose</th>
+          <th sort='date'>last online</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>amazon</td>
+          <td>shopping</td>
+          <td>2023-10-01</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>google</td>
+          <td>searching</td>
+          <td>2023-10-02</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td>outlook</td>
+          <td>E-Mail</td>
+          <td>2023-10-03</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>eBay</td>
+          <td>commerce</td>
+          <td>2023-10-01</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>example</td>
+          <td>dummy</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr />
+
+    <u-markdown src="../doc/u-tablesort.md"></u-markdown>
+
+  </main>
+
+
+</body>
+
+</html>
