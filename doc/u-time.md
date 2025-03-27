@@ -1,6 +1,6 @@
 # Web component to display time in user local formatting
 
-The <u-time> custom Element implementation extends the functionality of the standard `<time>` element to support locale
+The `u-time` custom Element implementation extends the functionality of the standard `<time>` element to support locale
 specific formatting of date, time datetime values by using the SFC loader.
 
 ![u-time component](../doc/u-time.png)

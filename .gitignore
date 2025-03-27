@@ -1,5 +1,6 @@
 node_modules/**
 package-lock.json
+.markdownlint.json
 .vscode
 *.code-workspace
 /dist*
@@ -9,3 +10,4 @@ _*
 
 bundle.sfc
 loader.min.js
+.gitignore

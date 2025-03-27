@@ -7,17 +7,22 @@
 // The UComponent class acts as a intermediate class between user defined SFC and the generic HTMLElement class.
 // It implements the generation of the shadow dom and css according to the style and template.
 class UComponent extends HTMLElement {
+  uRoot = this;
 
   constructor() {
     super();
 
     // create inner / document Style
     const c = this.constructor;
-    const shadow = this.attachShadow({ mode: 'open' });
+
+    if ((c.uTemplate) && (!c.uTemplate.hasAttribute('noshadow'))) {
+      // template for non-shadow
+      this.uRoot = this.attachShadow({ mode: 'open' });;
+    }
 
     if (c.uStyle) {
       if (c.uStyle.hasAttribute('scoped')) {
-        shadow.appendChild(c.uStyle.cloneNode(true));
+        this.uRoot.insertBefore(c.uStyle.cloneNode(true), this.uRoot.firstChild);
       } else {
         document.head.appendChild(c.uStyle.cloneNode(true));
       }
@@ -25,7 +30,7 @@ class UComponent extends HTMLElement {
 
     // create shadow DOM
     if (c.uTemplate) {
-      shadow.appendChild(document.importNode(c.uTemplate.content, true));
+      this.uRoot.appendChild(document.importNode(c.uTemplate.content, true));
     }
   } // constructor()
 
