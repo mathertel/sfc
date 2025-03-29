@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>u-color Test Page</title>
+
+    <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+    <style>
+      u-color {
+        box-shadow: 0 0 0.1rem 0.2rem lime;
+      }
+    </style>
+    <script src="/loader.js"></script>
+    <script>
+      var allSFCLoaded = window.loadComponent('u-color,u-markdown');
+    </script>
+  </head>
+
+  <body class="sitelayout" style="--main-width: 60em">
+    <header>
+      <h1>u-color Test Page</h1>
+    </header>
+
+    <main>
+      <hr />
+
+      <u-color cssvar="--color"></u-color>
+      <u-color cssvar="--card-color"></u-color>
+      <u-color cssvar="--card-head-active"></u-color>
+      
+      <hr />
+
+      <u-markdown src="../doc/u-code.md"></u-markdown>
+    </main>
+
+    <script>
+    </script>
+  </body>
+</html>

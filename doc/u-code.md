@@ -2,7 +2,12 @@
 
 The <u-code> custom element
 
+The `u-code` custom Element implementation extends the functionality of the standard `<code>` element to support copying
+the displayed code to the clipboard.
+
 ![u-code component](../doc/u-code.png)
+
+In the right upper corner a copy symbol will be shown. By clicking this symbol the content of the `<code>` element is copied to the clipboard and a conirmation is shown for some seconds.
 
 
 ## Setup
@@ -16,11 +21,12 @@ window.loadComponent('u-code');
 </script>
 ```
 
-The `u-code` extended `<code>` tag can be placed at the destination and the size can be applied in the style attribute.
+The `<code>` tag is extended by adding the attribute `is='u-code'`:
 
 ```html
 <code is="u-code">...</code>
 ```
+
 
 ## Style Attributes
 
