@@ -1,6 +1,6 @@
 # Web component to display the color value from a CSS variable
 
-The <u-color> custom element shows a color value that is defined by a CSS variable.  It also provides a color picker
+The `<u-color>` custom element shows a color value that is defined by a CSS variable.  It also provides a color picker
 implementation that can be used to select colors and re-assign the color to the css variable.
 
 This element is useful at design time to show and change the colors that have been defined in a global CSS when building
@@ -24,7 +24,7 @@ The `u-color` tag can be placed at the destination and the size can be applied i
 
 t.b.d.
 
-<u-color cssvar="ucolor"></u-color>
+`<u-color cssvar="ucolor"></u-color>`
 
 
 ## Style Attributes

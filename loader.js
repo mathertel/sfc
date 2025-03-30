@@ -7,10 +7,13 @@
 // The UComponent class acts as a intermediate class between user defined SFC and the generic HTMLElement class.
 // It implements the generation of the shadow dom and css according to the style and template.
 class UComponent extends HTMLElement {
+
+  // uRoot is the root node of the component. It is either the shadow root or the light DOM. 
   uRoot = this;
 
-  constructor() {
+  constructor(n) {
     super();
+    console.debug('UC', `constructor(${this.tagName})`);
 
     // create inner / document Style
     const c = this.constructor;
@@ -37,36 +40,20 @@ class UComponent extends HTMLElement {
   // Web Component is initiated and connected to a page.
   // * load template and css
   // * further initialization by using the init() callback
-  connectedCallback() {
-    // this.debug('connectedCallback()');
-    this.super = Object.getPrototypeOf(this);
-    const def = this.constructor;
+  connectedCallback(currentTarget) {
+    console.debug('UC', `connectedCallback(${this.tagName})`);
+    const proto = this.constructor.prototype;
 
     // add event listeners
-    Object.getOwnPropertyNames(def.prototype).forEach(key => {
-      const fn = def.prototype[key];
+    Object.getOwnPropertyNames(proto)
+      .filter(key => key.startsWith('on'))
+      .forEach(key => {
+        const eventName = key.substring(2).toLowerCase();
+        console.debug('UC', `addEvent(${key})`);
 
-      if (key === 'onTouchstart') {
-        this.addEventListener('touchstart', fn.bind(this), { passive: true });
-
-      } else if (key.startsWith('on')) {
-        this.addEventListener(key.substring(2).toLowerCase(), fn.bind(this), false);
-      }
-    });
-
-    // add attribute data
-    Object.entries(def).forEach(([key, value]) => {
-      if (value == null || value.constructor !== Function) {
-        // set a default-value
-        if (!this[key]) {
-          this[key] = value;
-        }
-
-      } else {
-        // attach method
-        this[key] = value;
-      }
-    });
+        this.addEventListener(eventName, this);
+        this['on' + eventName] = proto[key]; // in case of UpperCase characters in event name.
+     });
 
     if (document.readyState === 'loading') {
       window.addEventListener('DOMContentLoaded', this.init.bind(this));
@@ -76,26 +63,23 @@ class UComponent extends HTMLElement {
   }
 
   adoptedCallback() {
-    // this.info("adoptedCallback");
+    console.debug('UC', 'adoptedCallback');
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    // this.debug("attributeChanged", name, oldValue, newValue);
+    console.debug('UC', 'attributeChanged', name, oldValue, newValue);
   }
-
-  // logging functions
-  info() {
-    console.info(`U::${this.tagName}`, ...arguments);
-  };
-
-  debug() {
-    console.debug(`U::${this.tagName}.${this.id}`, ...arguments);
-  };
 
   // The init function is called by UComponent when the whole DOM of the SFC is available. 
   init() {
-    // debugger;
+    console.debug('UC', 'init()');
   };
+
+  // dispatch registered events.
+  handleEvent(event) {
+    this['on' + event.type](event);
+  }
+
 } // class UComponent
 
 
@@ -107,7 +91,7 @@ window.loadComponent = (function() {
   // modules can use meta
   const loaderURL = new URL(document.currentScript.src);
 
-  console.debug('SFC', `loadComponent...`);
+  console.debug('SFC', 'loadComponent...');
 
   async function define(tagName, dom, url) {
     let def;

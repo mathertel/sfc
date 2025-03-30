@@ -1,6 +1,10 @@
 # Single-File Custom Elements (SFC)
 
-Single File Components (SFC) got popular as they allow to define the code for a component in one place.
+Custom Elements also known as Web Components is a set of functionality and technologies enabling creating new HTML tags
+side-to-side with the existing standard elements and utilize them in your web pages and apps.  They offer the same
+general benefits of React/Angular/Vue components without being tied to a specific framework.
+
+**Single File Components (SFC)** got popular as they allow to define the code for a component in one place.
 
 Web standards for HTML, CSS, and JavaScript have matured significantly, providing a robust foundation for modern web
 development.  While these standards offer extensive capabilities, they can't cover every possible use case.
@@ -40,6 +44,37 @@ The component loading mechanism described here brings these benefits directly to
 streamlined development experience while maintaining web standards compliance.
 
 
+## SFC file syntax
+
+The SFC files are using the HTML format for defining JavaScript, templates and styles.
+
+``` html
+<template> ... </template>
+<style> ... </style>
+<script> ... </script>
+```
+
+* `<script>` -- The script must export the class for the custom component implementation.
+
+  By specifying the `extends` attribute an existing html element can be extended using the `is='u-class'` attribute.
+
+  The class can include methods starting with a `on` prefix.  These methods are automatically added as listeners for the
+  given events like `onClick(evt)` will be called in a `click` event.  This naming convention is known from several HTML
+  frameworks and adopted in the loader.
+
+* `<style>` -- This optional part of the SFC is used to define a set of css rules specific to the custom component
+
+  By using the `scoped` attribute the CSS rules are added to the Shadow DOM.  Without the `scoped` attribute the CSS
+  rules are added to the header of the main DOM once when the componend is defined.  The rules will be there even when
+  no custom component is present.
+
+  The HTML style node can be accessed in the class functions by using `this.constructor.uStyle`.
+
+* `<template>` -- This optional part defines a HTML template for the custom component.
+
+  The HTML template node can be accessed in the class functions by using `this.constructor.uTemplate`.
+
+
 ## Implementation as a Lean / Pure Web Framework
 
 The framework was initially developed to support a framework approach for situations where size matters.
@@ -66,8 +101,18 @@ npx packsfc <components> -o bundle.htm
 
 Both will massively reduce the required download size.
 
+
 ## See Also
 
 * [Components](doc/index.md)
 * [Test Pages](test/index.htm)
-* 
+
+* <https://github.com/web-padawan/awesome-web-components/tree/main>
+* Many hints and repositories from Andrea Giammarchi:
+  * <https://github.com/WebReflection/>
+  * <https://gist.github.com/WebReflection/ec9f6687842aa385477c4afca625bbf4>
+
+
+
+
+

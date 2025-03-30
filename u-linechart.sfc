@@ -376,7 +376,6 @@ class GraphBase {
   // change data for data graphs
   setData(data) {
     if (!this.hasData) {
-      debugger;
       console.error("cannot use data in non-data graphs");
     }
   } // setData()

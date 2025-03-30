@@ -71,7 +71,6 @@ export default class MyImgToggle extends HTMLImageElement {
     console.debug('u-toggle', 'init()');
 
     this._menuObj = document.querySelector('.menu');
-    // debugger;
   } // init()
 
 
@@ -83,7 +82,6 @@ export default class MyImgToggle extends HTMLImageElement {
   onClick() {
     console.debug('on-click');
     this._menuObj.classList.toggle('open');
-    // debugger;
   } // showValue()
 
 

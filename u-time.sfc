@@ -28,7 +28,6 @@ Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2
 
     init() {
       console.debug('init()');
-      debugger;
     } // init()
 
 

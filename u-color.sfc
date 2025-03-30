@@ -20,7 +20,7 @@ When both value and cssvar are given the given value will overwrite the cssvar l
 
 
 <template>
-  <label>
+  <label tabindex="0">
     <input value="#FFFFFF" type="color">
     <div class="code">#FFEx00</div>
     <div class="pad"></div>
@@ -60,7 +60,7 @@ label {
 </style>
 
 <script>
-export default class UColorPick extends UComponent {
+export default class UColor extends UComponent {
   static observedAttributes = ["value"];
   value = 'black';
   cssvar = '';
@@ -73,7 +73,7 @@ export default class UColorPick extends UComponent {
   }
 
   init() {
-    // this.debug('init()');
+    console.debug('UColor', 'init()');
     super.init();
     this.cssvar = this.getAttribute('cssvar');
     const oInput = this.shadowRoot.querySelector('input');
@@ -94,7 +94,7 @@ export default class UColorPick extends UComponent {
 
     if (this.cssvar) {
       const col = getComputedStyle(document.documentElement).getPropertyValue('--' + this.cssvar);
-      this.debug(`col=${col}`);
+      console.debug('UColor', `col=${col}`);
       oInput.setAttribute('value', col);
       this.setAttribute('value', col);
     }
@@ -102,7 +102,7 @@ export default class UColorPick extends UComponent {
 
 
   attributeChangedCallback(name, oldValue, newValue) {
-    this.debug("attributeChanged", name, oldValue, newValue);
+    console.debug('UColor', "attributeChanged", name, oldValue, newValue);
     this.cssvar = this.getAttribute('cssvar');
 
     if (name === 'value') {
@@ -116,10 +116,9 @@ export default class UColorPick extends UComponent {
         oCode.textContent = '(none)';
 
       } else {
-        // debugger;
         oPad.style.backgroundColor = newValue;
         newValue = this._hexColor(oPad.style.backgroundColor);
-        this.debug(newValue);
+        console.debug('UColor', newValue);
         oInput.setAttribute('value', newValue);
         oCode.textContent = newValue;
 
@@ -130,5 +129,14 @@ export default class UColorPick extends UComponent {
       }
     }
   } // attributeChangedCallback()
+
+  onClick(evt) {
+    console.debug('UColor', 'onClick()');
+  } // onClick()
+
+  onFocus(evt) {
+    console.debug('UColor', 'onFocus()');
+  } // onClick()
+
 }
 </script>
