@@ -38,12 +38,12 @@ type PathCursor = {
 /**
  * Regular expression for matching path item syntax in a JavaScript/JSON path.
  * Matches the following patterns:
- * identifier : [a-zA-Z_$][a-zA-Z0-9_$]* e.g. a, b, c, _a, $a, _1, $1
+ * identifier : [a-zA-Z_$][a-zA-Z0-9_$-]* e.g. a, b, c, _a, $a, _1, $1, a-name
  * index numeric : \[\d+\] e.g. [0], [1], [2], [3]
  * property : \[['"].*['"]\] e.g. ['a'], ["b"], ['c']
  */
 const PathItemExpression: RegExp =
-  /^\.?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$]*)|\[(?<index>\d+)\]|\[(?<q>['"])(?<prop>.*)\k<q>\]/;
+  /^\.?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)|\[(?<index>\d+)\]|\[(?<q>['"])(?<prop>.*)\k<q>\]/;
 
 /**
  * Splits a path expression into an array of keys using dot notation or bracket notation.

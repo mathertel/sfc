@@ -140,11 +140,6 @@ export class DataHub {
     }
   } // publish()
 
-
-  onunload() {
-    Object.getOwnPropertyNames(this.#registry).forEach(n => delete this.#registry[n as any]);
-  } // onunload
-
 } // DataHub class
 
 declare global {
@@ -154,6 +149,5 @@ declare global {
 }
 
 window.datahub = new DataHub();
-window.addEventListener('unload', window.datahub.onunload.bind(window.datahub), false);
 
 // End.

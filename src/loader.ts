@@ -48,12 +48,12 @@ class UComponent extends HTMLElement {
       // when <template><slot> is present shift all contained elements into the slot position
       const sl = this.uRoot.querySelector('slot') as HTMLSlotElement;
       if (sl) {
-        sn.forEach(e => { sl.parentElement.insertBefore(e, sl) });
+        sn.forEach(e => { sl.parentElement?.insertBefore(e, sl); });
         sl.remove();
       }
 
     } else {
-      this.uRoot = this.attachShadow({ mode: domMode });
+      this.uRoot = this.attachShadow({ mode: domMode as ShadowRootMode});
       // when <template> is present import it into shadow DOM.
       if (c.uTemplate) {
         this.uRoot.appendChild(document.importNode(c.uTemplate.content, true));
