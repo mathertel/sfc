@@ -9,11 +9,17 @@
     "pack-sfc": "bin/pack-sfc.js"
   },
   "scripts": {
-    "test": "npx http-server -o test/index.htm"
+    "serve": "npx http-server -o test/index.htm",
+    "test:src": "tsc -noEmit -p src\\tsconfig.json",
+    "build:hub":       "esbuild src\\data-hub.ts --bundle --sourcemap --minify --format=esm --drop:console --outfile=data-hub.js",
+    "build:hub-watch": "esbuild src\\data-hub.ts --bundle --sourcemap          --format=esm                --outfile=data-hub.js --watch",
+    "build:loader": "esbuild src\\loader.ts --bundle --sourcemap --minify --format=esm --outfile=loader.js",
+    "build": "npm run test:src && npm run build:hub && npm run build:loader"
   },
   "devDependencies": {
+    "esbuild": "^0.25.2",
     "html-minifier-terser": "^7.2.0",
-    "terser": "^5.39.0",
+    "typescript": "^5.8.2",
     "yargs": "^17.7.2"
   }
 }

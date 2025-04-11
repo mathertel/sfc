@@ -74,6 +74,20 @@ The SFC files are using the HTML format for defining JavaScript, templates and s
 
   The HTML template node can be accessed in the class functions by using `this.constructor.uTemplate`.
 
+  For custom elements (not extending existing HTML elements) the loader supports 3 ways of working with embedded content
+  templates and slots:
+
+  `<template open>` -- Using the `open` attribute on the template definition will attach a shadow dom to the custom
+  element and import all the template content into the shadow dom.
+
+  `<template closed>` -- Using the `closed` attribute on the template definition works like the `open` variant but
+  disables access to the inner content from page-level JavaScript.
+
+  `<template light>` -- Using the `light` attribute on the template definition will import the template content into
+  each created custom element without using shadow dom.  When the template has a `<slot>` element the existing inner
+  elements will be moved to the position of the slot element before it is deleted.  This allows easy inclusion of
+  template content using a custom element.
+
 
 ## Implementation as a Lean / Pure Web Framework
 
@@ -86,14 +100,23 @@ The initial use-case is the [HomeDing Library](https://homeding.github.io/) with
 * **IDE-Friendly**: Uses standard HTML file format for maximum development tool support
 * **Pure Web Philosophy**: Adheres to principles outlined in the [pureweb.dev](https://pureweb.dev/manifesto) manifesto
 
+Creating a small footprint is also possible by some assumptions made:
+
+* The data-hub can use with multi-level data objects but attribute names must adhere to identifier naming or numbers for
+  arrays matching `[a-zA-Z_$][a-zA-Z0-9_$-]*`.
+
+
+
 Both the loader and components include development-friendly features like documentation and console logging.  For
-production deployment, these can be stripped using tools like terser:
+production deployment, these can be stripped by using esbuild with the minify option during compiling from typescript to
+javascript esm module.
 
 ```bash
-npx terser loader.js -o loader.min.js -c drop_console -m
+npx esbuild src/loader.ts --bundle --minify --format=esm --drop:console --outfile=loader.js
 ```
 
-Bundling multiple controls into a single bundle file is supported by a simple javascript bundler that can be started as command line
+Bundling multiple controls into a single bundle file is supported by a simple javascript bundler that can be started as
+command line
 
 ```bash
 npx packsfc <components> -o bundle.htm
