@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>data-hub Test Page</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    xcode[is='u-code'] {
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <!-- <script src="/data-hub.js" type="module"></script> -->
+  <script>
+    // var allSFCLoaded = window.loadComponent('u-code');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>data-hub Test Page</h1>
+  </header>
+
+  <main>
+    <nav>
+      <button id="set1">set1</button>
+      <button id="set2">set2</button>
+      <button id="getJson">json</button>
+      <button id="hubReplay">replay</button>
+      <button id="hubUnsubscribe">unsubscribe Age</button>
+    </nav>
+    <hr />
+
+    <div><label for="rawview">person.name: <span id="personName">...</span></label></div>
+    <div><label for="rawview">person.age: <span id="personAge">...</span></label></div>
+    <hr />
+    <pre id="rawview"></pre>
+
+
+  </main>
+
+  <script type="module">
+    import { DataHub } from '/data-hub.js';
+    window.datahub.configurePersistence(sessionStorage, "datahub_store");
+
+    const rawObj = document.querySelector('#rawview');
+    const rawData1 = { person: { name: 'John Doe', age: 30, city: 'New York', hobby: 'reading' } };
+    const rawData2 = { person: { name: 'Max Dose', age: 40, city: 'Boston', hobby: 'writing' } };
+    let subAge;
+
+    function rawCallback(path, value) {
+      // debugger;
+      if (typeof value === 'object') {
+        rawObj.textContent += `\n ${path}=${JSON.stringify(value)}`;
+      } else {
+        rawObj.textContent += `\n { ${path}='${value}' }`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      // debugger;
+
+      // setup subscription with callback
+      // window.datahub.subscribe("**", rawCallback);
+      window.datahub.subscribe("", rawCallback);
+      window.datahub.subscribe("person.name", (p, v) => { document.querySelector('#personName').textContent = v; });
+      subAge = window.datahub.subscribe("person.age", (p, v) => { document.querySelector('#personAge').textContent = v; });
+
+      window.datahub.publish("", { "a": 1 });
+      window.datahub.publish("", { "A": 0 });
+      window.datahub.publish("", { "a": 2 });
+      window.datahub.publish("", { "b": 2, "c": 40 });
+      window.datahub.publish("", { "b": undefined });
+      window.datahub.publish("", { "age": 42 });
+      window.datahub.publish("a", 3);
+
+      window.datahub.publish("", { "o": { "b": 4 } });
+      window.datahub.publish("", { "O": { "b": 5 } });
+      window.datahub.publish("", { "o": { "c": 50 } });
+      window.datahub.publish("o.c", 51);
+      console.log(window.datahub.get("o"));
+      console.log(window.datahub.get("o.c"));
+      console.log(window.datahub.get("o.none"));
+      window.datahub.publish("", { "p": {} });
+      window.datahub.publish("", { "o": { "c": "call-me" } });
+      window.datahub.publish("", { "o": { "c": undefined } });
+
+      window.datahub.publish("", { "l": [] });
+      window.datahub.publish("", { "l": ["tag1", "tag2"] });
+      const a = new Array(); a[7] = "tag7";
+      window.datahub.publish("", { "l": a });
+
+    });
+
+
+    document.querySelector('#set1').addEventListener('click', function() {
+      window.datahub.publish("", rawData1);
+    });
+
+    document.querySelector('#set2').addEventListener('click', function() {
+      window.datahub.publish("", rawData2);
+    });
+
+    document.querySelector('#getJson').addEventListener('click', function() {
+      let d1 = window.datahub.get('a');
+      d1 = window.datahub.get('a[0]');
+      d1 = window.datahub.get('a[1]');
+      d1 = window.datahub.get('a[0].b');
+      d1 = window.datahub.get('a[0]["b"]');
+      d1 = window.datahub.get('a[0].b');
+      const ds = window.datahub.get('person');
+      rawObj.textContent = JSON.stringify(ds, null, 2);
+    });
+
+    document.querySelector('#hubReplay').addEventListener('click', function() {
+      window.datahub.replay("");
+    });
+
+    document.querySelector('#hubUnsubscribe').addEventListener('click', function() {
+      window.datahub.unsubscribe(subAge);
+    });
+
+  </script>
+</body>
+
+</html>

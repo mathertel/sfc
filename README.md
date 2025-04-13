@@ -128,6 +128,7 @@ Both will massively reduce the required download size.
 ## See Also
 
 * [Components](doc/index.md)
+* [Data Hub](doc/data-hub.md)
 * [Test Pages](test/index.htm)
 
 * <https://github.com/web-padawan/awesome-web-components/tree/main>

@@ -1,36 +1,28 @@
-// JsonParser.ts: Recursive JSON object parser
-// Traverse / Scan a complex object and send all nodes with attributes to a receiver function. */
+// json-parse.ts: Set of JavaScript Object manipulation functions for traversing, merging, and modifying complex objects.
+// 
+// These functions use the dot notation syntax for path expressions:
+// E.g. "a.b.c" to select  { a : { b: { c:42 } } }. The path expression can be a dot separated string or an array of keys.
+// Arrays are supported but expressed in paths using the dot notation as well. E.g. "a[0].b" is expressed as "a.0.b".
 
-// dot notation syntax for path expressions:
-// - /a/b/c  = a.b.c
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Property_accessors
 
-// See also:
-// http://goessner.net/articles/JsonPath/
-
-// The following XPath expression
-
-// /store/book[1]/title
-
-// would look like
-
-// x.store.book[0].title
-
-// or
-
-// x['store']['book'][0]['title']
-
-export type JsonParseCallback = (
+// Callbacks are called with the path and the value of the node that was changed or added.
+export type Callback = (
   path: string,
   value: any
 ) => void;
 
-type PathKey = (string | number);
 
-export type PathSpecifier = string | PathKey[];
+// Keys in path array can be either strings or numbers.
+type key = (string | number);
 
+
+// PathSpec is a type that can be either a string or an array of keys and is used in input path parameters.
+export type PathSpec = string | key[];
+
+
+/// PathCursor is an internally used type that represents the current position in the object hierarchy during traversal.
 type PathCursor = {
-  pathKeys: PathKey[];
+  pathKeys: key[];
   pathNodes: any[];
 };
 
@@ -42,8 +34,9 @@ type PathCursor = {
  * index numeric : \[\d+\] e.g. [0], [1], [2], [3]
  * property : \[['"].*['"]\] e.g. ['a'], ["b"], ['c']
  */
-const PathItemExpression: RegExp =
+const PathItemRegExp: RegExp =
   /^\.?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)|\[(?<index>\d+)\]|\[(?<q>['"])(?<prop>.*)\k<q>\]/;
+
 
 /**
  * Splits a path expression into an array of keys using dot notation or bracket notation.
@@ -61,13 +54,13 @@ const PathItemExpression: RegExp =
  * pathKeys("obj['prop']")       // returns ['obj', 'prop']
  * pathKeys('items[2]')          // returns ['items', 2]
  */
-export function pathKeys(path: string): PathKey[] {
+function pathKeys(path: string): key[] {
   // console.log(`pathKeys(${path})`);
 
-  const keys: PathKey[] = [];
+  const keys: key[] = [];
 
   while (path && path.length > 0) {
-    const m = path.match(PathItemExpression);
+    const m = path.match(PathItemRegExp);
 
     if (!m) {
       throw new Error(`Invalid path syntax at '${path}'`);
@@ -88,17 +81,27 @@ export function pathKeys(path: string): PathKey[] {
   return keys;
 }
 
+
 /**
- * Locate a node by path in the passed object and create a new empty one when not yet present.
+ * Navigates through a nested object structure using a path specification to locate a node and return a cursor.
  * This function is case-sensitive.
- * @param {object} obj - The object to search within.
- * @param {string} path - The path to the node (e.g., "a/b/c"), may start with '/'.
- * @param {boolean} create - Whether to create the structure if it doesn't exist.
- * @returns {object} - The located or newly created node.
+ * 
+ * @param obj - The object to traverse
+ * @param path - Path specification as either a dot-separated string (e.g., "foo.bar") or array of keys
+ * @param create - If true, creates missing objects along the path. If false, throws error on missing nodes
+ * @returns PathCursor object containing arrays of traversed keys and nodes
+ * @throws {Error} When a path node is not found and create is false
+ * 
+ * @example
+ * ```typescript
+ * const obj = { foo: { bar: 123 } };
+ * const cursor = find(obj, "foo.bar");
+ * // cursor = { pathKeys: ['', 'foo', 'bar'], pathNodes: [obj, obj.foo, 123] }
+ * ```
  */
-export function findNode(obj: any, path: PathSpecifier, create = false): PathCursor {
+export function find(obj: any, path: PathSpec, create: boolean = false): PathCursor {
   // console.log("json", "findNode()");
-  let keys: PathKey[];
+  let keys: key[];
 
   // create cursor to _store object only
   const cursor: PathCursor = {
@@ -114,7 +117,7 @@ export function findNode(obj: any, path: PathSpecifier, create = false): PathCur
     keys = pathKeys(path);
 
   } else {
-    keys = path as PathKey[]; // If path is already an array, use it directly.
+    keys = path as key[]; // If path is already an array, use it directly.
   }
 
   for (const key of keys) {
@@ -136,7 +139,26 @@ export function findNode(obj: any, path: PathSpecifier, create = false): PathCur
 }
 
 
-export function walk(store: any, path: PathSpecifier, cbFunc: JsonParseCallback) {
+/**
+ * Walks through an object tree, calling a callback function for each node.
+ * 
+ * @param store - The root object to start walking from
+ * @param path - A path specification to determine the starting point in the object tree
+ * @param cbFunc - Callback function that gets called for each node. 
+ *                 Receives the dot-notation path (string) and the current node value as parameters
+ * 
+ * @example
+ * ```typescript
+ * walk(myObject, "path.to.start", (path, value) => {
+ *   console.log(`${path}: ${value}`);
+ * });
+ * ```
+ * 
+ * The function recursively traverses the object tree starting from the specified path,
+ * calling the callback function for each node encountered, including leaf nodes and
+ * intermediate objects.
+ */
+export function walk(store: any, path: PathSpec, cbFunc: Callback) {
 
   /** internal function used in recursion */
   function _walk(cursor: PathCursor) {
@@ -157,7 +179,7 @@ export function walk(store: any, path: PathSpecifier, cbFunc: JsonParseCallback)
   } // _walk()
 
   // start with root and scan recursively.
-  _walk(findNode(store, path, true));
+  _walk(find(store, path, true));
 } // walk()
 
 
@@ -181,7 +203,7 @@ export function walk(store: any, path: PathSpecifier, cbFunc: JsonParseCallback)
  * - Arrays: Replaces the array items
  * - Primitive values: Updates the value if different
  */
-export function mergeObject(cursor: PathCursor, obj: any, cb: (path: string, value?: any) => void): boolean {
+export function merge(cursor: PathCursor, obj: any, cb: (path: string, value?: any) => void): boolean {
   // console.log("json", `mergeObject('${cursor.pathKeys.join('.')}', ${JSON.stringify(obj)})`);
 
   let hasChanged = false;
@@ -220,7 +242,7 @@ export function mergeObject(cursor: PathCursor, obj: any, cb: (path: string, val
         // apply changes on this node
         if (typeof newValue !== "object") {
           // set or clear a primitive value
-          if (mergeObject(cursor, newValue, cb)) changedThis = true;
+          if (merge(cursor, newValue, cb)) changedThis = true;
 
         } else {
           // Object or Array
@@ -234,7 +256,7 @@ export function mergeObject(cursor: PathCursor, obj: any, cb: (path: string, val
           } // if
 
           // Recursively merge nested objects.
-          if (mergeObject(cursor, newValue, cb)) changedThis = true;
+          if (merge(cursor, newValue, cb)) changedThis = true;
         }
 
         // If the current node/value has changed, call the callback function.

@@ -7,7 +7,7 @@
 //
 // Documentation is available at <https://github.com/mathertel/sfc/blob/main/doc/data.md>
 
-import { PathSpecifier, JsonParseCallback, findNode, mergeObject, walk } from './json-parse.js';
+import * as json from './json-parse.js';
 
 /**
   * This interface defines the structure of an entry in the data hub's registration list.
@@ -15,7 +15,7 @@ import { PathSpecifier, JsonParseCallback, findNode, mergeObject, walk } from '.
 interface HubEntry {
   id: number;  // number for later un-registration
   match: RegExp; // regular expression for matching paths
-  callback: JsonParseCallback; // callback function to be called when a matching path is found
+  callback: json.Callback; // callback function to be called when a matching path is found
 }
 
 /** This interface defines the list of registrations. */
@@ -43,18 +43,76 @@ interface HubEntryList {
 export class DataHub {
   #registry = new Set<HubEntry>();
   #lastId = 0;
-  private _store: object = {};
+  #store: object = {};
+  #storageObject: Storage | undefined = undefined;
+  #storageKey!: string;
 
-  get(path: PathSpecifier): any {
+
+  /**
+   * Constructs a new instance of the DataHub class.
+   * 
+   * @param storageObject - (Optional) The storage object where the data should be saved (e.g., sessionStorage or localStorage).
+   * @param key - (Optional) The key under which the data should be stored.
+   */
+  constructor(storageObject?: Storage, key?: string) {
+    if (storageObject) {
+      this.configurePersistence(storageObject, key);
+    }
+  }
+
+  /**
+   * Configures the DataHub to persist its store to a specified storage object.
+   * 
+   * @param storageObject - The storage object where the data should be saved (e.g., sessionStorage or localStorage).
+   * @param key - The key under which the data should be stored.
+   */
+  configurePersistence(storageObject: Storage, key: string = 'datahub'): void {
+    if (!storageObject || typeof storageObject.setItem !== 'function') {
+      throw new Error("Invalid storage object. Must implement the Storage interface.");
+    }
+
+    this.#storageObject = storageObject;
+    this.#storageKey = key || 'datahub';
+
+    // Load the store from storage if it exists
+    const storedData = this.#storageObject.getItem(this.#storageKey);
+    if (storedData) {
+      try {
+        this.#store = JSON.parse(storedData);
+      } catch (e) {
+        console.error("Failed to load DataHub store from storage:", e);
+      }
+    }
+  }
+
+  /**
+   * Retrieves a value from the internal store using a JSON path specification.
+   * 
+   * @param path - The JSON path specification used to locate the desired value
+   * @returns The value at the specified path, or undefined if the path is invalid or doesn't exist
+   * 
+   * @example
+   * ```ts
+   * // Get value at path "users.0.name"
+   * const name = dataHub.get(["users", 0, "name"]);
+   * ```
+   */
+  get(path: json.PathSpec): any {
     try {
-      const cursor = findNode(this._store, path, false);
+      const cursor = json.find(this.#store, path, false);
       return cursor.pathNodes.at(-1);
     } catch (e) {
       return undefined;
     }
   } // get()
 
-  // inform all subscribers 
+
+  /**
+   * Notify all registered subscribers whose match pattern matches the given path.
+   * @param path - The path to match against registered patterns
+   * @param value - The value to pass to matching callbacks
+   * @private
+   */
   #inform(path: string, value: any) {
     // console.debug('hub', `_inform(${path})`);
     this.#registry.forEach(r => {
@@ -71,7 +129,7 @@ export class DataHub {
    * @param {boolean} replay
    * @returns {number} number of registration
    */
-  subscribe(matchPath: string, fCallback: JsonParseCallback): number {
+  subscribe(matchPath: string, fCallback: json.Callback): number {
     const id = this.#lastId++;
 
     // treating upper/lowercase equal is not clearly defined, but true with domain names.
@@ -110,8 +168,8 @@ export class DataHub {
    * Replay the store data for a specific path.
    * @param path root node of the data to be replayed
    */
-  replay(path: PathSpecifier) {
-    walk(this._store, path, (path: string, value: any) => {
+  replay(path: json.PathSpec) {
+    json.walk(this.#store, path, (path: string, value: any) => {
       console.debug('hub', `replay(${path}, ${JSON.stringify(value)})`);
       this.#inform(path, value);
     });
@@ -119,17 +177,26 @@ export class DataHub {
 
 
   /**
-   * Publish new structured data to the data store by passing an object.
-   * @param obj
+   * Publishes data to a specified path in the data store and notifies subscribers.
+   * The data is merged with existing data at the specified path, and all subscribers
+   * of the path and its parent paths are informed about the changes.
+   * 
+   * @param path - The path specification where the data should be published
+   * @param obj - The data object to be published
+   * 
+   * @example
+   * ```typescript
+   * dataHub.publish(['users', 'id1'], { name: 'John', age: 30 });
+   * ```
    */
-  publish(path: PathSpecifier, obj: any) {
+  publish(path: json.PathSpec, obj: any) {
     console.log("hub", `publish('${path}', ${JSON.stringify(obj)})`);
 
     // create cursor to relative root node of the _store object.
-    const cursor = findNode(this._store, path, true);
+    const cursor = json.find(this.#store, path, true);
 
     // merge the data and inform all subscribers.
-    const c = mergeObject(cursor, obj, this.#inform.bind(this));
+    const c = json.merge(cursor, obj, this.#inform.bind(this));
 
     // inform all subscribers of more global objects.
     while (c && cursor.pathKeys.length > 0) {
@@ -138,10 +205,29 @@ export class DataHub {
       cursor.pathKeys.pop();
       cursor.pathNodes.pop();
     }
+
+    // store the data in the defined storage.
+    if (this.#storageObject) {
+      try {
+        const jsonData = JSON.stringify(this.#store);
+        this.#storageObject.setItem(this.#storageKey, jsonData);
+      } catch (e) {
+        console.error("Failed to save DataHub store to storage:", e);
+      }
+    }
   } // publish()
 
 } // DataHub class
 
+
+/**
+ * Extends the global Window interface to include the datahub property.
+ * This declaration ensures TypeScript recognizes the datahub property as a valid member of the Window object.
+ * 
+ * @global
+ * @interface Window
+ * @property {DataHub} datahub - The global DataHub instance accessible through the window object
+ */
 declare global {
   interface Window {
     datahub: DataHub;

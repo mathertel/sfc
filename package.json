@@ -11,9 +11,9 @@
   "scripts": {
     "serve": "npx http-server -o test/index.htm",
     "test:src": "tsc -noEmit -p src\\tsconfig.json",
-    "build:hub":       "esbuild src\\data-hub.ts --bundle --sourcemap --minify --format=esm --drop:console --outfile=data-hub.js",
-    "build:hub-watch": "esbuild src\\data-hub.ts --bundle --sourcemap          --format=esm                --outfile=data-hub.js --watch",
-    "build:loader": "esbuild src\\loader.ts --bundle --sourcemap --minify --format=esm --outfile=loader.js",
+    "build:hub":       "esbuild src\\data-hub.ts --bundle --format=esm --minify    --drop:console --outfile=data-hub.js",
+    "build:loader":    "esbuild src\\loader.ts   --bundle --format=esm --minify    --drop:console --outfile=loader.js",
+    "build:hub-watch": "esbuild src\\data-hub.ts --bundle --format=esm --sourcemap --watch        --outfile=data-hub.js",
     "build": "npm run test:src && npm run build:hub && npm run build:loader"
   },
   "devDependencies": {
