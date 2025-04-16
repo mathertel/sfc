@@ -11,3 +11,4 @@ _*
 bundle.sfc
 loader.min.js
 .gitignore
+*.js.map

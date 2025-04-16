@@ -1,7 +1,5 @@
 # Web component to
 
-The <u-code> custom element
-
 The `u-code` custom Element implementation extends the functionality of the standard `<code>` element to support copying
 the displayed code to the clipboard.
 
