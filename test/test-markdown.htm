@@ -8,23 +8,28 @@
   <link rel="icon" type="image/png" href="/favicon48.png" sizes="48x48">
 
   <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
-
+  <style>
+    u-markdown {
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
   <script src="/loader.js"></script>
 </head>
 
-<body class="sitelayout" style="--main-width: 60em;" >
+<body class="sitelayout" style="--main-width: 60em;">
 
   <header>
     <h1>test-markdown sfc</h1>
   </header>
 
-  <nav>
-    <button id="load1">load readme.md</button>
-    <button id="text1">load text</button>
-    <button id="load2">load u-markdown.md</button>
-  </nav>
   <main>
+    <nav>
+      <button id="load1">load readme.md</button>
+      <button id="text1">load text</button>
+      <button id="load2">load u-markdown.md</button>
+    </nav>
 
+    <hr>
     <u-markdown src="../doc/u-markdown.md"></u-markdown>
 
   </main>

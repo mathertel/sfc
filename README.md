@@ -105,28 +105,14 @@ Creating a small footprint is also possible by some assumptions made:
 * The data-hub can use with multi-level data objects but attribute names must adhere to identifier naming or numbers for
   arrays matching `[a-zA-Z_$][a-zA-Z0-9_$-]*`.
 
-
-
 Both the loader and components include development-friendly features like documentation and console logging.  For
 production deployment, these can be stripped by using esbuild with the minify option during compiling from typescript to
 javascript esm module.
 
-```bash
-npx esbuild src/loader.ts --bundle --minify --format=esm --drop:console --outfile=loader.js
-```
-
-Bundling multiple controls into a single bundle file is supported by a simple javascript bundler that can be started as
-command line
-
-```bash
-npx packsfc <components> -o bundle.htm
-```
-
-Both will massively reduce the required download size.
-
 
 ## See Also
 
+* [Building and Bundling in the SFC library](doc/building.md)
 * [Components](doc/index.md)
 * [Data Hub](doc/data-hub.md)
 * [Test Pages](test/index.htm)
@@ -135,8 +121,4 @@ Both will massively reduce the required download size.
 * Many hints and repositories from Andrea Giammarchi:
   * <https://github.com/WebReflection/>
   * <https://gist.github.com/WebReflection/ec9f6687842aa385477c4afca625bbf4>
-
-
-
-
 

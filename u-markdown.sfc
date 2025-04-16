@@ -1,42 +1,15 @@
 <!--
-Implementation of a web component to render markdown in the browser.
+File: u-markdown.sfc
 
-<u-markdown style="... "></u-markdown>
+The `<u-markdown>` component can be used to display Markdown formatted documents in the browser.
 
-The Markdown component implements displaying the result from compiling markdown to HTML.
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
-Markdown can be injected by 2 methods:
-
-* Loading a *.md file from the same web server. After the file is loaded it gets compiled inti HTML and displayed.
-* Passing markdown text directly to the component by setting the `textContent` property.
-
-## HTML Attributes
-
-none. typically the style needs to be specified by using css rules.
-
-## JavaScript accessible attributes
-
-* **`src`** -- The URL of the markdown file to be loaded and displayed.
-* **`textContent`** -- The markdown text to be compiled and displayed.
-
-the markdown-it.js is required to be loaded. Ir can be found in https://markdown-it.github.io/.
-
-Open Topics:
-
-The foldername /sfc/ is hardcoded. It should be replaced by a variable / placeholder.
-
-References: 
-* https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
-* https://zerodevx.github.io/zero-md/
-* requestIdleCallback, SetTimeout VS RequestAnimationFrame
-
+See [u-markdown documentation](https://github.com/mathertel/sfc/blob/main/doc/u-markdown.md) on GitHub.
 -->
 
-
-
 <template>
-  <script src="markdown-it.js"       defer onload="this.isLoaded = true;"></script>
-  <script src="markdown-it-attrs.js" defer onload="this.isLoaded = true;"></script>
   <div></div>
 </template>
 
@@ -46,9 +19,8 @@ References:
   height: 100%;
 }
 code {
-      background-color: antiquewhite;
-    }
-
+  background-color: antiquewhite;
+}
 </style>
 
 <script>
@@ -65,6 +37,31 @@ export default class MyMarkdown extends UComponent {
 
   // Markdown renderer
   md = null;
+
+  // counter for unloaded scripts
+  _scriptsUnloaded = 0;
+
+  importScript(src) {
+    const base = new URL(loaderURL);
+    const url = new URL(src, base);
+
+    var scr = document.createElement('script');
+    scr.addEventListener("load", (evt) => {
+      console.log(this.tagName, `script ${src} loaded.`);
+      this._scriptsUnloaded--;
+      if (this._scriptsUnloaded == 0) this.init();
+    });
+    this._scriptsUnloaded++;
+    scr.src = url.href;
+    this.shadowRoot.appendChild(scr);
+    console.log(this.tagName, `loading script ${src} from ${url.href}...`);
+  }
+
+  constructor() {
+    super();
+    this.importScript("/markdown-it.js");
+    this.importScript("/markdown-it-attrs.js");
+  }
 
   // fetch file content
   fetchMarkdown() {
@@ -97,7 +94,7 @@ export default class MyMarkdown extends UComponent {
 
   // process markdown
   process() {
-    console.debug("process...");
+    console.log(this.tagName, "process...");
     if (window.markdownit) {
       if (this.srcText) {
         this.renderMarkdown();
@@ -107,22 +104,10 @@ export default class MyMarkdown extends UComponent {
     }
   }
 
-
+  // This init() will be called once by the loader and then when all scripts are loaded.
+  // Then processing is required.
   init() {
-    // The markdown script will be available after loading it. Then processing might be required.
-    const oScript = this.shadowRoot.querySelectorAll('script');
-    let loaded = true;
-
-    for (const s of oScript) {
-      if (!s.isLoaded) {
-        loaded = false;
-        s.addEventListener("load", () => { this.init(); });
-      }
-    }
-
-    if (loaded) {
-      this.process();
-    }
+    if (this._scriptsUnloaded == 0) this.process();
   } // init()
 
 
@@ -131,12 +116,11 @@ export default class MyMarkdown extends UComponent {
       this.srcLink = this.srcText = undefined;
       if (name === 'src') {
         this.srcLink = newValue;
-        this.process();
 
       } else if (name === 'textcontent') {
         this.srcText = newValue;
-        this.process();
       }
+      if (this._scriptsUnloaded == 0) this.process();
     }
   } // attributeChangedCallback()
 

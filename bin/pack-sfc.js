@@ -6,7 +6,7 @@
 
 // ===== Packages used =====
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, glob } from 'node:fs/promises';
 import console from 'node:console';
 
 import yargs from 'yargs';
@@ -26,7 +26,7 @@ const options = yargs(process.argv.slice(2))
   .option('p', { alias: 'pack', describe: 'pack resulting file', type: 'boolean', demandOption: false, default: true })
   .option('o', { alias: 'outfile', describe: 'name of the output file', type: 'string', demandOption: false, default: "bundle" + sfcExt })
   .alias('help', 'h')
-    .demandCommand(1)
+  .demandCommand(1)
   .argv;
 
 // ===== initializing modules =====
@@ -36,7 +36,11 @@ async function wrapSFC(sfcName, pack = false) {
   let txt;
   console.log(`reading ${sfcName} ...`);
 
-  txt = await readFile(sfcFolder + '/' + sfcName + sfcExt, 'utf8')
+  if (!sfcName.endsWith(sfcExt)) {
+    sfcName += sfcExt;
+  }
+
+  txt = await readFile(sfcFolder + '/' + sfcName, 'utf8')
   // console.log(txt);
 
   if (pack) {
@@ -45,7 +49,12 @@ async function wrapSFC(sfcName, pack = false) {
       removeComments: true,
       removeTagWhitespace: true,
       minifyCSS: true,
-      minifyJS: true,
+      minifyJS: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true
+        }
+      },
       verbose: true,
       quoteCharacter: "'"
     });
@@ -59,8 +68,9 @@ console.log(`Start bundling SFCs...`);
 
 let txt = '';
 
-for (const c of options._) {
-  txt += await wrapSFC(c, options.pack);
+for await (const f of glob(options._)) {
+  console.log(`reading ${f} ...`);
+  txt += await wrapSFC(f, options.pack);
 }
 
 console.log(`writing ${options.outfile} ...`);
