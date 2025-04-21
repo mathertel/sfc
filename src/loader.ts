@@ -12,7 +12,8 @@ interface Window {
 // The UComponent class acts as a intermediate class between user defined SFC and the generic HTMLElement class.
 // It implements the generation of the shadow dom and css according to the style and template.
 class UComponent extends HTMLElement {
-  [key: string]: any;
+  static observedAttributes: string[] = [];
+  // [key: string]: any;
 
   // uRoot is the root node of the component. It is either the shadow root or the light DOM. 
   uRoot = this as HTMLElement | ShadowRoot;
@@ -109,10 +110,10 @@ class UComponent extends HTMLElement {
   //   console.debug('UC', 'attributeChanged', name, oldValue, newValue);
   // }
 
-  // // The init function is called by UComponent when the whole DOM of the SFC is available. 
-  // init() {
-  //   console.debug('UC', 'init()');
-  // };
+  // The init function is called by UComponent when the whole DOM of the SFC is available. 
+  init() {
+    console.debug('UC', 'init()');
+  };
 
   // dispatch registered events.
   handleEvent(event: Event) {

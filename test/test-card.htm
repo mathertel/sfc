@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TestZone</title>
+
+  <link rel='stylesheet' href='/docstyle.css' media='all' />
+  <script src="/loader.js"></script>
+  <style>
+    xu-card {
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+</head>
+
+<body class="sitelayout" style="width:100%;">
+  <header>
+    <h1>TestZone</h1>
+  </header>
+
+  <nav>
+    <button id="b1">New-Title</button>
+    <button id="b2">Move</button>
+  </nav>
+  <hr>
+  <main>
+    <div class="card-container col365">
+      <u-card id="c1" title="Card-Title"><span>Hello</span></u-card>
+
+      <u-card id="c2" title="Cardboards">
+        <span>MORE about Boards.</span>
+        <div class='form-grid'>
+          <label>Height:</label><input name='h' value="30px">
+          <label>Width:</label><input name='w' value="60px">
+        </div>
+        <button>Cancel</button>
+        <button>OK</button>
+      </u-card>
+
+      <u-card id="c3" title="Card3">HelloText</u-card>
+      <u-card id="c4" title="Card3">
+        <div>some</div>puretext
+      </u-card>
+    </div>
+  </main>
+
+  <hr>
+
+  <script>
+    const ccObj = document.querySelector('.card-container');
+
+    window.loadComponent('u-card').then(() => {
+      console.log('Page', 'all components loaded.');
+    });
+
+    document.querySelector('#b1').addEventListener('click', (e) => {
+      ccObj.firstElementChild.setAttribute('title', 'New-Title');
+    });
+
+    document.querySelector('#b2').addEventListener('click', (e) => {
+      const c = ccObj.firstElementChild;
+      // ccObj.removeChild(c); // makes no difference
+      ccObj.appendChild(c);
+    });
+
+    // document.querySelector('#fd').addEventListener('click', (e) => {
+    //   tObj.setAttribute('datestyle', 'medium');
+    //   tObj.setAttribute('timestyle', '');
+    // });
+
+    // document.querySelector('#ft').addEventListener('click', (e) => {
+    //   tObj.setAttribute('datestyle', '');
+    //   tObj.setAttribute('timestyle', 'medium');
+    // });
+
+    // document.querySelector('#f1').addEventListener('click', (e) => {
+    //   tObj.setAttribute('datestyle', 'short');
+    //   tObj.setAttribute('timestyle', 'short');
+    // });
+
+    // document.querySelector('#f4').addEventListener('click', (e) => {
+
+    //   tObj.setAttribute('datestyle', 'full');
+    //   tObj.setAttribute('timestyle', 'full');
+    // });
+
+
+    // document.querySelector('#toast1').addEventListener('click', (e) => {
+    //   const toastElement = document.querySelector('u-toast');
+    //   toastElement.log('log text...');
+    // });
+  </script>
+</body>
+
+</html>
