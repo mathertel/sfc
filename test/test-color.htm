@@ -1,40 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>u-color Test Page</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
-    <style>
-      u-color {
-        box-shadow: 0 0 0.1rem 0.2rem lime;
-      }
-    </style>
-    <script src="/loader.js"></script>
-    <script>
-      var allSFCLoaded = window.loadComponent('u-color,u-markdown');
-    </script>
-  </head>
+  <title>u-color Test Page</title>
 
-  <body class="sitelayout" style="--main-width: 60em">
-    <header>
-      <h1>u-color Test Page</h1>
-    </header>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    u-color {
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-color,u-markdown');
+  </script>
+</head>
 
-    <main>
-      <hr />
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>u-color Test Page</h1>
+  </header>
 
-      <label>color: <u-color cssvar="color" att1="one"></u-color></label><br />
-      <label>card-color: <u-color cssvar="card-color"></u-color></label><br />
-      <label>card-head-active: <u-color cssvar="card-head-active"></u-color></label><br />
-      <hr />
+  <main>
+    <nav>
+      <button id="t-black">text-black</button>
+      <button id="t-blue">text-blue</button>
+      <button id="t-red">text-red</button>
+    </nav>
+    <hr />
 
-      <u-markdown src="../doc/u-color.md"></u-markdown>
-    </main>
+    <label>color: <u-color id="c-color" cssvar="color" att1="one"></u-color></label><br />
+    <label>card-color: <u-color cssvar="card-color"></u-color></label><br />
+    <label>card-head-active: <u-color cssvar="card-head-active"></u-color></label><br />
+    <hr />
 
-    <script>
-    </script>
-  </body>
+    <u-markdown src="../doc/u-color.md"></u-markdown>
+  </main>
+
+  <script>
+    const cObj = document.querySelector('#c-color');
+
+    document.querySelector('#t-black').addEventListener('click', (e) => { cObj.value = '#000000'; });
+    document.querySelector('#t-blue').addEventListener('click', (e) => { cObj.value = 'blue'; });
+    document.querySelector('#t-red').addEventListener('click', (e) => { cObj.value = 'darkred'; });
+
+  </script>
+</body>
+
 </html>

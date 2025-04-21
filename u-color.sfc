@@ -62,7 +62,6 @@ label {
 <script>
 export default class UColor extends UComponent {
   static observedAttributes = ["value"];
-  value = 'black';
   cssvar = '';
 
   // convert color values to hex using canvas context
@@ -74,22 +73,12 @@ export default class UColor extends UComponent {
 
   init() {
     console.debug('UColor', 'init()');
-    super.init();
     this.cssvar = this.getAttribute('cssvar');
     const oInput = this.shadowRoot.querySelector('input');
 
     // propagate color value change...
     oInput.addEventListener('change', (evt) => {
-      const val = evt.target.value;
-
-      // behave like an input element
-      this.value = val;
-
-      // support attributeChangedCallback
-      this.setAttribute('value', val);
-
-      // create a change event like on inputs 
-      this.dispatchEvent(new Event("change"));
+      this.value = evt.target.value;
     });
 
     if (this.cssvar) {
@@ -126,17 +115,10 @@ export default class UColor extends UComponent {
           // a css variable should be changed.
           document.querySelector(":root").style.setProperty('--' + this.cssvar, newValue);
         }
+        // create a change event like on inputs 
+        this.dispatchEvent(new Event("change"));
       }
     }
   } // attributeChangedCallback()
-
-  onClick(evt) {
-    console.debug('UColor', 'onClick()');
-  } // onClick()
-
-  onFocus(evt) {
-    console.debug('UColor', 'onFocus()');
-  } // onClick()
-
 }
 </script>

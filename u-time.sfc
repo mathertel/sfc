@@ -25,6 +25,18 @@ Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2
     _dateStyle = "medium";
     _timeStyle = "medium";
 
+    constructor() {
+      super();
+      console.debug('constructor()');
+      // create setters and getters for the observedAttributes.
+      for (const a of this.constructor.observedAttributes) {
+        Object.defineProperty(this, a, {
+          set(x) { this.setAttribute(a, x); },
+          get() { return this.getAttribute(a); }
+        });
+      }
+    } // constructor()
+
 
     init() {
       console.debug('init()');

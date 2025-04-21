@@ -50,31 +50,31 @@
       const tObj = document.querySelector('time');
 
       document.querySelector('#t1').addEventListener('click', (e) => {
-        tObj.setAttribute('datetime', '2024-12-25 12:00:00');
+        tObj.datetime ='2024-12-25 12:00:00';
       });
 
       document.querySelector('#t2').addEventListener('click', (e) => {
-        tObj.setAttribute('datetime', Date.now());
+        tObj.datetime= Date.now();
       });
 
       document.querySelector('#fd').addEventListener('click', (e) => {
-        tObj.setAttribute('datestyle', 'medium');
-        tObj.setAttribute('timestyle', '');
+        tObj.datestyle='medium';
+        tObj.timestyle='';
       });
 
       document.querySelector('#ft').addEventListener('click', (e) => {
-        tObj.setAttribute('datestyle', '');
-        tObj.setAttribute('timestyle', 'medium');
+        tObj.datestyle='';
+        tObj.timestyle='medium';
       });
 
       document.querySelector('#f1').addEventListener('click', (e) => {
-        tObj.setAttribute('datestyle', 'short');
-        tObj.setAttribute('timestyle', 'short');
+        tObj.datestyle = 'short';
+        tObj.timestyle='short';
       });
 
       document.querySelector('#f4').addEventListener('click', (e) => {
-        tObj.setAttribute('datestyle', 'full');
-        tObj.setAttribute('timestyle', 'full');
+        tObj.datestyle = 'full';
+        tObj.timestyle='full';
       });
 
     </script>
