@@ -16,13 +16,15 @@
     "build:loader":         "esbuild src\\loader.ts                         --minify    --drop:console --drop:debugger --outfile=loader.js",
     "build:loader-watch":   "esbuild src\\loader.ts                         --sourcemap --watch                        --outfile=loader.js",
     "build:watch":          "esbuild src\\*.ts   --format=esm --sourcemap --watch --outdir=./",
-    "build:bundle":          "pack-sfc *.sfc -o bundle.sfc",
+    "build:bundle": "pack-sfc *.sfc -o bundle.sfc",
     "clean": "del *.js.map data-hub.js loader.js json-parse.js",
-    "build": "npm run test:src && npm run build:hub && npm run build:loader"
+    "build": "npm run test:src && npm run build:hub && npm run build:loader",
+    "dev": "run-p test:src build:hub-watch build:loader-watch serve"
   },
   "devDependencies": {
     "esbuild": "^0.25.2",
     "html-minifier-terser": "^7.2.0",
+    "npm-run-all2": "^7.0.2",
     "typescript": "^5.8.2",
     "yargs": "^17.7.2"
   }

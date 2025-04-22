@@ -31,9 +31,8 @@ This results in simplified HTML for rendering cards:
 
 <template light>
   <div class="header">
-    <img src="/test/bulb.svg" alt="icon" class="icon" style="display:none"/>
-    <svg class="icon">
-      <use href="./icons.svg#select"></use>
+    <svg style="display:none">
+      <use href="./icons.svg#no"></use>
     </svg>
     <h3></h3>
   </div>
@@ -94,8 +93,10 @@ This results in simplified HTML for rendering cards:
 
       if (name === 'title') {
         this.querySelector('.header>h3').textContent = newValue;
-        // } else if (name === 'icon') {
-        //   this.querySelector('.header>h3').textContent = newValue;
+      } else if (name === 'icon') {
+        const svg = this.querySelector('.header>svg');
+        svg.style.display = "";
+        svg.firstElementChild.href.baseVal = "./icons.svg#" + newValue;
       }
     } // attributeChangedCallback()
 

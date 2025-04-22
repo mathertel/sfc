@@ -13,7 +13,7 @@ interface Window {
 // It implements the generation of the shadow dom and css according to the style and template.
 class UComponent extends HTMLElement {
   static observedAttributes: string[] = [];
-  // [key: string]: any;
+  [key: string]: any;
 
   // uRoot is the root node of the component. It is either the shadow root or the light DOM. 
   uRoot = this as HTMLElement | ShadowRoot;
@@ -30,7 +30,7 @@ class UComponent extends HTMLElement {
     console.debug('UC', `constructor(${this.tagName})`);
 
     // create setters and getters for all observedAttributes defined in the class.
-    for (const p of (this.constructor as any as UComponent).observedAttributes) {
+    for (const p of ((this.constructor as typeof UComponent).observedAttributes)) {
       Object.defineProperty(this, p, {
         set(value) { this.setAttribute(p, value); },
         get() { return this.getAttribute(p); }

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TestZone</title>
+  <title>u-card Test Page</title>
 
   <link rel='stylesheet' href='/docstyle.css' media='all' />
   <script src="/loader.js"></script>
@@ -17,19 +17,20 @@
 
 <body class="sitelayout" style="width:100%;">
   <header>
-    <h1>TestZone</h1>
+    <h1>u-card Test Page</h1>
   </header>
 
   <nav>
     <button id="b1">New-Title</button>
     <button id="b2">Move</button>
+    <button id="b3">icon</button>
   </nav>
   <hr>
   <main>
     <div class="card-container col365">
       <u-card id="c1" title="Card-Title"><span>Hello</span></u-card>
 
-      <u-card id="c2" title="Cardboards">
+      <u-card id="c2" icon="button" title="Cardboards">
         <span>MORE about Boards.</span>
         <div class='form-grid'>
           <label>Height:</label><input name='h' value="30px">
@@ -65,32 +66,10 @@
       ccObj.appendChild(c);
     });
 
-    // document.querySelector('#fd').addEventListener('click', (e) => {
-    //   tObj.setAttribute('datestyle', 'medium');
-    //   tObj.setAttribute('timestyle', '');
-    // });
+    document.querySelector('#b3').addEventListener('click', (e) => {
+      const c = ccObj.firstElementChild.icon = 'dht';
+    });
 
-    // document.querySelector('#ft').addEventListener('click', (e) => {
-    //   tObj.setAttribute('datestyle', '');
-    //   tObj.setAttribute('timestyle', 'medium');
-    // });
-
-    // document.querySelector('#f1').addEventListener('click', (e) => {
-    //   tObj.setAttribute('datestyle', 'short');
-    //   tObj.setAttribute('timestyle', 'short');
-    // });
-
-    // document.querySelector('#f4').addEventListener('click', (e) => {
-
-    //   tObj.setAttribute('datestyle', 'full');
-    //   tObj.setAttribute('timestyle', 'full');
-    // });
-
-
-    // document.querySelector('#toast1').addEventListener('click', (e) => {
-    //   const toastElement = document.querySelector('u-toast');
-    //   toastElement.log('log text...');
-    // });
   </script>
 </body>
 
