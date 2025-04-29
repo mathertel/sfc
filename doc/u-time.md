@@ -6,7 +6,7 @@ values while providing a machine-readable timestamp as an attribute for semantic
 The `u-time` custom Element implementation extends the functionality of the standard `<time>` element to support locale
 specific formatting of date, time datetime values by using the SFC loader.
 
-![u-time component](../doc/u-time.png)
+![u-time component](./images/u-time.png)
 
 Formatting time or date output is challenging because the appropriate format for users depends on user language preferences. As
 this is known at runtime only this cannot be pre-calculated in HTML generating frameworks like Angular or Eleventy. You either

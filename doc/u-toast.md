@@ -3,7 +3,7 @@
 The <u-toast> component displays messages of type 'log', 'info', 'error' using fly-in toast message box that automatically can
 disappear after some time.
 
-![u-toast messages](/doc/u-toast.png)
+![u-toast messages](/doc/images/u-toast.png)
 
 ## Setup
 

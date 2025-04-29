@@ -7,7 +7,7 @@ It is a pure JavaScript based implementation that uses SVG to display the graph 
 
 The JSON object passed as parameter defines the options for the chart and includes the data of the line chart.
 
-![linechart example](/doc/u-linechart.png){ style="width:400px"}
+![linechart example](/doc/images/u-linechart.png){ style="width:400px"}
 
 ## Add Elements
 

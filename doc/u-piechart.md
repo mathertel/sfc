@@ -6,7 +6,7 @@ It is a pure JavaScript based implementation that uses SVG to display the graph 
 
 The JSON object passed as parameter defines the options for the chart and includes the data of the pie chart.
 
-![piechart example](/doc/u-piechart.png){ style="width:400px" }
+![piechart example](/doc/images/u-piechart.png){ style="width:400px" }
 
 
 ## Setup

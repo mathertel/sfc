@@ -2,24 +2,24 @@
 
 ## [Extended Code Component](u-code.md)
 
-![Extended Code Example](u-code.png)
+![Extended Code Example](images/u-code.png)
 
 
 ## [Toast Component](u-toast.md)
 
-![Toast Messages](u-toast.png)
+![Toast Messages](images/u-toast.png)
 
 
 ## [LineChart Component](u-linechart.md)
 
-![Line Chart Example](u-linechart.png)
+![Line Chart Example](images/u-linechart.png)
 
 
 ## [PieChart Component](u-piechart.md)
 
-![Pie Chart Example](u-piechart.png)
+![Pie Chart Example](images/u-piechart.png)
 
 
 ## [Extended Time Component](u-time.md)
 
-![Extended Time Example](u-time.png)
+![Extended Time Example](images/u-time.png)

@@ -5,7 +5,7 @@ features in the UComponent class.
 
 <https://developer.mozilla.org/en-US/docs/Web/API/Web_components>
 
-![Flow Diagram of the Lifecycle of Web Components](lifecycle.drawio.svg)
+![Flow Diagram of the Lifecycle of Web Components](images/lifecycle.drawio.svg)
 
 * **constructor()** -- This method is called when a component instance is created.  The constructor should be used to
   set up initial state and default values.  In general the further setup should be deferred to the first
