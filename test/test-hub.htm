@@ -33,12 +33,18 @@
       <button id="hubReplay">replay</button>
       <button id="hubUnsubscribe">unsubscribe Age</button>
     </nav>
-    <hr />
 
+    <hr />
     <div><label for="rawview">person.name: <span id="personName">...</span></label></div>
     <div><label for="rawview">person.age: <span id="personAge">...</span></label></div>
+    
     <hr />
-    <pre id="rawview"></pre>
+    <div><label for="rawview">Data</label></div>
+    <pre><code id="rawview"></code></pre>
+    
+    <hr />
+    <div><label for="logview">Log:</label></div>
+    <pre id="logview"></pre>
 
 
   </main>
@@ -48,6 +54,8 @@
     window.datahub.configurePersistence(sessionStorage, "datahub_store");
 
     const rawObj = document.querySelector('#rawview');
+    const logObj = document.querySelector('#logview');
+
     const rawData1 = { person: { name: 'John Doe', age: 30, city: 'New York', hobby: 'reading' } };
     const rawData2 = { person: { name: 'Max Dose', age: 40, city: 'Boston', hobby: 'writing' } };
     let subAge;
@@ -55,9 +63,9 @@
     function rawCallback(path, value) {
       // debugger;
       if (typeof value === 'object') {
-        rawObj.textContent += `\n ${path}=${JSON.stringify(value)}`;
+        logObj.textContent += `\n ${path}=${JSON.stringify(value)}`;
       } else {
-        rawObj.textContent += `\n { ${path}='${value}' }`;
+        logObj.textContent += `\n { ${path}='${value}' }`;
       }
     }
 
@@ -67,6 +75,8 @@
       // setup subscription with callback
       // window.datahub.subscribe("**", rawCallback);
       window.datahub.subscribe("", rawCallback);
+      window.datahub.subscribe("", (p,v) => { rawObj.textContent = JSON.stringify(v, null, 2); });
+
       window.datahub.subscribe("person.name", (p, v) => { document.querySelector('#personName').textContent = v; });
       subAge = window.datahub.subscribe("person.age", (p, v) => { document.querySelector('#personAge').textContent = v; });
 
@@ -91,6 +101,8 @@
 
       window.datahub.publish("", { "l": [] });
       window.datahub.publish("", { "l": ["tag1", "tag2"] });
+      window.datahub.publish("l.4", "tag4");
+
       const a = new Array(); a[7] = "tag7";
       window.datahub.publish("", { "l": a });
 

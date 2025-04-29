@@ -1,14 +1,19 @@
 # Data Hub
 
-Within this data stack the **Data Hub** implements the layer for a centralized data management that can keep the web
+The core purpose of the **Data Hub** is to create and support reactive data structures for frontend components by using
+a minimal sized but still applicable functionality to fit into scenarios where [Size Matters].
+
+Within the software stack the **Data Hub** implements the layer for a centralized data management that can keep the web
 application wide data and state and provides the mechanisms for binding parts and components of the application.
 
-The `DataHub` class provides a lightweight, efficient mechanism for managing and sharing state across components in a web application. It is implemented in [data-hub.ts](/src/data-hub.ts) and compiled into a JavaScript ESM module.
+> The concept of **reactive programming** is centered around data flows within your application and the propagation of
+> changes.  When data changes, the parts of the application that depend on this property will be automatically
+> updated.  This is the core idea implemented in many frontend libraries like React, Angular, Vue.js, MobX...
 
 See [Data binding in Web components](https://www.mathertel.de/blog/2025/04 01-sfc- data .htm ) for further conceptual
 information that was published in the blog of mathertel.de .
 
-This implementation again focuses of providing a consistant minimal but extendable implementation to support
+This implementation provides a consistant minimal but extendable implementation to support
 
 * Component based frontend applications
 * Support structured data objects
@@ -16,158 +21,59 @@ This implementation again focuses of providing a consistant minimal but extendab
 
 It implements a simplified Publish / Subscriber Pattern for loosely coupled, event driven interfaces.
 
-## Installation
 
-Include the `data-hub.js` module in your HTML file and specify the optional storage:
+## Implementation
 
-```html
-<script type="module">
-  import { DataHub } from '/data-hub.js';
-  window.datahub.configurePersistence(sessionStorage, "datahub_store");
-  ...
-</script>
-```
+The `DataHub` class implemented here provides a more lightweight and efficient mechanism for managing and sharing state
+across components in a web application.  It is implemented in [data-hub.ts](/src/data-hub.ts) and compiled into a
+JavaScript ESM module.
 
-This will make the `DataHub` instance available globally as `window.datahub`.
-
----
-
-## Class: `DataHub`
-
-### Methods
-
-#### `constructor(storageObject?: Storage, key?: string)`
-
-Creates a new instance of the `DataHub` class with data storage support.
-
-* **Parameters:**
-  * `storageObject` *(optional, Storage)*: The storage object where the data should be saved (e.g., `sessionStorage` or `localStorage`).
-  * `key` *(optional, string)*: The key under which the data should be stored.
-
-* **Example:**
-
-  ```javascript
-  // Initialize DataHub with sessionStorage and a key
-  const dataHub = new DataHub(sessionStorage, "datahub_store");
-  ```
-
-#### `configurePersistence(storageObject: Storage, key: string): void`
-
-Configures the `DataHub` to persist its store to a specified storage object.
-
-* **Parameters:**
-
-  * `storageObject` *(Storage)*: The storage object where the data should be saved (e.g., `sessionStorage` or `localStorage`).
-  * `key` *(string)*: The key under which the data should be stored.
-
-* **Example:**
-
-  ```javascript
-  // Configure persistence with localStorage and a key
-  window.datahub.configurePersistence(localStorage, "datahub_store");
-  ```
+Because [Size Matters] the data hub is implemented with some assumptions and doesn't support all use cases you can
+imagine.
 
 
-#### `publish(path: string, data: any): void`
+### Data changes must be done using the publish function
 
-Publishes data to a specific path in the state.
+The data hub doesn't protect the inner data object but assumes that all publishers behave as friendly as defined.
 
-* **Parameters:**
-  * `path` *(string)*: The path where the data should be published. Use dot notation for nested paths.
-  * `data` *(any)*: The data to be published.
+The internal data object can be retrieved by the get() function and the values can be changed on this object freely and
+bypassing the change detection.  Using this approach the subscribers will not be informed about changes.
 
-* **Example:**
+When you need this kind of observations on changes a more complex and hence more size consuming library will be required
+working with multi level proxy implementations.
 
-  ```javascript
-  window.datahub.publish("user.profile", { name: "John Doe", age: 30 });
-  ```
+But to keep in mind:
 
----
+In many cases i have seen changes to the client side data is initiated by calling server side functions that retrieve
+data e.g.  from a database or listening to queues like PubSub or websockets push packets.  To merge this new or updated
+values also retrieved as JSON objects into the existing client side data model is more complex than changing simple
+attributes -- but this is what has been implemented in the data hub
 
-#### `subscribe(path: string, callback: (data: any) => void): () => void`
 
-Subscribes to changes at a specific path in the state.
+### No detection of circular calls
 
-* **Parameters:**
-  * `path` *(string)*: The path to subscribe to. Use dot notation for nested paths.
-  * `callback` *(function)*: A function that will be called whenever the data at the specified path changes. The function receives the updated data as an argument.
+When subscribing on a specific path and receiving updates it is important to avoid direct updating data within this
+callback as this may trigger more callbacks to subscribers and may result in a infinity loop.
 
-* **Returns:** A function to unsubscribe from the path.
 
-* **Example:**
+### Simplified and restricted path Syntax
 
-  ```javascript
-  const unsubscribe = window.datahub.subscribe("user.profile", (data) => {
-    console.log("Profile updated:", data);
-  });
+Das syntax for selecting a node in the data model is using the javascript dot notation with restrictions on the
+character set available for the identifiers.
 
-  // To unsubscribe:
-  unsubscribe();
-  ```
+Paths are also given back to subscribers during the callback.  The path syntax used here is always the dot notation as
+string.
 
----
 
-#### `get(path: string): any`
+<!-- ### Guaranteed callback order -->
 
-Retrieves the current value at a specific path in the state.
+## See also
 
-* **Parameters:**
-  * `path` *(string)*: The path to retrieve the value from. Use dot notation for nested paths.
+* [Data Hub API](data-hub-api.md)
 
-* **Returns:** The value at the specified path, or `undefined` if the path does not exist.
+External material for reading:
 
-* **Example:**
-
-  ```javascript
-  const profile = window.datahub.get("user.profile");
-  console.log(profile);
-  ```
-
----
-
-#### `unsubscribeAll(): void`
-
-Unsubscribes all listeners from the `DataHub`.
-
-* **Example:**
-
-  ```javascript
-  window.datahub.unsubscribeAll();
-  ```
-
----
-
-## Best Practices
-
-1. Always unsubscribe when components unmount to avoid memory leaks.
-2. Use dot notation for nested paths to maintain a clear and consistent structure.
-3. Validate data before publishing it to ensure state integrity.
-4. Use `configurePersistence` or pass `storageObject` and `key` in the constructor to persist data across browser
-   refreshes or navigation.
-
----
-
-## Example Usage
-
-```javascript
-
-// Initialize DataHub with sessionStorage and a key
-const dataHub = new DataHub(sessionStorage, "datahub_store");
-
-// Publish data
-window.datahub.publish("app.settings", { theme: "dark", language: "en" });
-
-// Subscribe to changes
-const unsubscribe = window.datahub.subscribe("app.settings", (settings) => {
-  console.log("Settings updated:", settings);
-});
-
-// Get current state
-const settings = window.datahub.get("app.settings");
-console.log(settings);
-
-// Unsubscribe when no longer needed
-unsubscribe();
-```
+* JSON Path Notation (not supported) <https://datatracker.ietf.org/doc/html/rfc6901>
+* [Patterns for Reactivity with Modern Vanilla JavaScript](https://frontendmasters.com/blog/vanilla-javascript-reactivity/)
 
 

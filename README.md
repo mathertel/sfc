@@ -118,7 +118,8 @@ javascript esm module.
 * [Test Pages](test/index.htm)
 
 * <https://github.com/web-padawan/awesome-web-components/tree/main>
-* Many hints and repositories from Andrea Giammarchi:
+
+* Hints and repositories from Andrea Giammarchi:
   * <https://github.com/WebReflection/>
   * <https://gist.github.com/WebReflection/ec9f6687842aa385477c4afca625bbf4>
 
