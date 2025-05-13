@@ -13,7 +13,7 @@ Markdown can be injected by 2 methods:
 This component has implemented loading the Markdown specific scripts by a local importScript function.
 
 
-## HTML Attributes
+## Attributes
 
 none. typically the style needs to be specified by using css rules.
 

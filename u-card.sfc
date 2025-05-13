@@ -1,31 +1,13 @@
 <!--
-# Web component to display a card
 
-Creating a complex structure of HTML elements is often required to create the layout and design. This is a typical problem often
-solved by using server side rendered components from a template. However this also can be done on the client side - and that is
-what is demonstrated here with the `<c-card>` component.
+File: u-card.sfc
 
-In situations where size matters this may be helpful because the client side created html will need less memory
-on the download because of re-use of the template.
+Implementation of a custom element that renders html to display cards with header, body and footer.
 
-## Template processing
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
-This component annotates `<template light>` with the `light` attribute resulting in adding the template code to the inner HTML
-of the main document known as light dom instead of the shadow dom.
-
-When the component is then initialized all the inner parts of the `<c-card>` is moved into the slots:
-
-  * The title attribute is used as textContent of the .header>h3
-  * The icon attribute is used to create a image as first element in the .header
-  * All buttons are moved to the **.footer>slot**
-  * All remaining elements are move to the .main>slot
-  * empty slots are removed.
-
-This results in simplified HTML for rendering cards:
-
-``` html
-???
-```
+Example: <u-card icon="button" title="Clickable"> ...  </u-card>
 
 -->
 
@@ -45,8 +27,8 @@ This results in simplified HTML for rendering cards:
 </template>
 
 <style>
-  u-card {
-    outline: 3px solid lime;
+  u-card:hover {
+    box-shadow: var(--dropshadow);
   }
 </style>
 

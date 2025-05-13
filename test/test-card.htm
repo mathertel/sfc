@@ -8,9 +8,13 @@
 
   <link rel='stylesheet' href='/docstyle.css' media='all' />
   <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-card,u-markdown');
+  </script>
+
   <style>
-    xu-card {
-      box-shadow: 0 0 0.1rem 0.2rem lime;
+    u-card {
+      box-shadow: lime 0 0 0.1rem 0.1rem;
     }
   </style>
 </head>
@@ -31,19 +35,29 @@
       <u-card id="c1" title="Card-Title"><span>Hello</span></u-card>
 
       <u-card id="c2" icon="button" title="Cardboards">
-        <span>MORE about Boards.</span>
+        <b>Dimensions</b>
         <div class='form-grid'>
           <label>Height:</label><input name='h' value="30px">
           <label>Width:</label><input name='w' value="60px">
+        </div>
+        <b>Colors</b>
+        <div class='form-grid'>
+          <label>Border:</label><input name='border' type="color" value="#111111">
+          <label>Fill:</label><input name='back' type="color" value="#FFF4CC">
         </div>
         <button>Cancel</button>
         <button>OK</button>
       </u-card>
 
-      <u-card id="c3" title="Card3">HelloText</u-card>
+      <u-card id="c3" title="Card3">Hello Text!</u-card>
       <u-card id="c4" title="Card3">
         <div>some</div>puretext
       </u-card>
+    </div>
+
+    <div class="card-container col365">
+      <hr>
+      <u-markdown src="../doc/u-card.md"></u-markdown>
     </div>
   </main>
 
@@ -51,10 +65,6 @@
 
   <script>
     const ccObj = document.querySelector('.card-container');
-
-    window.loadComponent('u-card').then(() => {
-      console.log('Page', 'all components loaded.');
-    });
 
     document.querySelector('#b1').addEventListener('click', (e) => {
       ccObj.firstElementChild.setAttribute('title', 'New-Title');
