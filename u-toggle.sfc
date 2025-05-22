@@ -1,93 +1,72 @@
 <!--
+File: u-toggle.sfc
 
-Implementation of a web component that enriches the functionality of regular <time> elements
-  to support locale specific formatting.
-
-<time is='my-time' datestyle='' timestyle"='' datetime=''>
-
-datetime
-
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl
-
-<dl>
-  <dt><code>datetime</code></dt>
-  <dd><p>...</p></dd>
-</dl>
-
-
-(description)
-
-## HTML Attributes
-
-## JavaScript accessible attributes
-
-https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
-
-
-It may represent one of the following:
-
-A time on a 24-hour clock.
-A precise date in the Gregorian calendar (with optional time and timezone information).
-A valid time duration.
-
-customElements.define("my-time", ExpandingList, { extends: "time" });
-
-
-
-const fmt = new Intl.DateTimeFormat(navigator.languages, {
-  dateStyle: this._dateStyle,
-  timeStyle: this._timeStyle,
-});
-this.textContent = fmt.format(date);
-
+Implementation of a web component to toggle a classname on an element and/or emit on/off events.
 
 -->
 
-<style></style>
 
-<script extends="img">
-export default class MyImgToggle extends HTMLImageElement {
-  static observedAttributes = ["w12", "inpage", "alt"];
+<template light>
+  <input class="switch" type="range" min="0" max="1" step="1" value="0" />
+</template>
 
-  _menuObj;
 
-  connectedCallback() {
-    console.debug('u-toggle', 'connected()');
+<script>
+  export default class MyToggle extends UComponent {
+    static observedAttributes = ["toggletarget", "toggleclass", "value"];
 
-    this.addEventListener('click', this.onClick.bind(this), false);
+    _inputObj = this.querySelector('input[type=range]');
+    _targetObj = undefined;
+    _toggleClass = undefined;
 
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', this.init.bind(this));
-    } else {
-      window.requestAnimationFrame(this.init.bind(this));
+    /// @brief when clicked toggle the 0/1 value.
+    onclick(evt) {
+      console.debug('on-click', evt);
+      this.value = String(1 - Number(this._inputObj.value));
+    } // onclick()
+
+
+    /// @brief get the value of the component from the embedded input element. 
+    getAttribute(name) {
+      if (name === 'value') {
+        return this._inputObj.value;
+      } else {
+        return super.getAttribute(name);
+      }
     }
 
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.debug("attributeChanged", name, oldValue, newValue);
+
+      if (oldValue !== newValue) {
+        if (name === "toggletarget") {
+          this.toggletarget = newValue;
+          if ((newValue === "") || (!newValue)) {
+            this._targetObj = undefined;
+          } else {
+            this._targetObj = document.querySelector(newValue);
+          }
+
+        } else if (name === "toggleclass") {
+          this.toggleClass = newValue;
+
+        } else if (name === "value") {
+          this._inputObj.value = newValue;
+
+          // toggle the class on the target element
+          if ((this._targetObj) && this.toggleClass) {
+            if (this.value === "1") {
+              this._targetObj.classList.add(this.toggleClass);
+            } else {
+              this._targetObj.classList.remove(this.toggleClass);
+            }
+          }
+
+          this.dispatchEvent(new Event('change'))
+        }
+      }
+
+    } // attributeChangedCallback()
   }
-  init() {
-    console.debug('u-toggle', 'init()');
-
-    this._menuObj = document.querySelector('.menu');
-  } // init()
-
-
-  // show the date and time as textContent in the defined style.
-  showValue() {
-  } // showValue()
-
-  // show the date and time as textContent in the defined style.
-  onClick() {
-    console.debug('on-click');
-    this._menuObj.classList.toggle('open');
-  } // showValue()
-
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    console.debug("attributeChanged", name, oldValue, newValue);
-
-  } // attributeChangedCallback()
-}
 </script>

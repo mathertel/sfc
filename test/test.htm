@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+
+u-card
+
+A custom element that implements a card with a title and content.
+
+Implementing a custom element that keeps and adjusts the inner html defined in the custom element.
+When creating a shadow root, the inner HTML of the custom element is not rendered so here the custom element
+will participate in the light DOM.
+
+tag without creating a shadow root.
+
+
+-->
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Test Page</title>
+
+  <link Content-Type="text/css" href="../docstyle.css" rel="stylesheet" />
+  <style>
+    u-card {
+      display: inline-block;
+      padding: 0.2rem;
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+
+    /* // iot specific card modifications */
+    .card {
+      &.active {
+        .border {
+          border-color: base.$u-border-color-active;
+        }
+
+        .band::-webkit-slider-thumb {
+          border-color: base.$u-border-color-active transparent;
+        }
+
+        >.header {
+          background-color: var(--card-head-active);
+        }
+      }
+
+      img,
+      svg {
+        &.active {
+          background-color: limegreen;
+        }
+      }
+
+      >hr {
+        background-color: rgb(0 0 0 / 12.5%);
+        border: 0;
+        height: 1px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .icon {
+        width: 2.6rem;
+        height: 2.6rem;
+        vertical-align: top;
+      }
+    }
+  </style>
+  <script src="../loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent(['u-time', 'u-card']);
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <u-time style="--log-color: gray"></u-time>
+  <header>
+    <h1>Test Page</h1>
+  </header>
+
+  <main>
+    <div class="card-container">
+
+      <u-card class="card autolink" title="TitleText">
+      </u-card>
+
+      <p>Test card content.</p>
+      <p>Test time = <time is="u-time" datetime="2025-02-28 14:02" datestyle="long" timestyle="short">kkk</time>.</p>
+  </div>
+    <hr />
+  </main>
+
+  <script>
+  </script>
+</body>
+
+</html>

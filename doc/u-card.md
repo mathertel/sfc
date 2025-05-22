@@ -18,7 +18,6 @@ reducing download size.
 
 This approach simplifies HTML coding for rendering cards.
 
-
 ![card example](/doc/images/u-card.png){ style="width:400px"}
 
 

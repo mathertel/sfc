@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>u-toggle Test Page</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    .greenred {
+      display: inline-block;
+      width: 4em;
+      height: 1.4em;
+      border: 2px solid grey;
+      background-color: silver;
+    }
+
+    xu-toggle {
+      display: inline-block;
+      padding: 0.2rem;
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-toggle,u-markdown'); // 
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>u-toggle Test Page</h1>
+  </header>
+
+  <main>
+    <u-toggle toggletarget='.greenred' toggleclass='valid' value='1'></u-toggle>
+    <span class="greenred"></span>
+    <hr />
+
+    <u-markdown src="../doc/u-toggle.md"></u-markdown>
+  </main>
+
+  <script>
+    document.querySelector('u-toggle').addEventListener('change', (evt) => {
+      console.log('changed:', evt);
+    });
+  </script>
+</body>
+
+</html>
