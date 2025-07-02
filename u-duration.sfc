@@ -1,0 +1,64 @@
+<!--
+
+File: u-tablesort.sfc
+
+The `u-tablesort` custom element implementation extends the functionality of the standard `<table>` element to support
+sorting of the table content by the values of a column.
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+A copy icon is shown on the right upper corner that is animated for some milliseconds to show that the clipboard is
+updated.
+
+Example: <table is='u-tablesort'> ...  </table>
+
+-->
+
+<style>
+</style>
+
+<script extends="input">
+  export default class UDuration extends HTMLInputElement {
+
+    connectedCallback() {
+      console.log('connected', this);
+      this.addEventListener('change', this._onChange);
+
+      if (!this.title) {
+        this.title = 'Enter duration using the format HH:MM:SS or seconds as number.';
+      }
+      if (!this.placeholder) {
+        this.placeholder = 'HH:MM:SS';
+      }
+    }
+
+    _f2(d) {
+      d = String(Math.floor(d));
+      if (d.length < 2) d = '0' + d;
+      return (d);
+    }
+
+    _asSeconds(v) {
+      v = v.trim().replaceAll(/\D+/g, ':');
+
+      let r = undefined;
+      let d = 0;
+
+      if (r = v.match(/^(\d*):(\d*):(\d*)$/)) {
+        d = Number(r[1]) * 60 * 60 + Number(r[2]) * 60 + Number(r[3]);
+      } else if (r = v.match(/(\d+):(\d+)$/)) {
+        d = Number(r[1]) * 60 + Number(r[2]);
+      } else if (r = v.match(/(\d+)$/)) {
+        d = Number(r[1]);
+      }
+      return d;
+    } // _asSeconds()
+
+
+    _onChange(/** @type Event */ evt) {
+      let d = this._asSeconds(this.value);
+      this.value = `${this._f2(d / (60 * 60))}:${this._f2(d % (60 * 60) / 60)}:${this._f2(d % 60)}`;
+    }
+  } // class
+</script>
