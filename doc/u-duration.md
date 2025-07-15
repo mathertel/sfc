@@ -1,4 +1,4 @@
-# Web component to
+# Web component for capturing duration typed values
 
 The `<input is='u-duration'>` extends the functionality of the standard `<input>` element for capturing duration values.
 

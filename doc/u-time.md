@@ -1,4 +1,6 @@
-# Web component to display time in user local formatting
+# Extended Time Element
+
+This is an extension to the HTML `<time>` element to display a time in user local formatting.
 
 The `<time>` element is one of the newer elements in the HTML standard tag collection. Its purpose is to display date and time
 values while providing a machine-readable timestamp as an attribute for semantic purposes.

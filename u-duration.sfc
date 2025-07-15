@@ -22,7 +22,7 @@ Example: <table is='u-tablesort'> ...  </table>
   export default class UDuration extends HTMLInputElement {
 
     connectedCallback() {
-      console.log('connected', this);
+      console.log('u-duration', 'connected', this);
       this.addEventListener('change', this._onChange);
 
       if (!this.title) {
@@ -39,20 +39,33 @@ Example: <table is='u-tablesort'> ...  </table>
       return (d);
     }
 
+    // parse ISO 8601 duration or HH:MM:SS format and return value as Seconds
     _asSeconds(v) {
-      v = v.trim().replaceAll(/\D+/g, ':');
+      function _num(s) {
+        let ret = 0;
+        if (s) {
+          const r = s.match(/^(\d+)/);
+          if (r) ret = Number(r[1]);
+        }
+        return (ret);
+      }
+
+      v = v.trim().toUpperCase().replaceAll(/[^0-9DHMS]+/g, ':');
 
       let r = undefined;
       let d = 0;
 
       if (r = v.match(/^(\d*):(\d*):(\d*)$/)) {
         d = Number(r[1]) * 60 * 60 + Number(r[2]) * 60 + Number(r[3]);
-      } else if (r = v.match(/(\d+):(\d+)$/)) {
+      } else if (r = v.match(/^(\d+):(\d+)$/)) {
         d = Number(r[1]) * 60 + Number(r[2]);
-      } else if (r = v.match(/(\d+)$/)) {
+      } else if (r = v.match(/^(\d+)$/)) {
         d = Number(r[1]);
+
+      } else if (r = v.match(/^(\d+D)?(\d+H)?(\d+M)?(\d+S)?$/)) {
+        d = _num(r[1]) * 24 * 60 * 60 + _num(r[2]) * 60 * 60 + _num(r[3]) * 60 + _num(r[4]);
       }
-      return d;
+      return (d);
     } // _asSeconds()
 
 
