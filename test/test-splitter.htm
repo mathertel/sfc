@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>u-splitter Test Page</title>
+
+  <link rel='stylesheet' href='/docstyle.css' media='all' />
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent(['u-splitter', 'u-markdown']);
+  </script>
+
+  <style>
+    u-splitter {
+      box-shadow: lime 0 0 0.1rem 0.1rem;
+      background-color: white;
+
+      >div {
+        margin: 4px;
+        padding: 2px;
+      }
+    }
+  </style>
+</head>
+
+<body class="sitelayout" style="width:100%;">
+  <header>
+    <h1>u-splitter Test Page</h1>
+  </header>
+
+  <nav>
+  </nav>
+  <hr>
+  <main style="margin:20px">
+    <h3>Horizontal</h3>
+
+    <u-splitter style="height:240px">
+      <div style="background-image: url('./media/blue-waves.png'); background-size: cover;"></div>
+      <div style="background-image: url('./media/red-stars.png'); background-size: cover;"></div>
+    </u-splitter>
+
+    <h3>Vertical</h3>
+
+    <u-splitter vertical style="height:360px">
+      <div style="background-image: url('./media/blue-waves.png'); background-size: cover;"></div>
+      <div style="background-image: url('./media/red-stars.png'); background-size: cover;"></div>
+    </u-splitter>
+
+    <h3>Mixed</h3>
+
+    <u-splitter style="height:720px">
+      <div style="background-image: url('./media/blue-waves.png'); background-size: cover;"></div>
+      <div>
+
+        <u-splitter vertical>
+          <div style="background-image: url('./media/red-stars.png'); background-size: cover;"></div>
+          <div style="background-image: url('./media/dark-board.png'); background-size: cover;"></div>
+        </u-splitter>
+
+      </div>
+    </u-splitter>
+
+    <u-markdown src="../doc/u-splitter.md"></u-markdown>
+  </main>
+</body>
+
+</html>
