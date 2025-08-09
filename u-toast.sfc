@@ -45,13 +45,12 @@ The options are used to configure the chart and are passed using the setOptions 
   --info-color:#00bb11;
   --error-color: #bb0000;
   display: block;
-  display: block;
   position: absolute;
   width: 320px;
   top: 1rem;
   right: 1rem;
 
-  >div {
+  > div {
     position: relative;
     overflow-y: hidden;
     box-sizing: border-box;

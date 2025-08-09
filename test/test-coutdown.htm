@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+
+u-coutdown.htm
+
+A custom element that implements ...
+
+-->
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Count Down Timer Test Page</title>
+
+  <link Content-Type="text/css" href="../iotstyle.css" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("/font/OpenSans-VariableFont_wdth,wght.ttf") format('woff2');
+    }
+
+    :root {
+      --back: #17458f;
+      --color: white;
+    }
+
+    html,
+    body,
+    h1,
+    h2,
+    h3 {
+      font-family: 'Open Sans', Arial, ui-sans-serif, sans-serif;
+    }
+
+    #timer {
+      border: 2px solid gray;
+      background-color: lightgray;
+      padding: 1rem;
+      font-size: 300%;
+    }
+
+    #paramForm {
+      border: 2px solid violet;
+
+    }
+  </style>
+
+  <script src="../loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent(['u-duration']);
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+
+  <header>
+    <h1>Count Down Timer Test Page</h1>
+  </header>
+
+  <div>
+    <img src="/font/dark.min.svg" alt="dark mode" style="height: 12em; aspect-ratio: initial;" />
+  </div>
+
+
+  <main>
+    <div id="timerForm" style="display:none">
+      <h3>Count Down Timer</h3>
+
+      <div id="timer">
+        <span id="countdown">&nbsp;</span>
+      </div>
+    </div>
+    <hr>
+    <div id="paramForm" style="display:none">
+      <h3>Count Down Page parameters:</h3>
+      <form method="get" class="form-grid">
+        <label>title:</label> <input name="title" title="The title displayed upon the count-down timer." />
+        <label>Sub-Text:</label> <input name="txt" title="Text based message." />
+        <label>Duration:</label> <input is="u-duration" id="durInput" title="use format 00:00:00 or number of seconds." style="width: 10em" />
+        <label>Start:</label> <input name="ts" type="datetime-local" />
+        <div><input type="submit"></div>
+      </form>
+    </div>
+
+
+    <hr />
+  </main>
+
+  <script>
+    let startTime;
+    let defaults = {
+      title: "Meeting", txt: "Please wait for the meeting to start", d: "12:00",
+      message: "The meeting has started"
+    };
+    var style = "digital";
+    var link = "...";
+
+
+    document.querySelector('#paramForm').style.display = 'block';
+    document.querySelector('#timerForm').style.display = 'block';
+
+    // parse ISO 8601 duration or HH:MM:SS format and return value as Seconds
+    function parseDuration(v) {
+      function _num(s) {
+        let ret = 0;
+        if (s) {
+          const r = s.match(/^(\d+)/);
+          if (r) ret = Number(r[1]);
+        }
+        return (ret);
+      }
+
+      v = v.trim().toUpperCase().replaceAll(/[^0-9DHMS]+/g, ':');
+
+      let r = undefined;
+      let d = 0;
+
+      if (r = v.match(/^(\d*):(\d*):(\d*)$/)) {
+        d = Number(r[1]) * 60 * 60 + Number(r[2]) * 60 + Number(r[3]);
+      } else if (r = v.match(/^(\d+):(\d+)$/)) {
+        d = Number(r[1]) * 60 + Number(r[2]);
+      } else if (r = v.match(/^(\d+)$/)) {
+        d = Number(r[1]);
+
+      } else if (r = v.match(/^(\d+D)?(\d+H)?(\d+M)?(\d+S)?$/)) {
+        d = _num(r[1]) * 24 * 60 * 60 + _num(r[2]) * 60 * 60 + _num(r[3]) * 60 + _num(r[4]);
+      }
+      return (d);
+    } // parseDuration()
+
+
+    // get parameters from QueryString
+    function getParams() {
+      const ret = {};
+      let n = 0;
+      let params = new URLSearchParams(window.location.search);
+      for (const [key, value] of params) {
+        if (value !== '')
+          ret[key] = value;
+        n++;
+      }
+      return (n ? ret : undefined);
+    } // getParams()
+
+    function fillPage(p) {
+      // the ts : timestamp parameter is not in the defaults to give priority to ts when given in the querystring.
+      let defaults = { title: "Meeting", txt: "Please wait for the meeting to start", d: "12:00" };
+
+      let p2 = Object.assign({}, defaults, p);
+      console.log(p2);
+
+      document.title = document.querySelector('h1').textContent = p2.title;
+      document.querySelector('h3').textContent = p2.txt;
+    }
+
+    const p = getParams();
+    debugger;
+
+    if (!p) {
+      document.querySelector('#paramForm').style.display = 'block';
+
+    } else {
+      document.querySelector('#timerForm').style.display = 'block';
+      if (p.ts) {
+        startTime = new Date(p.ts);
+      } else {
+        startTime = Date.now() + parseDuration(p.d) * 1000;
+      }
+
+      // fill all static 
+      fillPage(p);
+    }
+
+    document.addEventListener('DOMContentLoaded', (evt) => {
+      var oCD = document.querySelector('#countdown');
+      const durFmt = new Intl.DurationFormat(navigator.languages, { style: style });
+
+
+      if (false && (new Date() > startTime)) {
+        oCD.textContent = p.message;
+
+      } else {
+        let wt = window.setInterval(() => {
+          // var now = new Date();
+          const dur = Math.floor((startTime - new Date()) / 1000);
+          // console.log(diffInMs);
+
+          if (dur < 0) {
+            window.clearInterval(wt);
+            oCD.textContent = p.message;
+          } else {
+
+
+            // const d = new Date(startTime - new Date());
+            const d = {
+              seconds: dur % 60,
+              minutes: Math.floor(dur / 60) % 60,
+              hours: Math.floor(dur / (60 * 60) % 24),
+              days: Math.floor(dur / (24 * 60 * 60))
+            };
+
+            oCD.textContent = durFmt.format(d);
+          }
+        }, 1000);
+      }
+
+
+    });
+  </script>
+</body>
+
+</html>

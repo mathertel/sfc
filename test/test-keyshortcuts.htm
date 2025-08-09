@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Key Shortcuts</title>
+  <link rel="stylesheet" href="/docstyle.css">
+  <style>
+    span.u-keytip {
+      background-color: lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-keyshortcuts,u-markdown');
+  </script>
+
+</head>
+
+<body class="sitelayout">
+  <main>
+    <h1>Key Shortcuts</h1>
+
+    <p>To display the available key shortcuts press the &lt;Control&gt; key down.</p>
+
+    <form>
+      <fieldset class="form-grid">
+        <label>First Name:</label><span><input aria-keyshortcuts="Alt+F"></span>
+        <label>Last Name:</label><span><input aria-keyshortcuts="Alt+N"></span>
+        <label>checked:</label><span><input type="checkbox" aria-keyshortcuts="Alt+O"></span>
+        <label>checked:</label><span><select aria-keyshortcuts="Alt+L">
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+          </select>
+        </span>
+      </fieldset>
+      <button aria-keyshortcuts="Alt+S">Submit</button>
+    </form>
+  </main>
+  <hr>
+
+  <script>
+  </script>
+  <u-keyshortcuts></u-keyshortcuts>
+</body>
+
+</html>
