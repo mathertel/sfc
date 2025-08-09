@@ -1,11 +1,10 @@
 <!--
 
-Implementation of a web component that enriches the functionality of regular <form> element
-  to support data exchange with JSON data.
+Implementation of a web component that enriches the functionality of regular <form> element to support data exchange
+with JSON data.
 
-<form is="u-form-json" method="dialog">
-...
-</form>
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
 -->
 
@@ -16,8 +15,8 @@ Implementation of a web component that enriches the functionality of regular <fo
    * @description Represents a record containing form data with string keys and any type of values
    */
 
-  /// @brief FormJson extends the HTMLFormElement to support JSON data exchange
-  export default class FormJson extends HTMLFormElement {
+  /// @brief UFormJson extends the HTMLFormElement to support JSON data exchange
+  export default class UFormJson extends HTMLFormElement {
 
     // private
     #analyzed = false;
@@ -52,7 +51,6 @@ Implementation of a web component that enriches the functionality of regular <fo
         this.#emptyRecord[e.name] = false;
         this.#booleanAttributes.add(e.name);
       });
-      this._validateForm();
       this.#analyzed = true;
       // not: output, meter
     }

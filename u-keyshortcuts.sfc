@@ -1,0 +1,128 @@
+<!--
+
+# Web component for showing and handling key shortcuts
+
+The `<u-keyshortcuts>` custom element ....
+  
+-->
+
+
+<style>
+  /* the u-keyshortcuts elements is not shown. */
+  /* the .u-keytip elements are created for all element with a aria-keyshortcuts attribute */
+  .u-keytip {
+    display: none;
+    position: absolute;
+    transform: translateX(-100%) translateX(4px) translateY(-4px);
+
+    /* styling of the tip itself */
+    background-color: yellow;
+    padding: 0 3px;
+    border-radius: 4px;
+    border: 1px solid black;
+    font-size: 70%;
+
+  }
+
+  body.u-show-keytip .u-keytip {
+    display: inline-block;
+  }
+</style>
+
+<!-- no template required, the element is not shown -->
+
+<script>
+
+  export default class UKeyShortcuts extends UComponent {
+    static observedAttributes = ["value"];
+
+    shortcut_elements = new Map();
+
+    _createKeyShortcuts() {
+      // process all defined aria-keyshortcuts
+      const shortcuts = document.querySelectorAll('[aria-keyshortcuts]');
+      console.log('u-keyshortcuts', shortcuts.length + " keyshortcuts found.");
+
+      shortcuts.forEach(e => {
+        // normalize the shortcut
+        let txt = e.getAttribute('aria-keyshortcuts').toLocaleLowerCase();
+        txt = txt.replace(' ', '').replace('-', '+').replace('strg', 'control').replace('alt+control+', 'control+alt+');
+
+        // add to the shortcut_elements map.
+        this.shortcut_elements.set(txt, e);
+
+        // create visuals for shortcuts
+        const ind = document.createElement('span');
+        ind.className = 'u-keytip';
+        ind.textContent = txt;
+        e.insertAdjacentElement('afterend', ind);
+      });
+    } // _createKeyShortcuts()
+
+
+    connectedCallback() {
+      console.debug('u-keyshortcuts', 'connected()');
+      super.connectedCallback();
+
+      this._createKeyShortcuts()
+
+      // capture keydown and keyup events on the body level.
+      // toggle visibility of keyshortcuts and search shortcut definition.
+      document.addEventListener("keydown", e => {
+        if ((e.key === 'Control') && (e.ctrlKey)) {
+          // show control shortcuts
+          document.body.classList.add('u-show-keytip');
+        }
+
+        let key = e.key.toLocaleLowerCase();
+        if (key === ' ') key = 'space';
+
+        let txt = `${e.ctrlKey ? 'control+' : ''}${e.altKey ? 'alt+' : ''}${e.shiftKey ? 'shift+' : ''}${key}`;
+        console.log('u-keyshortcuts', 'down', e, txt);
+
+        const elem = this.shortcut_elements.get(txt);
+        if (elem) {
+          console.log('u-keyshortcuts', 'found', txt, elem);
+
+          if (elem.tagName == 'BUTTON') {
+            elem.click();
+
+          } else if (elem.tagName == 'INPUT') {
+            elem.focus();
+
+          } else if (elem.tagName == 'SELECT') {
+            elem.focus();
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+      })
+
+      // hide the keyshortcut hints when the control key is released by removing body.u-show-keytip
+      document.addEventListener("keyup", e => {
+        // console.log('u-keyshortcuts', "up", e);
+        if (!e.ctrlKey) {
+          document.body.classList.remove('u-show-keytip');
+        }
+      })
+
+    }
+
+    init() {
+      console.debug('u-keyshortcuts', 'init()');
+    } // init()
+
+    /// @brief values registered as observedAttributes got changed
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.debug("attributeChanged", name, oldValue, newValue);
+
+      if (oldValue !== newValue) {
+        if (name === "value") {
+          // this._inputObj.value = this.value;
+        }
+      }
+
+    } // attributeChangedCallback()
+  }
+</script>
