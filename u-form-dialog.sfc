@@ -1,0 +1,155 @@
+<!--
+
+Implementation of a web component to ...
+
+<u-xxx ... >
+
+Description...
+
+-->
+
+<script extends="dialog">
+
+  export default class UFormDialog extends HTMLDialogElement {
+    static observedAttributes = ["toggletarget", "toggleclass", "value"];
+
+    returnValue;
+
+    _defaultData = undefined;
+    _data = undefined;
+    _form = undefined;
+    _callback = undefined;
+
+
+    connectedCallback() {
+      console.debug('u-form-dialog', 'connected()');
+
+      this._form = this.querySelector('form');
+      this.addEventListener('click', this.#onclick);
+
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', this.init.bind(this));
+      } else {
+        // init() the component before next redraw
+        window.requestAnimationFrame(this.init.bind(this));
+      }
+    }
+
+    open(data = {}, cb, c) {
+      console.debug('u-form-dialog', 'open()');
+
+      if ((this._form) && (!this._defaultData)) {
+        this._defaultData = this._form.getJsonData();
+      }
+
+      this._data = Object.assign({}, this._defaultData, data);
+
+      this.returnValue = '';
+      this._callback = cb;
+
+      // populate placeholders (not form elements) with current data 
+      this.querySelectorAll('*[u-text]').forEach((e) => {
+        const key = e.getAttribute('u-text');
+        if (key) { e.textContent = data[key]; }
+      });
+
+      if (this._form) {
+        (this._form).setJsonData(data);
+      }
+
+      // dispatch open event to extend dialog implementation
+      // can dynamically add elements to the form
+      this.dispatchEvent(new CustomEvent("opened", {
+        detail: {
+          dialog: this,
+          action: "opened",
+          data: this._data,
+          form: this._form
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: false,
+      }));
+
+      // open Dialog in modal mode
+      this.showModal();
+    } // open()
+
+    close(action) {
+      console.debug('u-form-dialog', 'close()');
+      this.returnValue = action;
+
+      // dispatch close event to extend dialog implementation
+      this.dispatchEvent(new CustomEvent("closed", {
+        detail: {
+          dialog: this,
+          action: action,
+          data: this._data,
+          form: this._form
+        },
+        bubbles: true,
+        cancelable: true,
+        composed: false,
+      }));
+
+      // close the dialog
+      super.close();
+
+      if (this._callback) {
+        debugger;
+        this._callback(action, this._data);
+      }
+    } // close()
+
+
+    init() {
+      console.debug('u-form-dialog', 'init()');
+    } // init()
+
+
+    // handle click event...
+    #onclick(evt) {
+      console.debug('u-form-dialog', 'on-click');
+
+      let tar = evt.target
+      while ((tar && tar !== this) && ( !tar.hasAttribute('u-action'))) {
+        tar = tar.parentElement;
+      }
+
+      const ua = tar.getAttribute('u-action');
+      if (ua) {
+        this._data = this._form.getJsonData();
+        this.close(ua);
+      }
+    } // onclick()
+
+
+    /// @brief get values from the component from variables or embedded elements. 
+    getAttribute(name) {
+      if (name === 'value') {
+        return this._inputObj.value;
+      } else {
+        return super.getAttribute(name);
+      }
+    }
+
+
+    /// @brief values registered as observedAttributes got changed 
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.debug("attributeChanged", name, oldValue, newValue);
+
+      if (oldValue !== newValue) {
+        if (name === "toggletarget") {
+          this._toggleTarget = newValue;
+
+        } else if (name === "toggleclass") {
+          this._toggleClass = newValue;
+
+        } else if (name === "value") {
+          this._inputObj.value = this.value;
+        }
+      }
+
+    } // attributeChangedCallback()
+  }
+</script>

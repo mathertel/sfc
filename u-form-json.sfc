@@ -33,6 +33,7 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
     }
 
     connectedCallback() {
+      console.debug('u-form-json', 'connected()');
       // //   ... is called when the html element is ready, but form elements may not be there at this time.
       this.addEventListener("change", this._validateForm);
       this.addEventListener("keyup", this._validateForm);
