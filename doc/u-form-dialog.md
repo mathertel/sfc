@@ -32,7 +32,7 @@ dlg.open(
   });
 ```
 
-The opening is executed by the following steps: 
+The opening is executed by the following steps:
 
 ### Data for opening
 

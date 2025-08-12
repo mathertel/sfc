@@ -1,5 +1,11 @@
 # Components in the SFC library
 
+## Extending existing HTML Elements
+
+[Dialogs and Forms](dialog-forms.md)
+
+
+
 ## [Extended Code Component](u-code.md)
 
 ![Extended Code Example](images/u-code.png)
