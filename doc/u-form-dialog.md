@@ -56,7 +56,7 @@ After initializing the form and showing the dialog an `open` event is dispatched
 event:
   
 * detail.dialog -- the dialog element.
-* detail.action -- "opened".
+* detail.action -- 'init'.
 * detail.data -- the passed data object
 * detail.form -- the form element in the dialog.
 
@@ -69,9 +69,9 @@ To add specific actions to close the dialog the click on buttons in the dialog c
 `u-action=[cancel,...]". This is equal to calling the close(action) function.
 
 
-### Closed Event
+### Action Event
 
-The "closed" event is dispatched by the u-form-dialog extension after the dialog has been closed with passing the detail
+The 'action' event is dispatched by the u-form-dialog extension after the dialog has been closed with passing the detail
 attributes in the event:
   
 * detail.dialog -- the dialog element.
@@ -106,7 +106,7 @@ newValue can be modified ?
 // This file is part of the Widget implementation for the HomeDing Library.
 
 // Dialogs are implemented as HTML <dialog> elements containing a <from> element.
-// Dialogs can be opened using DialogClass.openModalForm(id, data)
+// Dialogs with form data can be opened using the showModal or show functions.
 
 <!--
 

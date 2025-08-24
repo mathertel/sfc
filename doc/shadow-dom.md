@@ -14,7 +14,7 @@ Shadow DOM makes components more self-contained and helps prevent conflicts in H
 
 ## Key Benefits
 
-* **Isolated DOM**: Components with Shadow DOM can be updated independently.  Using "closed" mode enforces strict
+* **Isolated DOM**: Components with Shadow DOM can be updated independently.  Using 'closed' mode enforces strict
   encapsulation, preventing access through `document.querySelector()`.
 
 * **Scoped CSS**: While CSS is globally scoped by default, Shadow DOM provides natural CSS scoping.  Styles remain

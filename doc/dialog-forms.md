@@ -61,8 +61,14 @@ To solve the typical topics when combining `<dialog>` and `<form>` elements the 
 
 ## Opening
 
+TODO: document
+
 * pass data
 * `init` event
+
+* call showModal(data) with initial data.
+* call showModal(data) with new initial data.
+
 
 
 ## The "Init" Event
@@ -96,17 +102,26 @@ specifying a different url instead of a simple reload.
 
 This was useful and allows submitting the same form for different processing by just adding an attribute on the `<button>`.
 
-The [u-form-dialog] control therefore captures clicks on all buttons of the form and dispatches an 'action' event with the details data.
+The [u-form-dialog] control therefore captures clicks on all buttons of the form and dispatches an 'action' event with the details data. When the button is NOT of type submit as it has no attribute `type="button"` the action event is triggered without closing the dialog.
 
-When the button is NOT of type submit as it has no attribute `type="button"` the action event is triggered without closing the
-dialog.
+The value from the `u-action` attribute on the HTML element is added to the event details.
 
-When the button is of type submit the action event is triggered after closing the dialog.
+``` javascript
+dialog.addEventListener('action', evt => {
+  // evt.detail.action -- the value from the u-action attribute
+  // evt.detail.dialog -- a reference to the dialog element
+  // evt.detail.data -- the data from the form
+  // evt.detail.form -- the data from the form
+  if (evt.detail.action === 'ok') {
+    ... do something with the data
+  }
+});
+```
 
-event details with action=formaction, dialog, form, data, ...
+As click events are dispatched before submit the action event is dispatched before closing the dialog.
 
 
-## closing
+## Closing a Dialog
 
 There are the following ways of closing a modal dialog that are covered by the u-dialog-form extension:
 
@@ -115,14 +130,20 @@ There are the following ways of closing a modal dialog that are covered by the u
 * clicking a button with formmethod="dialog"
 * using the close() method
 
-When you like to use buttons inside of `<dialog><forms>` that do not trigger a submit and therefore close the dialog add a
-`type="button"` to the button as `type="submit"` is the default.
+With this extension the dialog also can be closed by using the `close` action int the `u-action` attribute: 
+
+``` html
+<div class="u-close" u-action="close"></div>
+```
+
+When you like to use buttons inside of `<dialog><forms>` that do not trigger a submit and therefore close the dialog add
+a `type="button"` to the button as `type="submit"` is the default -- or just don't use a `<button>`.
 
 
 ## See also
 
 * [u-form-json] Custom Control extending the `<form>` element
-* [[u-form-dialog] Custom Control extending the `<dialog>` element
+* [u-form-dialog] Custom Control extending the `<dialog>` element
 * About HTML dialogs <https://web.dev/learn/html/dialog/>
 * <https://www.w3.org/WAI/WCAG21/Techniques/html/H102>
 * <https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form>

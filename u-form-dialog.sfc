@@ -2,7 +2,7 @@
 
 Implementation of a web component to ...
 
-<u-xxx ... >
+<dialog is="" ... >
 
 Description...
 
@@ -11,21 +11,25 @@ Description...
 <script extends="dialog">
 
   export default class UFormDialog extends HTMLDialogElement {
-    static observedAttributes = ["toggletarget", "toggleclass", "value"];
-
-    returnValue;
-
     _defaultData = undefined;
     _data = undefined;
     _form = undefined;
     _callback = undefined;
 
+    // promise handling for modal dialog
+    _promise; _resolve; _reject;
 
+    #firstInit = true;
+
+    // @brief UFormDialog class is attached to a <form> element 
     connectedCallback() {
       console.debug('u-form-dialog', 'connected()');
 
       this._form = this.querySelector('form');
-      this.addEventListener('click', this.#onclick);
+      this.addEventListener('click', this._onclick);
+      this.addEventListener('submit', this._onsubmit);
+      this.addEventListener('cancel', this._oncancel);
+      this.addEventListener('close', this._oncancel);
 
       if (document.readyState === 'loading') {
         window.addEventListener('DOMContentLoaded', this.init.bind(this));
@@ -33,19 +37,18 @@ Description...
         // init() the component before next redraw
         window.requestAnimationFrame(this.init.bind(this));
       }
-    }
+    } // connectedCallback()
 
-    open(data = {}, cb, c) {
-      console.debug('u-form-dialog', 'open()');
+
+    // @brief initialize the dialog with data
+    _init(data) {
+      console.debug('u-form-dialog', '_init()');
 
       if ((this._form) && (!this._defaultData)) {
         this._defaultData = this._form.getJsonData();
       }
 
       this._data = Object.assign({}, this._defaultData, data);
-
-      this.returnValue = '';
-      this._callback = cb;
 
       // populate placeholders (not form elements) with current data 
       this.querySelectorAll('*[u-text]').forEach((e) => {
@@ -57,30 +60,60 @@ Description...
         (this._form).setJsonData(data);
       }
 
-      // dispatch open event to extend dialog implementation
+      const details = {
+        dialog: this,
+        action: 'init',
+        firstInit: this.#firstInit,
+        data: this._data,
+        form: this._form
+      };
+      this.#firstInit = false;
+
+      // dispatch init event to extend dialog implementation
       // can dynamically add elements to the form
-      this.dispatchEvent(new CustomEvent("opened", {
-        detail: {
-          dialog: this,
-          action: "opened",
-          data: this._data,
-          form: this._form
-        },
-        bubbles: true,
-        cancelable: true,
-        composed: false,
-      }));
+      this.dispatchEvent(new CustomEvent('init', { detail: details, bubbles: true, cancelable: true, composed: false }));
+    } // _init()
+
+
+    // @brief show the dialog in modal mode
+    // @param {Object} data - initial data to populate the form
+    // This is an overwrite of the dialog.showModal() method.
+    showModal(data = {}) {
+      console.debug('u-form-dialog', 'showModal()');
+      this._init(data);
 
       // open Dialog in modal mode
-      this.showModal();
+      super.showModal();
+
+      // do not yet rely on `{ dPromise, dResolve, dReject } = Promise.withResolvers();` from ES2025
+      this._promise = new Promise((resolve, reject) => {
+        this._resolve = resolve;
+        this._reject = reject;
+      });
+      return this._promise;
+    } // showModal(data)
+
+
+    // @brief show the dialog in non-modal mode
+    // @param {Object} data - initial data to populate the form
+    // This is an overwrite of the dialog.show() method.
+    show(data = {}) {
+      console.debug('u-form-dialog', 'open()');
+      this._init(data);
+
+      debugger; // untested
+
+      // open Dialog in non-modal mode
+      super.show();
+
     } // open()
 
-    close(action) {
-      console.debug('u-form-dialog', 'close()');
-      this.returnValue = action;
 
-      // dispatch close event to extend dialog implementation
-      this.dispatchEvent(new CustomEvent("closed", {
+    #dispatchAction(action) {
+      console.debug('u-form-dialog', '#dispatchaction()');
+
+      // dispatch action event to extend dialog implementation
+      this.dispatchEvent(new CustomEvent('action', {
         detail: {
           dialog: this,
           action: action,
@@ -91,15 +124,7 @@ Description...
         cancelable: true,
         composed: false,
       }));
-
-      // close the dialog
-      super.close();
-
-      if (this._callback) {
-        debugger;
-        this._callback(action, this._data);
-      }
-    } // close()
+    } // #dispatchAction()
 
 
     init() {
@@ -108,48 +133,45 @@ Description...
 
 
     // handle click event...
-    #onclick(evt) {
-      console.debug('u-form-dialog', 'on-click');
-
+    _onclick(evt) {
       let tar = evt.target
-      while ((tar && tar !== this) && ( !tar.hasAttribute('u-action'))) {
+      console.debug('u-form-dialog', 'on-click', tar);
+
+      // ony intersted in elements with u-action attribute
+      while ((tar && tar !== this) && (!tar.hasAttribute('u-action'))) {
         tar = tar.parentElement;
       }
 
       const ua = tar.getAttribute('u-action');
-      if (ua) {
+      if (ua === 'cancel') {
+        super.close(); // no action, just close
+
+      } else if (ua) {
         this._data = this._form.getJsonData();
-        this.close(ua);
+        this.#dispatchAction(ua);
       }
-    } // onclick()
+    } // _onclick()
 
 
-    /// @brief get values from the component from variables or embedded elements. 
-    getAttribute(name) {
-      if (name === 'value') {
-        return this._inputObj.value;
-      } else {
-        return super.getAttribute(name);
-      }
-    }
+    // handle submit event - resolve the Promise with data
+    _onsubmit(evt) {
+      console.debug('u-form-dialog', 'on-submit');
+      if (this._promise) this._resolve(this._form.getJsonData());
+      this._promise = this._resolve = this._reject = undefined;
+    } // _onsubmit()
+
+    // handle close or cancel event - reject the Promise if not yet done.
+    _oncancel(evt) {
+      console.debug('u-form-dialog', 'on-cancel');
+      if (this._promise) this._reject('canceled');
+      this._promise = this._resolve = this._reject = undefined;
+    } // _oncancel()
 
 
-    /// @brief values registered as observedAttributes got changed 
-    attributeChangedCallback(name, oldValue, newValue) {
-      console.debug("attributeChanged", name, oldValue, newValue);
-
-      if (oldValue !== newValue) {
-        if (name === "toggletarget") {
-          this._toggleTarget = newValue;
-
-        } else if (name === "toggleclass") {
-          this._toggleClass = newValue;
-
-        } else if (name === "value") {
-          this._inputObj.value = this.value;
-        }
-      }
-
-    } // attributeChangedCallback()
+    // handle close event - cleanup
+    _onclose(evt) {
+      console.debug('u-form-dialog', 'on-close');
+      if (this._promise) { this._reject('closed'); }
+    } // _onclose()
   }
 </script>
