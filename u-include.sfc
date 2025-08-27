@@ -1,0 +1,64 @@
+<!--
+
+Implementation of a web component to ...
+
+The <u-include> custom element allows reusing the same html code registered as a template in he current page in multiple places.
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+-->
+
+<script>
+
+  export default class UInclude extends UComponent {
+    static observedAttributes = ["ref"];
+
+    _ref;
+    _templateObj;
+
+    connectedCallback() {
+      // console.debug('u-include', 'connected()');
+      super.connectedCallback();
+
+      this._templateObj = document.querySelector(this._ref);
+
+      if (this._templateObj) {
+        const content = this._templateObj.content.cloneNode(true);
+        if (content) {
+          const root = this.parentElement;
+          const slotObj = content.querySelector('slot');
+
+          if (slotObj) {
+            // move inner elements of <u-include> to the slot
+            const nodes = Array.from(this.childNodes);
+            if (nodes.length > 0) {
+              const parent = slotObj.parentElement;
+              const nextNode = slotObj.nextSibling;
+              for (const n of nodes) {
+                parent.insertBefore(n, nextNode);
+              };
+              // remove slot element
+              slotObj.remove();
+            }
+          }
+
+          root?.replaceChild(content, this);
+        }
+      }
+    } // connectedCallback
+
+
+    /// @brief values registered as observedAttributes got changed 
+    attributeChangedCallback(name, oldValue, newValue) {
+      // console.debug('u-include', "attributeChanged", name, oldValue, newValue);
+
+      if (oldValue !== newValue) {
+        if (name === "ref") {
+          this._ref = newValue;
+        }
+      }
+
+    } // attributeChangedCallback()
+  }
+</script>

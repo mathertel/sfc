@@ -28,97 +28,118 @@ When both value and cssvar are given the given value will overwrite the cssvar l
 </template>
 
 <style scoped>
-:host {
-  display: inline-block;
-  height:1lh;
-  width:11ch;
-  vertical-align: text-bottom ;
-}
-
-label {
-  position: absolute;
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-gap: 0.2em;
-
-  div {
+  :host {
     display: inline-block;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
+    height: 1lh;
+    width: 11ch;
+    vertical-align: text-bottom;
   }
 
-  input {
-    display: none;
-  }
+  label {
+    position: absolute;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 0.2em;
 
-  .pad {
-    border-radius: 100%;
-    aspect-ratio: 1;
-    border: 1px solid black;
+    div {
+      display: inline-block;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+    }
+
+    input {
+      display: none;
+    }
+
+    .pad {
+      border-radius: 100%;
+      aspect-ratio: 1;
+      border: 1px solid black;
+    }
   }
-}
 </style>
 
 <script>
-export default class UColor extends UComponent {
-  static observedAttributes = ["value"];
-  cssvar = '';
+  export default class UColor extends UComponent {
+    static observedAttributes = ["value"];
+    cssvar = '';
 
-  // convert color values to hex using canvas context
-  _hexColor(colorval) {
-    var ctx = document.createElement('canvas').getContext('2d');
-    ctx.strokeStyle = colorval;
-    return(ctx.strokeStyle);
-  }
+    // convert color values to hex using canvas context
+    _hexColor(colorval) {
+      let ret = colorval;
 
-  init() {
-    console.debug('UColor', 'init()');
-    this.cssvar = this.getAttribute('cssvar');
-    const oInput = this.shadowRoot.querySelector('input');
+      if (colorval.match(/^#[0-9a-f]{6}$/, 'i')) {
+        // ok.
 
-    // propagate color value change...
-    oInput.addEventListener('change', (evt) => {
-      this.value = evt.target.value;
-    });
-
-    if (this.cssvar) {
-      const col = getComputedStyle(document.documentElement).getPropertyValue('--' + this.cssvar);
-      console.debug('UColor', `col=${col}`);
-      oInput.setAttribute('value', col);
-      this.setAttribute('value', col);
-    }
-  } // init()
-
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    console.debug('UColor', "attributeChanged", name, oldValue, newValue);
-    this.cssvar = this.getAttribute('cssvar');
-
-    if (name === 'value') {
-      const dom = this.shadowRoot;
-      const oCode = dom.querySelector('.code');
-      const oPad = dom.querySelector('.pad');
-      const oInput = dom.querySelector('input');
-
-      if (!newValue) {
-        oPad.style.backgroundColor = 'silver';
-        oCode.textContent = '(none)';
+      } else if (colorval.match(/^#[0-9A-F]{3}$/, 'i')) {
+        // convert #rgb to #rrggbb
+        ret = '#' + colorval[1] + colorval[1] + colorval[2] + colorval[2] + colorval[3] + colorval[3];
 
       } else {
-        oPad.style.backgroundColor = newValue;
-        newValue = this._hexColor(oPad.style.backgroundColor);
-        console.debug('UColor', newValue);
-        oInput.setAttribute('value', newValue);
-        oCode.textContent = newValue;
+        let m;
+        if (m = colorval.match(/^light-dark\(([a-z]+\(.+\)), ([a-z]+\(.+\))\)$/, 'i')) {
+          // use the light color for now...
+          colorval = m[1].trim();
 
-        if (this.cssvar) {
-          // a css variable should be changed.
-          document.querySelector(":root").style.setProperty('--' + this.cssvar, newValue);
+        } else if (m = colorval.match(/^light-dark\(([a-z]+),.+\)$/, 'i')) {
+          // use the light color for now...
+          colorval = m[1].trim();
         }
-        // create a change event like on inputs 
-        this.dispatchEvent(new Event("change"));
+        // convert using canvas...
+        var ctx = document.createElement('canvas').getContext('2d');
+        ctx.strokeStyle = colorval;
+        ret = ctx.strokeStyle;
       }
+      return (ret);
     }
-  } // attributeChangedCallback()
-}
+
+    init() {
+      // console.debug('UColor', 'init()');
+      this.cssvar = this.getAttribute('cssvar');
+      const oInput = this.shadowRoot.querySelector('input');
+
+      // propagate color value change...
+      oInput.addEventListener('change', (evt) => {
+        this.value = evt.target.value;
+      });
+
+      if (this.cssvar) {
+        const col = getComputedStyle(document.documentElement).getPropertyValue('--' + this.cssvar);
+        // console.debug('UColor', `col=${col}`);
+        oInput.setAttribute('value', col);
+        this.setAttribute('value', col);
+      }
+    } // init()
+
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      // console.debug('UColor', "attributeChanged", name, oldValue, newValue);
+      this.cssvar = this.getAttribute('cssvar');
+
+      if (name === 'value') {
+        const dom = this.shadowRoot;
+        const oCode = dom.querySelector('.code');
+        const oPad = dom.querySelector('.pad');
+        const oInput = dom.querySelector('input');
+
+        if (!newValue) {
+          oPad.style.backgroundColor = 'silver';
+          oCode.textContent = '(none)';
+
+        } else {
+          oPad.style.backgroundColor = newValue;
+          newValue = this._hexColor(oPad.style.backgroundColor);
+          oInput.setAttribute('value', newValue);
+          oCode.textContent = newValue;
+
+          if (this.cssvar) {
+            // a css variable should be changed.
+            document.querySelector(":root").style.setProperty('--' + this.cssvar, newValue);
+          }
+          // create a change event like on inputs 
+          this.dispatchEvent(new Event("change"));
+        }
+      }
+    } // attributeChangedCallback()
+  }
 </script>
