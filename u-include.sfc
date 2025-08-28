@@ -9,6 +9,16 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
 
 -->
 
+<!-- 
+Add this css to your global css or to the page to avoid showing the <u-include> element before it is replaced by the
+template content:
+<style>
+  u-include {
+    display: none;
+  }
+</style>
+-->
+
 <script>
 
   export default class UInclude extends UComponent {
@@ -17,10 +27,18 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
     _ref;
     _templateObj;
 
+
     connectedCallback() {
-      // console.debug('u-include', 'connected()');
+      console.debug('u-include', 'connected()');
       super.connectedCallback();
 
+      if (!this._ref) this._ref = this.getAttribute("ref");
+      if (this._ref) this._render();
+    } // connectedCallback
+
+
+    _render() {
+      console.debug('u-include', 'render()', this._ref);
       this._templateObj = document.querySelector(this._ref);
 
       if (this._templateObj) {
@@ -46,16 +64,17 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
           root?.replaceChild(content, this);
         }
       }
-    } // connectedCallback
+    } // _render
 
 
     /// @brief values registered as observedAttributes got changed 
     attributeChangedCallback(name, oldValue, newValue) {
-      // console.debug('u-include', "attributeChanged", name, oldValue, newValue);
+      console.debug('u-include', "attributeChanged", name, oldValue, newValue);
 
       if (oldValue !== newValue) {
         if (name === "ref") {
           this._ref = newValue;
+          if (this._ref) this._render();
         }
       }
 

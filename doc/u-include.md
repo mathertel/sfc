@@ -43,8 +43,15 @@ The `<u-include>` tag can be used at the destination place and will be replaced 
 
 ## Style Attributes
 
-The `<u-include>` is styled to not be visible at first rendering. As it will be replaced any further styling is meaningless.
+The `<u-include>` is must not be visible at first rendering. As it will be replaced any further styling is meaningless.
 
+As a good practice a css rule to hide all unreplaced u-includes can be added: 
+
+``` css
+u-include {
+  display: none;
+}
+```
 
 ## HTML and JavaScript accessible Attributes
 
