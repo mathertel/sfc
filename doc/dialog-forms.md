@@ -9,11 +9,12 @@ the current page.
 
 ```html
 <form>
-  <input name="formdata"> <button>Button</button>
+  <input name="field1" value="abc">
+  <button>Button</button>
 </form>
 ```
 
-Clicking this button will reload the page with adding a querystring to the url like `?formdata=123`.
+Clicking this button will reload the page with adding a querystring to the url like `?field1=abc`.
 This default behavior can be changed.
 
 > Especially modern SPA applications don't like this approach because all Javascript variables and dynamically built HTML will
@@ -37,7 +38,7 @@ When you like to use buttons inside of `<forms>` that do not trigger a submit ad
 ## Form Data Access
 
 As data inside the form elements like inputs is not given to the URL or a POST body. The form data can be retrieved by accessing
-the elements directy as they are not changed during the submit event or they can be retrieved by using the built-in `FormData`
+the elements directly as they are not changed during the submit event or they can be retrieved by using the built-in `FormData`
 Object.
 
 This works as designed but some detailled functionality is missing. To get a good JSON data exchange functionality `<form>`
@@ -58,60 +59,99 @@ The Form mechanism have the "dialog" methods for doing exactly this: Providing m
 
 To solve the typical topics when combining `<dialog>` and `<form>` elements the [u-form-dialog] control was implemented as an extension to the `<dialog>` element.
 
+The skeleton for a dialog with form data looks like this:
 
-## Opening
+``` html
+<dialog is="u-form-dialog">
+  <form is="u-form-json" method="dialog">
+    <input name="field1">
+    <input name="field2">
+    <button type="submit">Button</button>
+  </form>
+</dialog>
+```
 
-TODO: document
+The names of the input elements will define the properties of the data structure. The `<button>` will trigger the submit event.
 
-* pass data
-* `init` event
+Here 2 custom elements help in the implementation:
 
-* call showModal(data) with initial data.
-* call showModal(data) with new initial data.
-
+* **`u-dialog-form` component** -– This is a custom control that extends the `<dialog>` element to better support the combination of a form inside a dialog.
+* **`u-form-json` component** -– This is a custom control that extends to the `<form>` element to better support JSON data that can be handled locally without reloading.
 
 
-## The "Init" Event
+## Using Modal Dialogs
 
-is dispatched after setting the data to the form and before the dialog is shown.
+To show the dialog with the embedded form in a modal mode the `showModal(data)` function can be used as known from the standard HTML doalog element.
 
-event details with dialog, form, data, ...
+The `<u-form-dialog>` extension extends this function by accepting the initial form data as an Object.
 
-This event can be used for further customization of the dialog or form details like populating select options or dynamically
-creating more HTML element in the form.
+The `<u-form-dialog>` extension also return a Promise that is resolved or rejected when the dialog is closed. It provides the current data as parameter when resolved.
 
-This example makes an input field "readonly" when the attribute was given in the data object:
-
-```javascript
-  const dialog = document.querySelector("dialog#dlg01");
-  dialog.addEventListener('init', (evt) => {
-    console.debug('init', evt);
-
-    const form = evt.details.form;
-    const data = evt.details.data;
-
-form.input firstname . readonly = !!data.firstname;
-
+``` javascript
+const data = {
+  target: "switch/0",
+  sound: "bell"
+};
+dlg.showModal(data)
+  .then(data => {
+    // result of action dialog 
+    alert("Dialog result=\n"
+      + JSON.stringify(data, undefined, 2));
   });
 ```
 
-## Action Events
 
-The above mentioned "old" way of working had the possibility to add action/formaction to submit into different use-cases by
+## `Init` Event
+
+The `Init` is dispatched after setting the data to the form and before the dialog is shown.  This event can trigger the
+functionality for further customization of the dialog or form details like populating select options or dynamically
+creating more HTML element in the form.
+
+The `event.detail` attribute that provides the following information:
+
+* action -- 'init',
+* dialog -- a reference to the dialog element.
+* firstInit -- is `true` when called the first time.
+* data -- The initial data of the form.
+* form -- a reference to the form element.
+
+The following example makes an input field "readonly" when the attribute was given in the data object:
+
+```javascript
+const dialog = document.querySelector("dialog#dlg01");
+dialog.addEventListener('init', (evt) => {
+  console.debug('init', evt);
+
+  const form = evt.details.form;
+  const data = evt.details.data;
+
+  const inObj = form.querySelector('input#firstname');
+
+  inObj.readonly = !!data.firstname;
+});
+```
+
+
+## `Action` Event
+
+The above mentioned "old" way how forms work had the possibility to add action/formaction to submit into different use-cases by
 specifying a different url instead of a simple reload.
 
 This was useful and allows submitting the same form for different processing by just adding an attribute on the `<button>`.
 
 The [u-form-dialog] control therefore captures clicks on all buttons of the form and dispatches an 'action' event with the details data. When the button is NOT of type submit as it has no attribute `type="button"` the action event is triggered without closing the dialog.
 
-The value from the `u-action` attribute on the HTML element is added to the event details.
+The `event.detail` attribute that provides the following information:
+
+* action -- The value from the `u-action` attribute on the HTML element.
+* dialog -- a reference to the dialog element.
+* data -- The initial data of the form.
+* form -- a reference to the form element.
+
+The following example adds functionality to the 'ok' action in the dialog.  This must not result in closing the dialog.
 
 ``` javascript
 dialog.addEventListener('action', evt => {
-  // evt.detail.action -- the value from the u-action attribute
-  // evt.detail.dialog -- a reference to the dialog element
-  // evt.detail.data -- the data from the form
-  // evt.detail.form -- the data from the form
   if (evt.detail.action === 'ok') {
     ... do something with the data
   }
