@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>u-dialog and u-form testing Test Page</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    dialog[is='u-form-dialog'],
+    form[is='u-form-json'] {
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-form-dialog,u-form-json,u-markdown');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>u-dialog and u-form testing Test Page</h1>
+  </header>
+
+  <main>
+    <nav>
+      <button id="b1">open Dialog</button>
+    </nav>
+
+    <hr />
+
+    <dialog id='d1' is="u-form-dialog">
+      <p>HERE !</p>
+      <form is="u-form-json" method="dialog">
+        <div class="form-grid">
+
+          <label>first name:</label><input name="firstname">
+          <label>last name:</label><input name="lastname">
+          <label>online:</label><input name="online" type="checkbox">
+          <label>birthday:</label><input name="birthday" type="date">
+        </div>
+        <button>ok</button>
+      </form>
+    </dialog>
+    <h3>Dialog Form-Data in JSON</h3>
+    <pre id="data" style="min-height: 3em;background-color: azure;">{}</pre>
+    <hr />
+
+    <u-markdown src="../doc/dialog-forms.md"></u-markdown>
+    
+    <hr>
+    <u-markdown src="../doc/u-form-dialog.md"></u-markdown>
+    <hr>
+    <u-markdown src="../doc/u-form-json.md"></u-markdown>
+  </main>
+
+  <script>
+    const b1 = document.querySelector('#b1');
+    const d1 = document.querySelector('#d1');
+
+    b1.addEventListener('click', e => {
+      d1.showModal({ i01: 99, firstname: "Tom" })
+        .then(d => { document.querySelector('#data').textContent = JSON.stringify(d, null, 2); })
+        .catch(d => { document.querySelector('#data').textContent = "cancelled." });
+    })
+  </script>
+</body>
+
+</html>

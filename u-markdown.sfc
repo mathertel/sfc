@@ -16,7 +16,6 @@ See [u-markdown documentation](https://github.com/mathertel/sfc/blob/main/doc/u-
 <style scoped>
 :host {
   display: block;
-  height: 100%;
 }
 
 :root {

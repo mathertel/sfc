@@ -26,7 +26,7 @@ This default behavior can be changed.
 
 Forms can be used without reloading the page by adding attributes:
 
-* A `<button formmethod="dialog">` will not create a reload when this button is pressed. The `formmethod` also exists in `<input>`
+* A `<button formmethod="dialog">` will not reload the page by adding parameters when the button is pressed. The `formmethod` also exists for `<input>`
   elements with type `submit` or `image`
 * A `<form method="dialog">` will not create a reload for all `<button>`s and `<input>`s.
 
@@ -103,9 +103,13 @@ dlg.showModal(data)
 
 ## `Init` Event
 
-The `Init` is dispatched after setting the data to the form and before the dialog is shown.  This event can trigger the
-functionality for further customization of the dialog or form details like populating select options or dynamically
-creating more HTML element in the form.
+The `Init` event is dispatched after setting the data to the form and before the dialog is shown.  This event can
+trigger the functionality for further customization of the dialog or form details like populating select options or
+dynamically creating more HTML element in the form.
+
+Listeners to events are typically registered once by the page or application to support how the dialog works including
+"internal" processing that do not close the dialog.  Events can also be used to setup a process that requires the dialog
+as a step but it is hard to include the same dialog indifferent processes or use-cases by this approach.
 
 The `event.detail` attribute that provides the following information:
 
@@ -178,6 +182,30 @@ With this extension the dialog also can be closed by using the `close` action in
 
 When you like to use buttons inside of `<dialog><forms>` that do not trigger a submit and therefore close the dialog add
 a `type="button"` to the button as `type="submit"` is the default -- or just don't use a `<button>`.
+
+
+## Use the Promise for processing dialog results
+
+When closing the dialog the standard events submit, cancel and close are captured by the extension and the resulting
+dataset is given to the application using the created Promise.  
+
+The submit, cancel and close actions are available on the dialog but are not offering direct access to the details
+through the event object as they are created by the unchanged default implementation of the dialog element.
+
+Dialogs are opened using the customized versions of show(initialData) or showModal(initialData) function that creates a
+Promise and gives it back as a result of the function.  When this promise resolves the by submitting the dialog (not
+cancel) the promise resolves with passing the final dataset.  When the dialog is canceled the Promise will be rejected.
+
+This Promise based mechanism is used best for using the resulting data in the application.  In contrast to actions this
+can be used even when the dialog is used in different situations.
+
+``` javaScript
+  myDialog.showModal({ i01: 99 })
+    .then((data) => { 
+      ...  use data  })
+    .catch(() => { 
+      ... dialog was cancelled });
+``` 
 
 
 ## See also

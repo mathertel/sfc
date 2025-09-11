@@ -6,7 +6,15 @@
 
 // declare global {
 interface Window {
+  // simplified declaration of loadComponent function , better use Window.sfc.loadComponent
   loadComponent: (tags: string | string[], folder?: string) => Promise<void[]>;
+
+  sfc: {
+    loaderURL: string;
+    loadComponent: (tags: string | string[], folder?: string) => Promise<void[]>;
+    genID: (type?: string) => string;
+    _ids: { [type: string]: number };
+  }
 }
 
 // The UComponent class acts as a intermediate class between user defined SFC and the generic HTMLElement class.
@@ -205,7 +213,26 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
   return (Promise.all(tags.map((tag) => fetchSFC(tag, folder))));
 } // loadComponent()
 
+
+// _genID generates a unique ID for a given element using a readable type.
+function _genID (type : string = 'id') {
+  const ids = window.sfc._ids;
+
+  if (! ids[type]) {
+    ids[type] = 0;
+  }
+  ids[type]++;
+  return(type + '-' + (ids[type]++));
+} // sfc.genID()
+
+
 window.loadComponent = loadComponent;
+window.sfc = {
+  loaderURL: loaderURL,
+  loadComponent: loadComponent,
+  genID: _genID,
+  _ids: {}
+};
 
 // Greetings.
 console.debug('SFC', 'loadComponent...');

@@ -4,7 +4,7 @@ File: u-splitter.sfc
 Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
 This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
-Implementation of a custom element that enables horizontal or vertical sizing of a pair of regions inside this containter
+Implementation of a custom element that enables horizontal or vertical sizing of a pair of regions inside this container
 element.
 
 Example: <u-splitter vertical? > <div>...</div> <div>...</div> </u-splitter>
