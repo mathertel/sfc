@@ -15,7 +15,7 @@
   </style>
   <script src="/loader.js"></script>
   <script>
-    var allSFCLoaded = window.loadComponent('u-tabs');
+    var allSFCLoaded = window.loadComponent('u-tabs,u-markdown');
   </script>
 </head>
 
@@ -27,7 +27,7 @@
   <main>
     <p>This is a test page for the <code>&lt;u-tabs&gt;</code> single file control (sfc) implementation.</p>
     <hr>
-    <u-tabs>
+    <u-tabs style="width:75%">
       <button id="bOne">One</button>
       <div tabindex="0">Lorem 1 ipsum dolor sit, amet consectetur adipisicing
         elit. Totam expedita ipsam autem, odit natus, cupiditate nulla enim odio
@@ -49,6 +49,10 @@
         impedit veritatis veniam aliquam magnam nobis in quidem, nihil voluptates
         nesciunt.</div>
     </u-tabs>
+
+    <hr>
+          <u-markdown src="../doc/u-tabs.md"></u-markdown>
+
   </main>
 
 </body>
