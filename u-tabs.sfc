@@ -1,0 +1,163 @@
+<!--
+File: u-tabs.sfc
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+Implementation of a custom element ...
+
+Example: <u-tabs> <button>...</button> <div>...</div> </u-tabs>
+-->
+
+<template light>
+</template>
+
+<style>
+  u-tabs {
+    display: block;
+
+    >div[role='tablist'] {
+      button {
+        color: black;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      button[aria-selected=true] {
+        background-color: white;
+        border-bottom-color: transparent;
+      }
+
+      button[aria-selected=false] {
+        background-color: #aaa;
+      }
+    }
+
+    >div[role='tabpanel'] {
+      background-color: white;
+      padding: 4px;
+
+      &[tabindex='-1'] {
+        display: none;
+      }
+
+      ;
+    }
+  }
+</style>
+
+<script>
+  export default class uTabs extends UComponent {
+
+    _panels = []; // List of button/panels = [{tab, tabID, panel, panelID}}
+    _active = 0; // index of active tab
+    _tabListObj = undefined;
+
+    constructor(p) {
+      super();
+
+      let btnObjs = this.querySelectorAll(':scope > button');
+      let divObjs = this.querySelectorAll(':scope > div');
+      this._tabListObj = this.querySelector(':scope > div[role=tablist]');
+
+      if ((btnObjs) && (divObjs)) {
+
+        if (!this._tabListObjj) {
+          this._tabListObj = document.createElement('div');
+          this.insertAdjacentElement("afterbegin", this._tabListObj);
+          this._tabListObj.role = 'tablist';
+        }
+
+        // get buttons and panels with IDs or add ID
+        for (let n = 0; n < divObjs.length && n < btnObjs.length; n++) {
+          const b = btnObjs[n];
+          const p = divObjs[n];
+          console.debug(n, b, p);
+
+          this._panels[n] = {
+            tab: b,
+            tabID: b.id,
+            panel: p,
+            panelID: p.id
+          };
+          if (!b.id) {
+            this._panels[n].tabID = b.id = window.sfc.genID('tab');
+          }
+          if (!p.id) {
+            this._panels[n].panelID = p.id = window.sfc.genID('panel');
+          }
+        } // for
+        console.debug(this._panels);
+
+        // link tabs to panels, add aria attributes
+        let beFirst = true;
+        for (p of this._panels) {
+          this._tabListObj.appendChild(p.tab);
+          p.tab.role = 'tab';
+          p.tab.setAttribute('aria-controls', p.panelID);
+          console.debug(p, p.tab);
+
+          p.panel.role = 'tabpanel';
+          p.panel.setAttribute('aria-labelledby', p.tabID);
+          console.debug(p, p.tab, p.panel);
+
+          beFirst = false;
+        }
+        this.selectTab();
+      }
+      // this.addEventListener('keyup', (evt) => this.onKeyUp(evt), false);
+    } // constructor()
+
+    selectTab(n = 0) {
+      const tabs = this._panels;
+      // constrain n to index of panels
+      if (n >= tabs.length) n = tabs.length - 1;
+      if (n < 0) n = 0;
+
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].tab.setAttribute('aria-selected', (i === n));
+        if (i === n) {
+          tabs[i].tab.focus();
+        }
+        tabs[i].tab.tabIndex = ((i === n) ? 0 : -1);
+        tabs[i].panel.tabIndex = ((i === n) ? 0 : -1);
+      } // for
+      this._active = n;
+    } // selectTab()
+
+
+    // select tab using clicks...
+    onclick(e) {
+      let tabs = this.querySelectorAll(':scope>div[role=tablist]>button[role=tab]');
+
+      let t = e.target;
+      // move up until a tab role is defined
+      while (t && t.role !== 'tab' && t !== this) {
+        t = t.parentElement;
+      }
+      if (t.role === 'tab') {
+        // find index of clicked button
+        let ix = Array.from(tabs).indexOf(t);
+        this.selectTab(ix);
+      }
+    }
+
+    // select tab using keyboard...
+    onkeydown(evt) {
+      let n = this._active;
+
+      switch (evt.key) {
+        case 'ArrowLeft': n--; break;
+        case 'ArrowRight': n++; break;
+        case 'Home': n = 0; break;
+        case 'End': n = 999; break;
+        default: return;
+      }
+      evt.stopPropagation();
+      evt.preventDefault();
+      this.selectTab(n);
+    } // onKeyDown()
+
+
+  }
+</script>

@@ -2,13 +2,13 @@
 
 ## Extending existing HTML Elements
 
-[Dialogs and Forms](dialog-forms.md)
+### [Dialogs and Forms](dialog-forms.md)
 
-
-
-## [Extended Code Component](u-code.md)
+### [Extended Code Component](u-code.md)
 
 ![Extended Code Example](images/u-code.png)
+
+
 
 ## [Toast Component](u-toast.md)
 

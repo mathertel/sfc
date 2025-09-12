@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>u-tabs Test Page</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    u-tabs {
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-tabs');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>u-tabs Test Page</h1>
+  </header>
+
+  <main>
+    <p>This is a test page for the <code>&lt;u-tabs&gt;</code> single file control (sfc) implementation.</p>
+    <hr>
+    <u-tabs>
+      <button id="bOne">One</button>
+      <div tabindex="0">Lorem 1 ipsum dolor sit, amet consectetur adipisicing
+        elit. Totam expedita ipsam autem, odit natus, cupiditate nulla enim odio
+        minima ducimus cum explicabo neque qui est quod culpa laudantium sunt
+        et.</div>
+
+      <button>Two</button>
+      <div>Lorem 2 ipsum, dolor sit amet consectetur adipisicing elit. Quidem
+        corrupti neque velit aut porro ea at perferendis id deserunt praesentium
+        repudiandae facilis magnam itaque labore, unde sapiente asperiores
+        voluptatibus reprehenderit. Lorem ipsum dolor sit amet consectetur
+        adipisicing elit. Esse obcaecati vero provident architecto vitae. Natus,
+        recusandae corrupti ad totam tempore quos nemo. Itaque perferendis error
+        excepturi magni vero repellendus expedita.</div>
+
+      <button>Three</button>
+      <div>Lorem 3 ipsum dolor sit amet consectetur adipisicing elit. Cupiditate
+        perferendis sed unde omnis atque inventore quas doloremque adipisci soluta
+        impedit veritatis veniam aliquam magnam nobis in quidem, nihil voluptates
+        nesciunt.</div>
+    </u-tabs>
+  </main>
+
+</body>
+
+</html>
