@@ -28,12 +28,30 @@ window.loadComponent('u-tabs');
 
 The `<u-tabs>` tag can be placed at the destination and the size can be applied in the style attribute:
 
-t.b.d.
-
 
 ## Style Attributes
 
-The standard `<u-tabs>` component can be styled according the standard CSS styling attributes.
+The standard `<u-tabs>` component can be styled according the standard CSS styling attributes.  The following style
+rules will be appled at the page level and can be overwritten using local style rules:
+
+```CSS
+  u-tabs {
+    >div[role='tablist'] {
+      button {
+        /* change the default button */
+      }
+
+      button[aria-selected=true] {
+        /* change the active button */
+      }
+    }
+
+    >div[role='tabpanel'] {
+      /* change the panels */
+      /* e.g. height: 8em; */
+    }
+  }
+```
 
 
 <!-- ## HTML and JavaScript accessible Attributes
@@ -128,11 +146,11 @@ u-tabs {
 
 ## Generating missing IDs for HTML elements
 
-In several situations it is required to add unique IDs to html elements to enable functionality that where not added by the
-author. This often allows simplified HTML at authoring time with some control specific assumptions.
+In several situations it is required to add unique IDs to html elements to enable functionality that where not added by
+the author.  This often allows simplified HTML at authoring time with some control specific assumptions.
 
-As an example a `<label>` element immediately before a `<input>` element will only allow to set the focus by clicking the label
-when there is a `for` attribute on the `<label>` that refers to the `id` of the `<input>` element.
+As an example a `<label>` element immediately before a `<input>` element will only allow to set the focus by clicking
+the label when there is a `for` attribute on the `<label>` that refers to the `id` of the `<input>` element.
 
 However for human authors is is a time saver to not implement this in the source code and allow copying the code to other
 locations without duplicating the ids.

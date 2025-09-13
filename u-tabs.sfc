@@ -19,6 +19,7 @@ Example: <u-tabs> <button>...</button> <div>...</div> </u-tabs>
     >div[role='tablist'] {
       button {
         color: black;
+        background-color: #aaa;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
@@ -26,10 +27,6 @@ Example: <u-tabs> <button>...</button> <div>...</div> </u-tabs>
       button[aria-selected=true] {
         background-color: white;
         border-bottom-color: transparent;
-      }
-
-      button[aria-selected=false] {
-        background-color: #aaa;
       }
     }
 

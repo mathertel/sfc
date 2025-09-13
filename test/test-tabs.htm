@@ -10,8 +10,19 @@
   <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
   <style>
     u-tabs {
+      /* mark the custom element with a green shadow */
       box-shadow: 0 0 0.1rem 0.2rem lime;
-    }
+
+      /* show how to overwrite style attributes */
+      >div[role='tablist'] {
+        button {
+          color: blue;
+        }
+      }
+
+      >div[role='tabpanel'] {
+        height: 9em;
+      }
   </style>
   <script src="/loader.js"></script>
   <script>
@@ -25,7 +36,9 @@
   </header>
 
   <main>
+
     <p>This is a test page for the <code>&lt;u-tabs&gt;</code> single file control (sfc) implementation.</p>
+
     <hr>
     <u-tabs style="width:75%">
       <button id="bOne">One</button>
@@ -51,7 +64,7 @@
     </u-tabs>
 
     <hr>
-          <u-markdown src="../doc/u-tabs.md"></u-markdown>
+    <u-markdown src="../doc/u-tabs.md"></u-markdown>
 
   </main>
 
