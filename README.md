@@ -64,9 +64,13 @@ The SFC files are using the HTML format for defining JavaScript, templates and s
 
 * `<style>` -- This optional part of the SFC is used to define a set of css rules specific to the custom component
 
-  By using the `scoped` attribute the CSS rules are added to the Shadow DOM.  Without the `scoped` attribute the CSS
-  rules are added to the header of the main DOM once when the componend is defined.  The rules will be there even when
-  no custom component is present.
+  By using the `scoped` attribute the CSS rules are added to the Shadow DOM of each custom element.  This avoids any
+  conflicts with the page level attributes.
+
+  Without the `scoped` attribute the CSS rules are added to the beginning of the header of the page DOM once when the
+  component is defined.  This supports the sfc components that do not use the shadow DOM but just enrich the elements of
+  the page DOM.  The rules will be there even when no custom component is present.  This approach allows overwriting
+  component styles using a `<style>` element in the header.
 
   The HTML style node can be accessed in the class functions by using `this.constructor.uStyle`.
 
