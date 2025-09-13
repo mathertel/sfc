@@ -65,11 +65,14 @@ class UComponent extends HTMLElement {
 
     const definedStyle = this.uStyle;
     if (definedStyle) {
+      // put style into shadow DOM
       const clonedStyle = definedStyle.cloneNode(true) as HTMLStyleElement;
       if (definedStyle.hasAttribute('scoped')) {
         this.uRoot.insertBefore(clonedStyle, this.uRoot.firstChild);
+
       } else if (!this.#uStyleDone) {
-        document.head.appendChild(clonedStyle);
+        // put style to page with low priority to allow overwriting.
+        document.head.insertAdjacentElement("afterbegin", clonedStyle);
         this.#uStyleDone = true;
       }
     }
@@ -215,14 +218,14 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
 
 
 // _genID generates a unique ID for a given element using a readable type.
-function _genID (type : string = 'id') {
+function _genID(type: string = 'id') {
   const ids = window.sfc._ids;
 
-  if (! ids[type]) {
+  if (!ids[type]) {
     ids[type] = 0;
   }
   ids[type]++;
-  return(type + '-' + (ids[type]++));
+  return (type + '-' + (ids[type]++));
 } // sfc.genID()
 
 

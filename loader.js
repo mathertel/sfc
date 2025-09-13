@@ -40,7 +40,7 @@ class UComponent extends HTMLElement {
       if (definedStyle.hasAttribute("scoped")) {
         this.uRoot.insertBefore(clonedStyle, this.uRoot.firstChild);
       } else if (!this.#uStyleDone) {
-        document.head.appendChild(clonedStyle);
+        document.head.insertAdjacentElement("afterbegin", clonedStyle);
         this.#uStyleDone = true;
       }
     }
