@@ -37,11 +37,11 @@
     <hr />
     <div><label for="rawview">person.name: <span id="personName">...</span></label></div>
     <div><label for="rawview">person.age: <span id="personAge">...</span></label></div>
-    
+
     <hr />
     <div><label for="rawview">Data</label></div>
     <pre><code id="rawview"></code></pre>
-    
+
     <hr />
     <div><label for="logview">Log:</label></div>
     <pre id="logview"></pre>
@@ -69,42 +69,122 @@
       }
     }
 
+
+    // read data from path and compare by converting to JSON strings.
+    function expectData(dh, path, expected) {
+      const v = JSON.stringify(dh.get(path));
+      expected = JSON.stringify(expected);
+
+      if (v !== expected) {
+        console.error(`Test failed: get('${path}') returned '${v}' expected '${expected}'`);
+      } else {
+        console.debug(`Test passed: get('${path}') returned '${v}'`);
+      }
+    } // expectData
+
+
+    function expectCallback(dh, path, expected) {
+      expected = JSON.stringify(expected);
+      dh.subscribe(path, (p, v) => {
+        v = JSON.stringify(v);
+
+        if (v !== expected) {
+          console.error(`Test failed: subscribe('${path}') returned '${v}' expected '${expected}'`);
+        } else {
+          console.debug(`Test passed: subscribe('${path}') returned '${v}'`);
+        }
+      });
+    } // expectCallback()
+
+
+    function test01(dh) {
+      console.group("test-01");
+      dh.clear();
+
+      expectData(dh, "", {});
+      expectCallback(dh, "", { "a": 1 });
+      expectCallback(dh, "a", 1);
+      expectCallback(dh, "[a]", 1);
+      expectCallback(dh, "/a", 1);
+      expectCallback(dh, ".a", 1);
+      dh.publish("", { "a": 1 });
+
+      expectData(dh, "a", 1);
+      expectData(dh, "", { "a": 1 });
+      console.log("Test 1 done.");
+      console.groupEnd();
+    } // test01
+
+
+    function test02(dh) {
+      console.group("test-02");
+      dh.clear();
+
+      expectData(dh, "", {});
+      expectCallback(dh, "", {"obj":{"a":1}});
+      expectCallback(dh, "obj", {"a":1});
+      expectCallback(dh, "[obj]", 1);
+      expectCallback(dh, "obj/a", 2);
+      expectCallback(dh, ".a", 1);
+      dh.publish("", { "obj" : {"a": 1 }});
+
+      // expectData(dh, "a", 1);
+      // expectData(dh, "", { "a": 1 });
+      console.log("Test 1 done.");
+      console.groupEnd();
+    } // test02
+
+    function test99(dh) {
+      console.groupCollapsed("test-99");
+      dh.clear();
+
+      // setup subscription with callback
+      // dh.subscribe("**", rawCallback);
+      dh.subscribe("", rawCallback);
+      dh.subscribe("", (p, v) => { rawObj.textContent = JSON.stringify(v, null, 2); });
+
+      dh.subscribe("person.name", (p, v) => { document.querySelector('#personName').textContent = v; });
+      subAge = dh.subscribe("person.age", (p, v) => { document.querySelector('#personAge').textContent = v; });
+
+      dh.publish("", { "a": 1 });
+      dh.publish("", { "A": 0 });
+      dh.publish("", { "a": 2 });
+      dh.publish("", { "b": 2, "c": 40 });
+      dh.publish("", { "b": undefined });
+      dh.publish("", { "age": 42 });
+      dh.publish("a", 3);
+
+      dh.publish("", { "o": { "b": 4 } });
+      dh.publish("", { "O": { "b": 5 } });
+      dh.publish("", { "o": { "c": 50 } });
+      dh.publish("o.c", 51);
+      console.log(dh.get("o"));
+      console.log(dh.get("o.c"));
+      console.log(dh.get("o.none"));
+      dh.publish("", { "p": {} });
+      dh.publish("", { "o": { "c": "call-me" } });
+      dh.publish("", { "o": { "c": undefined } });
+
+      dh.publish("", { "l": [] });
+      dh.publish("", { "l": ["tag1", "tag2"] });
+      dh.publish("l.4", "tag4");
+
+      const a = new Array(); a[7] = "tag7";
+      dh.publish("", { "l": a });
+
+      console.groupEnd();
+
+    }
+
+
     window.addEventListener('DOMContentLoaded', function() {
       // debugger;
 
-      // setup subscription with callback
-      // window.datahub.subscribe("**", rawCallback);
-      window.datahub.subscribe("", rawCallback);
-      window.datahub.subscribe("", (p,v) => { rawObj.textContent = JSON.stringify(v, null, 2); });
+      test01(window.datahub);
+      test02(window.datahub);
 
-      window.datahub.subscribe("person.name", (p, v) => { document.querySelector('#personName').textContent = v; });
-      subAge = window.datahub.subscribe("person.age", (p, v) => { document.querySelector('#personAge').textContent = v; });
+      test99(window.datahub);
 
-      window.datahub.publish("", { "a": 1 });
-      window.datahub.publish("", { "A": 0 });
-      window.datahub.publish("", { "a": 2 });
-      window.datahub.publish("", { "b": 2, "c": 40 });
-      window.datahub.publish("", { "b": undefined });
-      window.datahub.publish("", { "age": 42 });
-      window.datahub.publish("a", 3);
-
-      window.datahub.publish("", { "o": { "b": 4 } });
-      window.datahub.publish("", { "O": { "b": 5 } });
-      window.datahub.publish("", { "o": { "c": 50 } });
-      window.datahub.publish("o.c", 51);
-      console.log(window.datahub.get("o"));
-      console.log(window.datahub.get("o.c"));
-      console.log(window.datahub.get("o.none"));
-      window.datahub.publish("", { "p": {} });
-      window.datahub.publish("", { "o": { "c": "call-me" } });
-      window.datahub.publish("", { "o": { "c": undefined } });
-
-      window.datahub.publish("", { "l": [] });
-      window.datahub.publish("", { "l": ["tag1", "tag2"] });
-      window.datahub.publish("l.4", "tag4");
-
-      const a = new Array(); a[7] = "tag7";
-      window.datahub.publish("", { "l": a });
 
     });
 

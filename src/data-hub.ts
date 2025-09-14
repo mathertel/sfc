@@ -44,6 +44,7 @@ export class DataHub {
   #registry = new Set<HubEntry>();
   #lastId = 0;
   #store: object = {};
+
   #storageObject: Storage | undefined = undefined;
   #storageKey!: string;
 
@@ -55,10 +56,19 @@ export class DataHub {
    * @param key - (Optional) The key under which the data should be stored.
    */
   constructor(storageObject?: Storage, key?: string) {
+    this.clear();
     if (storageObject) {
       this.configurePersistence(storageObject, key);
     }
   }
+
+  // remove all subscribers and set data to empty object.
+  clear():void {
+    this.#registry.clear();
+    this.#lastId = 0;
+    this.#store = {};
+  } // clear()
+
 
   /**
    * Configures the DataHub to persist its store to a specified storage object.
@@ -83,7 +93,8 @@ export class DataHub {
         console.error("Failed to load DataHub store from storage:", e);
       }
     }
-  }
+  } // configurePersistence()
+
 
   /**
    * Retrieves a value from the internal store using a JSON path specification.
