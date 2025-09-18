@@ -63,7 +63,7 @@ export class DataHub {
   }
 
   // remove all subscribers and set data to empty object.
-  clear():void {
+  clear(): void {
     this.#registry.clear();
     this.#lastId = 0;
     this.#store = {};
@@ -144,7 +144,13 @@ export class DataHub {
     const id = this.#lastId++;
 
     // treating upper/lowercase equal is not clearly defined, but true with domain names.
-    const rn = matchPath.toLocaleLowerCase();
+    let rn = matchPath.toLocaleLowerCase();
+
+    // use . not '/' as path delimiter
+    rn = rn.replace('/', '.');
+
+    // ignore leading .character
+    if (rn[0] === '.') { rn = rn.substring(1); }
 
     // build a regexp pattern that will match the event names
     const re = '^' + rn
@@ -152,7 +158,7 @@ export class DataHub {
       .replace(/\*/g, '[^.]*') +
       '$';
 
-    console.debug('hub', `subscribe(${matchPath})`, re);
+    console.debug('hub', `subscribe(${matchPath}) using '${re}'`);
 
     const newEntry: HubEntry = {
       id: id,
@@ -202,7 +208,7 @@ export class DataHub {
    * ```
    */
   publish(path: json.PathSpec, obj: any) {
-    console.log("hub", `publish('${path}', ${JSON.stringify(obj)})`);
+    console.debug("hub", `publish('${path}', ${JSON.stringify(obj)})`);
 
     // create cursor to relative root node of the _store object.
     const cursor = json.find(this.#store, path, true);

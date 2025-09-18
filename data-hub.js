@@ -199,9 +199,13 @@ var DataHub = class {
    */
   subscribe(matchPath, fCallback) {
     const id = this.#lastId++;
-    const rn = matchPath.toLocaleLowerCase();
+    let rn = matchPath.toLocaleLowerCase();
+    rn = rn.replace("/", ".");
+    if (rn[0] === ".") {
+      rn = rn.substring(1);
+    }
     const re = "^" + rn.replace(/\*\*/g, "[A-Za-z0-9._-]{0,}").replace(/\*/g, "[^.]*") + "$";
-    console.debug("hub", `subscribe(${matchPath})`, re);
+    console.debug("hub", `subscribe(${matchPath}) using '${re}'`);
     const newEntry = {
       id,
       match: RegExp(re),
@@ -248,7 +252,7 @@ var DataHub = class {
    * ```
    */
   publish(path, obj) {
-    console.log("hub", `publish('${path}', ${JSON.stringify(obj)})`);
+    console.debug("hub", `publish('${path}', ${JSON.stringify(obj)})`);
     const cursor = find(this.#store, path, true);
     const c = merge(cursor, obj, this.#inform.bind(this));
     while (c && cursor.pathKeys.length > 0) {

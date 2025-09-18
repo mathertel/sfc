@@ -70,68 +70,136 @@
     }
 
 
+    // registered tests
+    let tests = [];
+
     // read data from path and compare by converting to JSON strings.
     function expectData(dh, path, expected) {
       const v = JSON.stringify(dh.get(path));
       expected = JSON.stringify(expected);
 
       if (v !== expected) {
-        console.error(`Test failed: get('${path}') returned '${v}' expected '${expected}'`);
+        tests.push(`Error: get('${path}') returned '${v}' expected '${expected}'`);
       } else {
-        console.debug(`Test passed: get('${path}') returned '${v}'`);
+        tests.push(`Test: get('${path}') returned '${v}'`);
       }
     } // expectData
 
 
-    function expectCallback(dh, path, expected) {
-      expected = JSON.stringify(expected);
+    function expectCallbacks(dh, path, expected) {
+      const idx = tests.length;
+
+      tests.push([`Test: subscribe('${path}')`]);
+      const log = tests[idx];
+
+      if (!Array.isArray(expected)) expected = [expected];
+
+      for (const e of expected) {
+        log.push(`Expect: '${JSON.stringify(e)}'`);
+      }
+
+
       dh.subscribe(path, (p, v) => {
         v = JSON.stringify(v);
 
-        if (v !== expected) {
-          console.error(`Test failed: subscribe('${path}') returned '${v}' expected '${expected}'`);
+        // search for expected value
+        const n = log.indexOf(`Expect: '${v}'`);
+
+        if (n > 0) {
+          log[n] = `Returned: '${p}'='${v}'`;
+
         } else {
-          console.debug(`Test passed: subscribe('${path}') returned '${v}'`);
+          log.push(`Error: returned unexpected '${p}'='${v}'`);
         }
       });
     } // expectCallback()
 
+    function summarize(dh, log) {
+      // console.groupCollapsed("Test Summary");
 
-    function test01(dh) {
-      console.group("test-01");
+      // Flatten the log array
+      log = log.flat(Infinity);
+
+      // check for existing "Error:" in test log.
+      let allPassed = true;
+      for (let l of log) {
+        if (l.startsWith("Error:") || l.startsWith("Expect:")) allPassed = false;
+      }
+
+      if (allPassed) {
+        console.groupCollapsed('Passed: ' + log[0]);
+      } else {
+        console.group('Error: ' + log[0]);
+      }
+
+      for (let n = 1; n < log.length; n++) {
+        const l = log[n];
+        if (l.startsWith("Error:") || l.startsWith("Expect:")) {
+          console.log(`%c${l}`, 'color: red;');
+        } else {
+          console.log(l);
+        }
+      }
+      console.groupEnd();
+    } // summarize()
+
+
+    function test00(dh) {
       dh.clear();
+      tests = ['Test 00:'];
 
       expectData(dh, "", {});
-      expectCallback(dh, "", { "a": 1 });
-      expectCallback(dh, "a", 1);
-      expectCallback(dh, "[a]", 1);
-      expectCallback(dh, "/a", 1);
-      expectCallback(dh, ".a", 1);
+      // expectCallback(dh, "", { "a": 1 });
+      // expectCallback(dh, "a", 1);
+      // expectCallback(dh, "[a]", 1);
+      // expectCallback(dh, "/a", 1);
+      // expectCallback(dh, ".a", 1);
+      expectCallbacks(dh, "*", [1, { "a": 1 }]);
+      debugger;
       dh.publish("", { "a": 1 });
 
       expectData(dh, "a", 1);
       expectData(dh, "", { "a": 1 });
-      console.log("Test 1 done.");
-      console.groupEnd();
+
+      summarize(dh, tests);
     } // test01
 
 
-    function test02(dh) {
-      console.group("test-02");
+    function test01(dh) {
       dh.clear();
+      tests = ['Test 01'];
 
       expectData(dh, "", {});
-      expectCallback(dh, "", {"obj":{"a":1}});
-      expectCallback(dh, "obj", {"a":1});
-      expectCallback(dh, "[obj]", 1);
-      expectCallback(dh, "obj/a", 2);
-      expectCallback(dh, ".a", 1);
-      dh.publish("", { "obj" : {"a": 1 }});
+      expectCallbacks(dh, "", { "at": 1 });
+      expectCallbacks(dh, "at", 1);
+      expectCallbacks(dh, "[at]", 1);
+      expectCallbacks(dh, "/at", 1);
+      expectCallbacks(dh, ".at", 1);
+      expectCallbacks(dh, "*", [1, { "at": 1 }]);
+      dh.publish("", { "at": 1 });
+
+      expectData(dh, "at", 1);
+      expectData(dh, "", { "at": 1 });
+      summarize(dh, tests);
+    } // test01
+
+    function test02(dh) {
+      dh.clear();
+      tests = ['Test 02'];
+
+      expectData(dh, "", {});
+      expectCallbacks(dh, "", { "obj": { "a": 1 } });
+      expectCallbacks(dh, "obj", { "a": 1 });
+      expectCallbacks(dh, "[obj]", 1);
+      expectCallbacks(dh, "obj/a", 1
+
+      );
+      expectCallbacks(dh, ".a", 1);
+      dh.publish("", { "obj": { "a": 1 } });
 
       // expectData(dh, "a", 1);
       // expectData(dh, "", { "a": 1 });
-      console.log("Test 1 done.");
-      console.groupEnd();
+      summarize(dh, tests);
     } // test02
 
     function test99(dh) {
@@ -180,10 +248,10 @@
     window.addEventListener('DOMContentLoaded', function() {
       // debugger;
 
+      // test00(window.datahub);
       test01(window.datahub);
       test02(window.datahub);
-
-      test99(window.datahub);
+      // test99(window.datahub);
 
 
     });
