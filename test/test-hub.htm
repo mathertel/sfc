@@ -77,23 +77,22 @@
     function expectData(dh, path, expected) {
       const v = JSON.stringify(dh.get(path));
       expected = JSON.stringify(expected);
-
       if (v !== expected) {
-        tests.push(`Error: get('${path}') returned '${v}' expected '${expected}'`);
+        return (`Error: get('${path}') returned '${v}' expected '${expected}'`);
       } else {
-        tests.push(`Test: get('${path}') returned '${v}'`);
+        return (`Ok: get('${path}') returned '${v}'`);
       }
     } // expectData
 
 
     function expectCallbacks(dh, path, expected) {
-      const idx = tests.length;
-
-      tests.push([`Test: subscribe('${path}')`]);
-      const log = tests[idx];
+      const log = [];
 
       if (!Array.isArray(expected)) expected = [expected];
 
+      log.push(`subscribe('${path}')`);
+
+      // add all expected values into the log
       for (const e of expected) {
         log.push(`Expect: '${JSON.stringify(e)}'`);
       }
@@ -106,17 +105,25 @@
         const n = log.indexOf(`Expect: '${v}'`);
 
         if (n > 0) {
-          log[n] = `Returned: '${p}'='${v}'`;
+          // Test Case is ok. 
+          log[n] = `Ok: '${p}'='${v}'`;
 
         } else {
+          // Unexpected case is error
           log.push(`Error: returned unexpected '${p}'='${v}'`);
         }
       });
+      return (log);
     } // expectCallback()
 
-    function summarize(dh, log) {
-      // console.groupCollapsed("Test Summary");
 
+    function do_publish(dh, k, v) {
+      dh.publish(k, v);
+      return (`Publish('${JSON.stringify(k)}', ${JSON.stringify(v)})`);
+    } // do_publish
+
+
+    function do_report(log) {
       // Flatten the log array
       log = log.flat(Infinity);
 
@@ -146,65 +153,101 @@
 
     function test00(dh) {
       dh.clear();
-      tests = ['Test 00:'];
+      const logs = ['Test 00']; // [string | []]
 
-      expectData(dh, "", {});
-      // expectCallback(dh, "", { "a": 1 });
-      // expectCallback(dh, "a", 1);
-      // expectCallback(dh, "[a]", 1);
-      // expectCallback(dh, "/a", 1);
-      // expectCallback(dh, ".a", 1);
-      expectCallbacks(dh, "*", [1, { "a": 1 }]);
-      debugger;
-      dh.publish("", { "a": 1 });
+      logs.push(expectData(dh, "", {}));
+      logs.push(expectCallbacks(dh, "", { "a": 1 }));
+      logs.push(expectCallbacks(dh, "a", 1));
+      logs.push(expectCallbacks(dh, "[a]", 1));
+      logs.push(expectCallbacks(dh, "/a", 1));
+      logs.push(expectCallbacks(dh, ".a", 1));
+      logs.push(expectCallbacks(dh, "*", [1, { "a": 1 }]));
 
-      expectData(dh, "a", 1);
-      expectData(dh, "", { "a": 1 });
+      logs.push(do_publish(dh, "", { "a": 1 }));
 
-      summarize(dh, tests);
+      logs.push(expectData(dh, "a", 1));
+      logs.push(expectData(dh, "", { "a": 1 }));
+
+      do_report(logs);
     } // test01
+
+
+    // // run a single test on the hub using 4 steps
+    // // * clear and initialize with static values
+    // // * register callbacks and their expected results
+    // // * publish value
+    // // * test for data
+    // // The log of the testing is returned as  a string. 
+    // function jsonhub_test(
+    //   title, // string 
+    //   init_data, // {}
+    //   expected_callbacks, // : [ {rule, [values] }]
+    //   publish, //  {path, value} 
+    //   test_data // [ {path, value }]
+    // ) {
+    //   let log = []; // [string]
+    //   let log_callbacks = []; // [string]
+
+    //   // [0] title of test
+    //   log.push(title);
+
+    //   // [1] Status of whole test
+    //   log.push('Pending');
+
+    //   // Expected: callback value expected
+    // }
 
 
     function test01(dh) {
       dh.clear();
-      tests = ['Test 01'];
+      const logs = ['Test 01']; // [string | []]
 
-      expectData(dh, "", {});
-      expectCallbacks(dh, "", { "at": 1 });
-      expectCallbacks(dh, "at", 1);
-      expectCallbacks(dh, "[at]", 1);
-      expectCallbacks(dh, "/at", 1);
-      expectCallbacks(dh, ".at", 1);
-      expectCallbacks(dh, "*", [1, { "at": 1 }]);
-      dh.publish("", { "at": 1 });
+      logs.push(expectData(dh, "", {}));
+      logs.push(expectCallbacks(dh, "", { "at": 1 }));
+      logs.push(expectCallbacks(dh, "at", 1));
+      // logs.push(expectCallbacks(dh, "[at]", 1));
+      logs.push(expectCallbacks(dh, "/at", 1));
+      logs.push(expectCallbacks(dh, ".at", 1));
+      logs.push(expectCallbacks(dh, "*", [1, { "at": 1 }]));
 
-      expectData(dh, "at", 1);
-      expectData(dh, "", { "at": 1 });
-      summarize(dh, tests);
+      logs.push(do_publish(dh, "", { "at": 1 }));
+
+      logs.push(expectData(dh, "at", 1));
+      logs.push(expectData(dh, "", { "at": 1 }));
+      do_report(logs);
     } // test01
 
     function test02(dh) {
       dh.clear();
-      tests = ['Test 02'];
+      const logs = ['Test 02']; // [string | []]
 
-      expectData(dh, "", {});
-      expectCallbacks(dh, "", { "obj": { "a": 1 } });
-      expectCallbacks(dh, "obj", { "a": 1 });
-      expectCallbacks(dh, "[obj]", 1);
-      expectCallbacks(dh, "obj/a", 1
-
-      );
-      expectCallbacks(dh, ".a", 1);
-      dh.publish("", { "obj": { "a": 1 } });
-
-      // expectData(dh, "a", 1);
-      // expectData(dh, "", { "a": 1 });
-      summarize(dh, tests);
+      logs.push(expectData(dh, "", {}));
+      logs.push(expectCallbacks(dh, "", { "obj": { "a": 1 } }));
+      logs.push(expectCallbacks(dh, "obj", { "a": 1 }));
+      // logs.push(expectCallbacks(dh, "[obj]", 1));
+      logs.push(expectCallbacks(dh, "obj/a", 1));
+      logs.push(expectCallbacks(dh, ".a", 1));
+      logs.push(do_publish(dh, "", { "obj": { "a": 1 } }));
+      logs.push(expectData(dh, "a", undefined));
+      do_report(logs);
     } // test02
 
-    function test99(dh) {
-      console.groupCollapsed("test-99");
+    function test03(dh) {
       dh.clear();
+      const logs = ['Test 03']; // [string | []]
+
+      logs.push(expectData(dh, "", {}));
+      logs.push(expectCallbacks(dh, "arr", [[1, 2, 3]]));
+      logs.push(do_publish(dh, "", { arr: [1, 2, 3] } ));
+      logs.push(expectData(dh, "a", undefined));
+      logs.push(expectData(dh, "arr", [1, 2, 3]));
+      logs.push(expectData(dh, "arr.1", 2));
+      do_report(logs);
+    } // test03
+
+    function test99(dh) {
+      dh.clear();
+      const logs = ['Test 99']; // [string | []]
 
       // setup subscription with callback
       // dh.subscribe("**", rawCallback);
@@ -245,27 +288,28 @@
     }
 
 
-    window.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('DOMContentLoaded', function () {
       // debugger;
 
-      // test00(window.datahub);
+      test00(window.datahub);
       test01(window.datahub);
       test02(window.datahub);
-      // test99(window.datahub);
+      test03(window.datahub);
+      test99(window.datahub);
 
 
     });
 
 
-    document.querySelector('#set1').addEventListener('click', function() {
+    document.querySelector('#set1').addEventListener('click', function () {
       window.datahub.publish("", rawData1);
     });
 
-    document.querySelector('#set2').addEventListener('click', function() {
+    document.querySelector('#set2').addEventListener('click', function () {
       window.datahub.publish("", rawData2);
     });
 
-    document.querySelector('#getJson').addEventListener('click', function() {
+    document.querySelector('#getJson').addEventListener('click', function () {
       let d1 = window.datahub.get('a');
       d1 = window.datahub.get('a[0]');
       d1 = window.datahub.get('a[1]');
@@ -276,11 +320,11 @@
       rawObj.textContent = JSON.stringify(ds, null, 2);
     });
 
-    document.querySelector('#hubReplay').addEventListener('click', function() {
+    document.querySelector('#hubReplay').addEventListener('click', function () {
       window.datahub.replay("");
     });
 
-    document.querySelector('#hubUnsubscribe').addEventListener('click', function() {
+    document.querySelector('#hubUnsubscribe').addEventListener('click', function () {
       window.datahub.unsubscribe(subAge);
     });
 
