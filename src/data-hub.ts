@@ -235,6 +235,9 @@ export class DataHub {
     }
   } // publish()
 
+  static tokenizePath(path: string): (string | number)[] {
+    return json.tokenizePath(path);
+  }
 } // DataHub class
 
 

@@ -28,21 +28,6 @@ type PathCursor = {
 
 
 /**
- * Regular expression for matching path item syntax in a JavaScript/JSON path.
- * Matches the following patterns:
- * identifier : [a-zA-Z_$][a-zA-Z0-9_$-]* e.g. a, b, c, _a, $a, _1, $1, a-name
- * index numeric : \d+ e.g. 0, 11, 42
- * index numeric : \[\d+\] e.g. [0], [1], [2], [3]
- * property : \[['"].*['"]\] e.g. ['a'], ["b"], ['c']
- * /^\.?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)|^\.?(?<index>\d+)|\.\[(?<index>\d+)\]|\.\[(?<q>['"])(?<prop>.*)\k<q>\]/;
- */
-
-// short version supporting identifiers an index only
-const PathItemRegExp: RegExp =
-  /^\.?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)|^\.?(?<index>\d+)/;
-
-
-/**
  * Splits a path expression into an array of keys using dot notation or bracket notation.
  * Supports three types of path segments:
  * - Identifiers: Valid JavaScript identifiers (e.g., 'propertyName', '_property', '$value')
@@ -54,35 +39,47 @@ const PathItemRegExp: RegExp =
  * @returns An array of path segments as strings (for property names)
  *   or numbers (for array indices), or undefined if the path syntax is invalid.
  * @example
- * pathKeys('users[0].name')     // returns ['users', 0, 'name']
- * pathKeys("obj['prop']")       // returns ['obj', 'prop']
- * pathKeys('items[2]')          // returns ['items', 2]
+ * tokenizePath('users[0].name')     // returns ['users', 0, 'name']
+ * tokenizePath("obj['prop']")       // returns ['obj', 'prop']
+ * tokenizePath('items[2]')          // returns ['items', 2]
  */
-function pathKeys(path: string): key[] {
-  // console.log(`pathKeys(${path})`);
-
+export function tokenizePath(path: string): key[] {
   const keys: key[] = [];
+  let m: RegExpMatchArray | null;
 
-  while (path && path.length > 0) {
-    const m = path.match(PathItemRegExp);
+  while (path.length > 0) {
+    if ((m = path.match(/^[./\\]/))) {
+      // any separator... ignore
+      // ignore
+      path = path.substring(m[0].length);
 
-    if (!m) {
+    } else if ((m = path.match(/^[a-zA-Z_$][a-zA-Z0-9_$-]*/))) {
+      // identifier
+      keys.push(m[0]);
+      path = path.substring(m[0].length);
+
+    } else if ((m = path.match(/^\d+/))) {
+      // number index
+      keys.push(Number(m[0]));
+      path = path.substring(m[0].length);
+
+    } else if ((m = path.match(/^\[(?<index>\d+)\]/))) {
+      // number index
+      if (m.groups?.index) keys.push(Number(m.groups?.index));
+      path = path.substring(m[0].length);
+
+    } else if ((m = path.match(/^\[['"]?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)['"]?\]/))) {
+      // ident in brackets
+      if (m.groups?.ident) keys.push(m.groups?.ident);
+      path = path.substring(m[0].length);
+
+    } else {
+      debugger; // should not happen
       throw new Error(`Invalid path syntax at '${path}'`);
-
-    } else if (m?.groups?.ident) {
-      // console.log('ident:', m.groups.ident);
-      keys.push(m.groups.ident);
-    } else if (m?.groups?.index) {
-      // console.log('index:', m.groups.index);
-      keys.push(Number(m.groups.index));
-    } else if (m?.groups?.prop) {
-      // console.log('prop:', m.groups.prop);
-      keys.push(m.groups.prop);
     }
-    path = path.substring(m[0].length);
   }
-  // console.log(' =', keys);
-  return keys;
+
+  return (keys);
 }
 
 
@@ -118,7 +115,7 @@ export function find(obj: any, path: PathSpec, create: boolean = false): PathCur
 
   } else if (typeof path === 'string') {
     path = path.replace(/\//g, '.'); // accept '/' for path separator too.
-    keys = pathKeys(path);
+    keys = tokenizePath(path);
 
   } else {
     keys = path as key[]; // If path is already an array, use it directly.

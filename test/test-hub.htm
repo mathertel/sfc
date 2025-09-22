@@ -12,6 +12,19 @@
     xcode[is='u-code'] {
       box-shadow: 0 0 0.1rem 0.2rem lime;
     }
+
+    #testResults {
+      background-color: beige;
+
+      >span {
+        margin-right: 0.5em;
+        cursor: pointer;
+      }
+
+      /* .ok {background-color: lime; border:1px solid black} */
+      /* .error {background-color: lightcoral;} */
+
+    }
   </style>
   <script src="/loader.js"></script>
   <!-- <script src="/data-hub.js" type="module"></script> -->
@@ -34,9 +47,13 @@
       <button id="hubUnsubscribe">unsubscribe Age</button>
     </nav>
 
+    <h3>Test Results</h3>
+    <div id="testResults"></div>
+
     <hr />
-    <div><label for="rawview">person.name: <span id="personName">...</span></label></div>
-    <div><label for="rawview">person.age: <span id="personAge">...</span></label></div>
+    <hr />
+    <div><label>person.name: <span id="personName">...</span></label></div>
+    <div><label>person.age: <span id="personAge">...</span></label></div>
 
     <hr />
     <div><label for="rawview">Data</label></div>
@@ -55,6 +72,7 @@
 
     const rawObj = document.querySelector('#rawview');
     const logObj = document.querySelector('#logview');
+    const testsObj = document.querySelector('#testResults');
 
     const rawData1 = { person: { name: 'John Doe', age: 30, city: 'New York', hobby: 'reading' } };
     const rawData2 = { person: { name: 'Max Dose', age: 40, city: 'Boston', hobby: 'writing' } };
@@ -123,7 +141,10 @@
     } // do_publish
 
 
+    // add logging of the test case to the debug log
+    // abd create a test-case UI.
     function do_report(log) {
+      let hassError = false;
       // Flatten the log array
       log = log.flat(Infinity);
 
@@ -148,6 +169,12 @@
         }
       }
       console.groupEnd();
+
+      const tc = document.createElement('span');
+      tc.className = allPassed ? "valid" : "error";
+      tc.innerText = log[0];
+      tc.title = log.join('\n');
+      testsObj.appendChild(tc);
     } // summarize()
 
 
@@ -155,52 +182,15 @@
       dh.clear();
       const logs = ['Test 00']; // [string | []]
 
-      logs.push(expectData(dh, "", {}));
-      logs.push(expectCallbacks(dh, "", { "a": 1 }));
-      logs.push(expectCallbacks(dh, "a", 1));
-      logs.push(expectCallbacks(dh, "[a]", 1));
-      logs.push(expectCallbacks(dh, "/a", 1));
-      logs.push(expectCallbacks(dh, ".a", 1));
-      logs.push(expectCallbacks(dh, "*", [1, { "a": 1 }]));
-
-      logs.push(do_publish(dh, "", { "a": 1 }));
-
-      logs.push(expectData(dh, "a", 1));
-      logs.push(expectData(dh, "", { "a": 1 }));
+      // ...
 
       do_report(logs);
     } // test01
 
 
-    // // run a single test on the hub using 4 steps
-    // // * clear and initialize with static values
-    // // * register callbacks and their expected results
-    // // * publish value
-    // // * test for data
-    // // The log of the testing is returned as  a string. 
-    // function jsonhub_test(
-    //   title, // string 
-    //   init_data, // {}
-    //   expected_callbacks, // : [ {rule, [values] }]
-    //   publish, //  {path, value} 
-    //   test_data // [ {path, value }]
-    // ) {
-    //   let log = []; // [string]
-    //   let log_callbacks = []; // [string]
-
-    //   // [0] title of test
-    //   log.push(title);
-
-    //   // [1] Status of whole test
-    //   log.push('Pending');
-
-    //   // Expected: callback value expected
-    // }
-
-
     function test01(dh) {
       dh.clear();
-      const logs = ['Test 01']; // [string | []]
+      const logs = ['Test 01 Basic']; // [string | []]
 
       logs.push(expectData(dh, "", {}));
       logs.push(expectCallbacks(dh, "", { "at": 1 }));
@@ -219,7 +209,7 @@
 
     function test02(dh) {
       dh.clear();
-      const logs = ['Test 02']; // [string | []]
+      const logs = ['Test 02 Object']; // [string | []]
 
       logs.push(expectData(dh, "", {}));
       logs.push(expectCallbacks(dh, "", { "obj": { "a": 1 } }));
@@ -227,23 +217,53 @@
       // logs.push(expectCallbacks(dh, "[obj]", 1));
       logs.push(expectCallbacks(dh, "obj/a", 1));
       logs.push(expectCallbacks(dh, ".a", 1));
+
       logs.push(do_publish(dh, "", { "obj": { "a": 1 } }));
-      logs.push(expectData(dh, "a", undefined));
+
+      logs.push(expectData(dh, "obj", { "a": 1 }));
+      logs.push(expectData(dh, "x", undefined));
       do_report(logs);
     } // test02
 
+    // simple arrays
     function test03(dh) {
       dh.clear();
-      const logs = ['Test 03']; // [string | []]
+      const logs = ['Test 03 Arrays']; // [string | []]
 
       logs.push(expectData(dh, "", {}));
-      logs.push(expectCallbacks(dh, "arr", [[1, 2, 3]]));
-      logs.push(do_publish(dh, "", { arr: [1, 2, 3] } ));
+      logs.push(expectCallbacks(dh, "arr", [[0, 1, 2], [0, 1, 2, 33]]));
+      logs.push(expectCallbacks(dh, "arr.*", [0, 1, 2, 33]));
+
+      logs.push(do_publish(dh, "", { arr: [0, 1, 2] }));
+
+      logs.push(expectCallbacks(dh, "arr.*", [33]));
+      logs.push(do_publish(dh, "arr.3", 33));
+
       logs.push(expectData(dh, "a", undefined));
-      logs.push(expectData(dh, "arr", [1, 2, 3]));
-      logs.push(expectData(dh, "arr.1", 2));
+      logs.push(expectData(dh, "arr", [0, 1, 2, 33]));
+      logs.push(expectData(dh, "arr.1", 1));
+      logs.push(expectData(dh, "arr.*", undefined)); // no wildcards in data requests
       do_report(logs);
     } // test03
+
+
+    // person cases
+    function test04(dh) {
+      dh.clear();
+      const logs = ['Test 03 Person-A']; // [string | []]
+
+      logs.push(do_publish(dh, "", { person: { name: 'John Doe', age: 30, city: 'New York', hobby: 'reading' } }));
+      logs.push(expectData(dh, "person", { "name": "John Doe", "age": 30, "city": "New York", "hobby": "reading" }));
+      logs.push(expectData(dh, "person.name", "John Doe"));
+      debugger;
+      logs.push(expectData(dh, "person[name]", "John Doe"));
+      logs.push(expectData(dh, "person.age", 30));
+
+      // const pk1 = pathKeys("person");
+      // const pk2 = pathKeys("person.age");
+      do_report(logs);
+    } // test03
+
 
     function test99(dh) {
       dh.clear();
@@ -288,14 +308,47 @@
     }
 
 
+    function expectPath(path, expected) {
+      const log = [];
+      expected = JSON.stringify(expected);
+      const p = DataHub.tokenizePath(path);
+      const ps = JSON.stringify(p);
+
+      if (ps === expected) {
+        return (`Ok: Path "${path}" => ${ps}`);
+      } else {
+        return (`Error: Path "${path}" => ${ps} expected ${expected}`);
+      }
+    }
+
+    function testP01() {
+      const logs = ['Test Paths']; // [string | []]
+      logs.push(expectPath("person", ["person"]));
+      logs.push(expectPath(".person", ["person"]));
+      logs.push(expectPath("/person", ["person"]));
+      logs.push(expectPath("\\person", ["person"]));
+      logs.push(expectPath("person.age", ["person", "age"]));
+      logs.push(expectPath("person/age", ["person", "age"]));
+      logs.push(expectPath("person\\age", ["person", "age"]));
+      logs.push(expectPath("person\\age", ["person", "age"]));
+      logs.push(expectPath("person.88", ["person", 88]));
+      logs.push(expectPath("person[88]", ["person", 88]));
+      logs.push(expectPath("person['age']", ["person", "age"]));
+      do_report(logs);
+    }
+
+
     window.addEventListener('DOMContentLoaded', function () {
       // debugger;
 
-      test00(window.datahub);
-      test01(window.datahub);
-      test02(window.datahub);
-      test03(window.datahub);
-      test99(window.datahub);
+      testP01();
+
+      // test00(window.datahub);
+      // test01(window.datahub);
+      // test02(window.datahub);
+      // test03(window.datahub);
+      // test04(window.datahub);
+      // test99(window.datahub);
 
 
     });
