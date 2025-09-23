@@ -7,7 +7,7 @@
 //
 // Documentation is available at <https://github.com/mathertel/sfc/blob/main/doc/data.md>
 
-import * as json from './json-parse.js';
+import * as jsonParse from './json-parse.js';
 
 /**
   * This interface defines the structure of an entry in the data hub's registration list.
@@ -15,7 +15,7 @@ import * as json from './json-parse.js';
 interface HubEntry {
   id: number;  // number for later un-registration
   match: RegExp; // regular expression for matching paths
-  callback: json.Callback; // callback function to be called when a matching path is found
+  callback: jsonParse.Callback; // callback function to be called when a matching path is found
 }
 
 /** This interface defines the list of registrations. */
@@ -108,9 +108,9 @@ export class DataHub {
    * const name = dataHub.get(["users", 0, "name"]);
    * ```
    */
-  get(path: json.PathSpec): any {
+  get(path: jsonParse.PathSpec): any {
     try {
-      const cursor = json.find(this.#store, path, false);
+      const cursor = jsonParse.find(this.#store, path, false);
       return cursor.pathNodes.at(-1);
     } catch (e) {
       return undefined;
@@ -140,7 +140,7 @@ export class DataHub {
    * @param {boolean} replay
    * @returns {number} number of registration
    */
-  subscribe(matchPath: string, fCallback: json.Callback): number {
+  subscribe(matchPath: string, fCallback: jsonParse.Callback): number {
     const id = this.#lastId++;
 
     // treating upper/lowercase equal is not clearly defined, but true with domain names.
@@ -186,8 +186,8 @@ export class DataHub {
    * Replay the store data for a specific path.
    * @param path root node of the data to be replayed
    */
-  replay(path: json.PathSpec) {
-    json.walk(this.#store, path, (path: string, value: any) => {
+  replay(path: jsonParse.PathSpec) {
+    jsonParse.walk(this.#store, path, (path: string, value: any) => {
       console.debug('hub', `replay(${path}, ${JSON.stringify(value)})`);
       this.#inform(path, value);
     });
@@ -207,14 +207,14 @@ export class DataHub {
    * dataHub.publish(['users', 'id1'], { name: 'John', age: 30 });
    * ```
    */
-  publish(path: json.PathSpec, obj: any) {
+  publish(path: jsonParse.PathSpec, obj: any) {
     console.debug("hub", `publish('${path}', ${JSON.stringify(obj)})`);
 
     // create cursor to relative root node of the _store object.
-    const cursor = json.find(this.#store, path, true);
+    const cursor = jsonParse.find(this.#store, path, true);
 
     // merge the data and inform all subscribers.
-    const c = json.merge(cursor, obj, this.#inform.bind(this));
+    const c = jsonParse.merge(cursor, obj, this.#inform.bind(this));
 
     // inform all subscribers of more global objects.
     while (c && cursor.pathKeys.length > 0) {
@@ -236,7 +236,7 @@ export class DataHub {
   } // publish()
 
   static tokenizePath(path: string): (string | number)[] {
-    return json.tokenizePath(path);
+    return jsonParse.tokenizePath(path);
   }
 } // DataHub class
 

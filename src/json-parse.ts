@@ -1,9 +1,14 @@
 // json-parse.ts: Set of JavaScript Object manipulation functions for traversing, merging, and modifying complex objects.
+// This functionality is used in the JSonHub implementation.
 // 
 // These functions use the dot notation syntax for path expressions:
-// E.g. "a.b.c" to select  { a : { b: { c:42 } } }. The path expression can be a dot separated string or an array of keys.
-// Arrays are supported but expressed in paths using the dot notation as well. E.g. "a[0].b" is expressed as "a.0.b".
+// E.g. "a.b.c" to select  { a : { b: { c:42 } } }.
+// The path expression used as parameters can be a dot, slash or backslash separated strings or an array of keys.
+// The path expression generated for callbacks are always using the dot notation e.g. "a[0].b" is expressed as "a.0.b".
+// Consequence: do not use dot, slash or backslash characters in attribute names.
 
+// Similar solution on merging objects in a deep way can be found e.g. https://github.com/TehShrike/deepmerge
+// However here the callback functiopnality is added to enable data-responsive solutions.
 
 // Callbacks are called with the path and the value of the node that was changed or added.
 export type Callback = (
@@ -12,15 +17,15 @@ export type Callback = (
 ) => void;
 
 
-// Keys in path array can be either strings or numbers.
+/** Keys in path array can be either strings or numbers. */
 type key = (string | number);
 
 
-// PathSpec is a type that can be either a string or an array of keys and is used in input path parameters.
+/** PathSpec is a type that can be either a string or an array of keys and is used in input path parameters. */
 export type PathSpec = string | key[];
 
 
-/// PathCursor is an internally used type that represents the current position in the object hierarchy during traversal.
+/** PathCursor is an internally used type that represents the current position in the object hierarchy during traversal. */
 type PathCursor = {
   pathKeys: key[];
   pathNodes: any[];
@@ -28,7 +33,7 @@ type PathCursor = {
 
 
 /**
- * Splits a path expression into an array of keys using dot notation or bracket notation.
+ * TokenizePath splits a path expression into an array of keys using dot notation or bracket notation.
  * Supports three types of path segments:
  * - Identifiers: Valid JavaScript identifiers (e.g., 'propertyName', '_property', '$value')
  * - Array indices: Numeric indices in brackets (e.g., '[0]', '[42]')
@@ -114,7 +119,6 @@ export function find(obj: any, path: PathSpec, create: boolean = false): PathCur
     return cursor;
 
   } else if (typeof path === 'string') {
-    path = path.replace(/\//g, '.'); // accept '/' for path separator too.
     keys = tokenizePath(path);
 
   } else {
@@ -137,25 +141,24 @@ export function find(obj: any, path: PathSpec, create: boolean = false): PathCur
   }
 
   return (cursor);
-}
+} // find()
 
 
 /**
- * Walks through an object tree, calling a callback function for each node.
+ * walk recursively traverses through an object tree, calling a callback function for each node.
  * 
  * @param store - The root object to start walking from
  * @param path - A path specification to determine the starting point in the object tree
  * @param cbFunc - Callback function that gets called for each node. 
  *                 Receives the dot-notation path (string) and the current node value as parameters
- * 
- * @example
+  * @example
  * ```typescript
  * walk(myObject, "path.to.start", (path, value) => {
  *   console.log(`${path}: ${value}`);
  * });
  * ```
  * 
- * The function recursively traverses the object tree starting from the specified path,
+ * The function traverses the object tree starting from the specified path,
  * calling the callback function for each node encountered, including leaf nodes and
  * intermediate objects.
  */
@@ -191,7 +194,7 @@ export function walk(store: any, path: PathSpec, cbFunc: Callback) {
  * 
  * @param cursor - The cursor trail into the storage object.
  * @param obj - The source object whose properties will be merged into storage object.
- * @param cb - Callback function that gets called when changes are detected
+ * @param cbFunc - Callback function that gets called when changes are detected
  * @returns boolean indicating whether any changes were made during the merge
  * 
  * The callback function receives the following parameters:
@@ -204,7 +207,7 @@ export function walk(store: any, path: PathSpec, cbFunc: Callback) {
  * - Arrays: Replaces the array items
  * - Primitive values: Updates the value if different
  */
-export function merge(cursor: PathCursor, obj: any, cb: (path: string, value?: any) => void): boolean {
+export function merge(cursor: PathCursor, obj: any, cbFunc: Callback): boolean {
   // console.log("json", `mergeObject('${cursor.pathKeys.join('.')}', ${JSON.stringify(obj)})`);
 
   let hasChanged = false;
@@ -243,7 +246,7 @@ export function merge(cursor: PathCursor, obj: any, cb: (path: string, value?: a
         // apply changes on this node
         if (typeof newValue !== "object") {
           // set or clear a primitive value
-          if (merge(cursor, newValue, cb)) changedThis = true;
+          if (merge(cursor, newValue, cbFunc)) changedThis = true;
 
         } else {
           // Object or Array
@@ -257,13 +260,13 @@ export function merge(cursor: PathCursor, obj: any, cb: (path: string, value?: a
           } // if
 
           // Recursively merge nested objects.
-          if (merge(cursor, newValue, cb)) changedThis = true;
+          if (merge(cursor, newValue, cbFunc)) changedThis = true;
         }
 
         // If the current node/value has changed, call the callback function.
         if (changedThis) {
           // Create the path string from the cursor keys
-          cb(cursor.pathKeys.join('.').substring(1), cursor.pathNodes[len]);
+          cbFunc(cursor.pathKeys.join('.').substring(1), cursor.pathNodes[len]);
           hasChanged = true;
         }
 
