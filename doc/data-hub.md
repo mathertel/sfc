@@ -1,54 +1,91 @@
-# JSonHub
+# JSDataHub Overview
 
-**JSonHub** is an open-source implementation that enables software developers to build and run reactive web applications
-in the browser.
+**JSDataHub** is an open-source implementation that enables software developers
+to build and run web applications in the browser usinbg reactive programming on
+a central data model.
 
-**JSonHub** expose reactive data through a PubSub mechanism with structured JavaScript object data and integrates
-services for exchanging data over http(s) to server-side endpoints and to client-side HTML custom controls and functions
+There is no dependency to huge reactive programming libraries like `Observer`
+and `RxJS` or other libraries.
+
+The implementation provides a lightweight footprint of 2.9kb and an efficient
+mechanism for managing and sharing state across components in a browser based
+web application. It is supporting frontend components and applications also in
+scenarios where [Size Matters].
+
+The implemenmtation can be found in [data-hub.ts](/src/data-hub.ts) and
+is typically compiled into a JavaScript ESM module.
+
+**JSDataHub** expose reactive data through a PubSub mechanism based on structured
+JavaScript object data and integrates services for exchanging data over http(s)
+to server-side endpoints and to client-side HTML custom controls and functions
 in real-time.
 
-**JSonHub** provides a mechanism to integrate computations, transformations and data validations.
+**JSDataHub** provides a mechanism to integrate computations, transformations and
+data validations.
 
+This implementation provides a consistant minimal but extendable implementation
+supporting frontend components and applications also in scenarios where
+[Size Matters]. This includes
 
-## Core concept
-
-* The **JSonHub** runtime consists of a set of interfaces and functions that receives a stream of data changes through
-  the `publish` function.
-
-* All inbound data can be `verified` or `transformed` before the data is merged into the internal structured data
-  object.
-
-* Data change events are distributed to all components or functions that have `subscribed` for beeing informed on a specific 
-  data path.
-
-This implementation provides a consistant minimal but extendable implementation supporting frontend components and
-applications also in scenarios where [Size Matters]. This includes
-
-* A simplified Publish / Subscriber Pattern for loosely coupled, event driven interfaces.
+* A simplified Publish / Subscriber Pattern for loosely coupled, event driven
+  interfaces.
 * Support of component based frontend applications.
 * Support structured data objects exchanged by server-side services.
-* It fits in situations with memory restrictions like Web frontends of IoT devices.
+* It fits in situations with memory restrictions like Web frontends of IoT
+  devices.
+
+
+## How it works
+
+* The **JSDataHub** owns and controls the data storage implemented as a
+  multi-level JavaScript Object, initially created as an unnamed, empty Object
+  `{}`.
+
+* The `publish` function in the **JSDataHub** library is used to add, merge or
+  delete data on the data storage Object using a path to the object and the new
+  data: `publish('animal/bird/name', 'beep')`.
+
+<!-- * All inbound data can be `verified` or `transformed` before the data is merged
+  into the internal structured data object. -->
+
+* The application code can register callback functions using the `subscribe`
+  function in the **JSDataHub** library:
+  `subscribe('animal/*', callbackFunction)`.
+
+* The data change events are distributed to all registered callback functions
+  using the given path including wildcards as a filter.
+
 
 ## Reactive Programming Concept
 
-Within the software stack the **Data Hub** implements the layer for a centralized data management that can keep the web
-application wide data and state and provides the mechanisms for binding parts and components of the application.
+Within the software stack the **Data Hub** implements the layer for a
+centralized data management that can keep the web application wide data and
+state and provides the mechanisms for binding parts and components of the
+application.
 
-> The concept of **reactive programming** is centered around data flows within your application and the propagation of
-> changes.  When data changes, the parts of the application that depend on this property will be automatically
-> updated.  This is the core idea used in many frontend libraries like React, Angular, Vue.js, MobX...
+> The concept of **reactive programming** is centered around data flows within
+> your application and the propagation of changes. When data changes, the parts
+> of the application that depend on this property will be automatically updated.
+> This is the core idea used in many frontend libraries like React, Angular,
+> Vue.js, MobX...
 
-See [Data binding in Web components](<https://www.mathertel.de/blog/2025/0417-sfc-data.htm) for further conceptual
-information that was published in the blog of __mathertel.de__.
+This statement on defining **reactive programming** is true for the above library 
+
+See
+[Data binding in Web components](<https://www.mathertel.de/blog/2025/0417-sfc-data.htm)
+for further conceptual information that was published in the blog of
+__mathertel.de__.
+
 
 ## Implementation
 
-The `DataHub` class implemented here provides a more lightweight and efficient mechanism for managing and sharing state
-across components in a web application.  It is implemented in [data-hu  b.ts](/src/data-hub.ts) and compiled into a
+The `JSDataHub` class implemented here provides a more lightweight and efficient
+mechanism for managing and sharing state across components in a web application.
+It is implemented in [data-hub.ts](/src/data-hub.ts) and compiled into a
 JavaScript ESM module.
 
-Because [Size Matters] the data hub is implemented with some assumptions and doesn't support all use cases you can
-imagine.
+Because [Size Matters] the data hub is implemented with some assumptions and
+doesn't support all use cases you can imagine.
 
 
 ### Data Change using the Publish Function
@@ -57,19 +94,23 @@ The `publish(path, data)` function is there to apply changes on the client-side 
 
 It supports 2 parameters:
 
-* **path** -- This parameter specifies the root in the data object.  The path is specified by the point or slash
-  separated list of descending attribute names or brackets for array objects. (See example below)
+* **path** -- This parameter specifies the root in the data object. The path is
+  specified by the point or slash separated list of descending attribute names
+  or brackets for array objects. (See example below)
 
-* **data** -- This parameter contains the new (partial) data object starting at the node specified by the `path`
-  argument.
+* **data** -- This parameter contains the new (partial) data object starting at
+  the node specified by the `path` argument.
 
-The data hub doesn't protect the inner data object but assumes that all publishers behave friendly as defined.
+The data hub doesn't protect the inner data object but assumes that all
+publishers behave friendly as defined.
 
-The internal data object can be retrieved by the `get()` function and the values can be changed on this object freely
-and bypassing the change detection.  Using this approach the subscribers will not be informed about changes.
+The internal data object can be retrieved by the `get()` function and the values
+can be changed on this object freely and bypassing the change detection. Using
+this approach the subscribers will not be informed about changes.
 
-When you need this kind of observations on changes a more complex and hence more size consuming library will be required
-working with multi level proxy implementations.
+When you need this kind of observations on changes a more complex and hence more
+size consuming library will be required working with multi level proxy
+implementations.
 
 
 ## Example
@@ -156,4 +197,3 @@ External material for reading:
 
 * JSON Path Notation (not supported) <https://datatracker.ietf.org/doc/html/rfc6901>
 * [Patterns for Reactivity with Modern Vanilla JavaScript](https://frontendmasters.com/blog/vanilla-javascript-reactivity/)
-

@@ -216,6 +216,14 @@ export class DataHub {
     // merge the data and inform all subscribers.
     const c = jsonParse.merge(cursor, obj, this.#inform.bind(this));
 
+    // inform all subscribers when obj was deleted.
+    if ((c && cursor.pathKeys.length > 0) && (! obj)) {
+      const path = cursor.pathKeys.join('.').substring(1);
+      this.#inform(path, undefined); 
+      cursor.pathKeys.pop();
+      cursor.pathNodes.pop();
+    }
+
     // inform all subscribers of more global objects.
     while (c && cursor.pathKeys.length > 0) {
       const path = cursor.pathKeys.join('.').substring(1);

@@ -8,7 +8,7 @@
 // Consequence: do not use dot, slash or backslash characters in attribute names.
 
 // Similar solution on merging objects in a deep way can be found e.g. https://github.com/TehShrike/deepmerge
-// However here the callback functiopnality is added to enable data-responsive solutions.
+// However here the callback functionality is added to enable data-responsive solutions.
 
 // Callbacks are called with the path and the value of the node that was changed or added.
 export type Callback = (
@@ -55,32 +55,35 @@ export function tokenizePath(path: string): key[] {
   while (path.length > 0) {
     if ((m = path.match(/^[./\\]/))) {
       // any separator... ignore
-      // ignore
-      path = path.substring(m[0].length);
 
     } else if ((m = path.match(/^[a-zA-Z_$][a-zA-Z0-9_$-]*/))) {
       // identifier
       keys.push(m[0]);
-      path = path.substring(m[0].length);
 
     } else if ((m = path.match(/^\d+/))) {
       // number index
       keys.push(Number(m[0]));
-      path = path.substring(m[0].length);
 
     } else if ((m = path.match(/^\[(?<index>\d+)\]/))) {
       // number index
       if (m.groups?.index) keys.push(Number(m.groups?.index));
-      path = path.substring(m[0].length);
 
     } else if ((m = path.match(/^\[['"]?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)['"]?\]/))) {
       // ident in brackets
       if (m.groups?.ident) keys.push(m.groups?.ident);
-      path = path.substring(m[0].length);
+
+    } else if ((m = path.match(/^[*]{1,2}/))) {
+      // wildcard
+      keys.push(m[0]);
 
     } else {
-      debugger; // should not happen
+      // debugger; // should not happen
       throw new Error(`Invalid path syntax at '${path}'`);
+    }
+
+    // remove token found.
+    if (m) {
+      path = path.substring(m[0].length);
     }
   }
 
