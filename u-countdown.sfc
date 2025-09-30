@@ -1,0 +1,66 @@
+<!--
+
+File: u-countdown.sfc
+
+-->
+
+<template light>
+  <span>hoo</span>
+</template>
+
+<style>
+  u-countdown:hover {
+    box-shadow: var(--dropshadow);
+  }
+</style>
+
+<script>
+  export default class UCountDown extends UComponent {
+    static observedAttributes = ["value"];
+    value = 'black';
+    cssvar = '';
+
+    constructor(p) {
+      super();
+      // UComponent has at this stage already copied the template to the shadow root 
+
+      // move all nodes not from the template into right slot
+      const childNodes = Array.from(this.childNodes);
+      for (const n of childNodes) {
+        if (n.nodeType === Node.TEXT_NODE && n.nodeValue.trim() === '') {
+          n.remove(); // remove empty text nodes
+        } else {
+          if (n.classList?.contains('header')) break;
+          // header is first element of template -> stop the loop
+          const sl = this.querySelector((n.tagName === 'BUTTON') ? '.footer>slot' : '.main>slot');
+          sl.appendChild(n);
+        }
+      }
+    }
+
+    onclick(evt) {
+      console.debug("click", evt);
+    }
+
+    onchange(evt) {
+      console.debug("change", evt);
+    }
+
+    init() {
+      console.debug('init()');
+      document.querySelector('u-card').classList.add('card');
+      this.classList.add('card');
+    } // init()
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.debug("attributeChanged", name, oldValue, newValue);
+
+      if (name === 'value') {
+      }
+    } // attributeChangedCallback()
+
+    adoptedCallback() {
+      console.debug("adopted", evt);
+    }
+  }
+</script>
