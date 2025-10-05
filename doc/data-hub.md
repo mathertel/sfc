@@ -1,19 +1,19 @@
 # JSDataHub Overview
 
-**JSDataHub** is an open-source implementation that enables software developers
-to build and run web applications in the browser usinbg reactive programming on
-a central data model.
+The JavaScript Data Hub (**JSDataHub**) is an open-source implementation that
+enables building and running web applications in the browser using reactive
+programming on a central data model.
 
 There is no dependency to huge reactive programming libraries like `Observer`
 and `RxJS` or other libraries.
 
 The implementation provides a lightweight footprint of 2.9kb and an efficient
 mechanism for managing and sharing state across components in a browser based
-web application. It is supporting frontend components and applications also in
+web application.  It is supporting frontend components and applications also in
 scenarios where [Size Matters].
 
-The implemenmtation can be found in [data-hub.ts](/src/data-hub.ts) and
-is typically compiled into a JavaScript ESM module.
+The implementation can be found in [data-hub.ts](/src/data-hub.ts) and is
+typically compiled into a JavaScript ESM module.
 
 **JSDataHub** expose reactive data through a PubSub mechanism based on structured
 JavaScript object data and integrates services for exchanging data over http(s)
@@ -189,6 +189,51 @@ string.
 
 <!-- ### Guaranteed callback order -->
 
+
+### SFC Components using the JSDataHub
+
+The Single File Components have been implemented especially for **minimal footprint
+situations** where the available size on web servers is below 2-8 MByte (yes: Megabyte)
+but still providing the required functionality.  This has a strong impact on the
+principles of implementation.  The SFC library follows these "micro implementation"
+principles.
+
+1. Data binding is not implemented by using a full featured library like RxJS but.
+   Using the JSDataHub implementation offers enough functionality with a lower memory
+   footprint.
+
+2. Using native web component implementations that do not need special runtimes or
+   frameworks.
+
+3. Use native available functionality.  Functionality in the browser usually comes with
+   a low impact on downloads while offering a good selection of feature and a usability
+   that users are used to.
+
+    * Prefer using the built-in `<input type="date">` HTML component instead of
+      implementing a better looking Date Picker component with lot of HTML, CSS and
+      JavaScript.
+    * Use new CSS features like `popover` or `dialog` instead of bundling a library.
+    * No images when a small SVG can do the same.
+    * Use and understand minification tools
+
+4. Powerful client side processors are available while server side processing is on your
+   cost and limited as well in IoT devices.
+
+    * When things can be done on both sides, prefer the client side.
+    * Deliver data in formats that can be produced easily on the server and can be
+      transformed on the client side as required.
+
+5. More specific Coding, less reusing existing libraries
+
+    * Open Source libraries often implement many features to support multiple scenarios.
+    * Only implement what you need.
+
+6. Less beautiful -- more functional
+
+    * Any HTML Javascript and CSS without a **functional** requirement can be avoided.
+
+
+
 ## See also
 
 * [Data Hub API](data-hub-api.md)
@@ -197,3 +242,5 @@ External material for reading:
 
 * JSON Path Notation (not supported) <https://datatracker.ietf.org/doc/html/rfc6901>
 * [Patterns for Reactivity with Modern Vanilla JavaScript](https://frontendmasters.com/blog/vanilla-javascript-reactivity/)
+
+[Size Matters]: https://www.mathertel.de/blog/2025/1001-size-matters.htm

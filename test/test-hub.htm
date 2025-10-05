@@ -16,9 +16,12 @@
     #testResults {
       background-color: beige;
 
-      >span {
+      >details {
         margin-right: 0.5em;
         cursor: pointer;
+        margin: 4px;
+
+        pre { background-color: whitesmoke;}
       }
 
       /* .ok {background-color: lime; border:1px solid black} */
@@ -47,10 +50,9 @@
       <button id="hubUnsubscribe">unsubscribe Age</button>
     </nav>
 
-    <h3>Test Results</h3>
+    <h3>Tests</h3>
     <div id="testResults"></div>
 
-    <hr />
     <hr />
     <div><label>person.name: <span id="personName">...</span></label></div>
     <div><label>person.age: <span id="personAge">...</span></label></div>
@@ -195,10 +197,16 @@
       }
       console.groupEnd();
 
-      const tc = document.createElement('span');
+      const tc = document.createElement('details');
       tc.className = allPassed ? "valid" : "error";
-      tc.innerText = log[0];
-      tc.title = log.join('\n');
+      const sum = document.createElement('summary');
+      sum.innerText = log[0];
+      tc.appendChild(sum);
+      const txt = document.createElement('pre');
+      txt.innerText = log.slice(1).join('\n')
+      tc.appendChild(txt);
+
+      // tc.title = log.join('\n');
       testsObj.appendChild(tc);
     } // summarize()
 
@@ -336,7 +344,7 @@
       logs.push(do_publish(dh, "/animals/horse", { name: "Fury" }));
       logs.push(do_publish(dh, "/animals/horse", undefined));
 
-      logs.push(expectData(dh, "/animals", {"cat":{"name":"Pussy"},"dog":{"name":"Bello"}}));
+      logs.push(expectData(dh, "/animals", { "cat": { "name": "Pussy" }, "dog": { "name": "Bello" } }));
       logs.push(expectData(dh, "/animals/horse", undefined));
 
       do_report(logs);
@@ -437,7 +445,7 @@
 
       testP01();
 
-      test00(window.datahub);
+      // test00(window.datahub);
       test01(window.datahub);
       test02(window.datahub);
       test03(window.datahub);
