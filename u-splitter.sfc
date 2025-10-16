@@ -1,13 +1,22 @@
 <!--
 File: u-splitter.sfc
-
 Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
-This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
-Implementation of a custom element that enables horizontal or vertical sizing of a pair of regions inside this container
-element.
+This work is licensed under a BSD-3-Clause license.
+See http://www.mathertel.de/License.aspx
 
-Example: <u-splitter vertical? > <div>...</div> <div>...</div> </u-splitter>
+Implementation of a custom element that enables horizontal or vertical sizing of a pair
+of regions inside this containter element.  The 2 regions inside this custom container
+element will be given enough width/height to cover the whole defined space.  An
+additional element is created that can be shifted by using a mouse or touchscreen
+pointer.
+
+Example: <u-splitter vertical?> <div>...</div> <div>...</div> <u-splitterr>
+
+This custom container element is not using the shadow dom, leaves the original html
+structure in place and only acts on sizing the 2 contained elements.  The 2 contained
+elements.
+
 -->
 
 <template light>
@@ -16,10 +25,14 @@ Example: <u-splitter vertical? > <div>...</div> <div>...</div> </u-splitter>
 <style>
   u-splitter {
     position: relative;
-    display:block;
+    display: block;
     width: 100%;
     height: 100%;
     display: flex;
+
+    >* {
+      display: block;
+    }
 
     .resizer {
       position: absolute;
@@ -108,7 +121,11 @@ Example: <u-splitter vertical? > <div>...</div> <div>...</div> </u-splitter>
           size2 = o2.offsetHeight
         }
 
-        if (total !== size1 + size2) {
+        if ((size1 === 0) || (size2 === 0)) {
+          // half/half by default
+          size1 = size2 = Math.round(total / 2);
+
+        } else if (total !== size1 + size2) {
           // resize and keep the ratio
           size1 = Math.round((total * size1) / (size1 + size2));
         }
