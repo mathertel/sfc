@@ -82,8 +82,7 @@ A custom element that implements ...
       <form is="u-form-json" method="dialog" class="form-grid"> <!-- method="get" -->
         <label>title:</label> <input name="title" title="The title displayed upon the count-down timer." />
         <label>Sub-Text:</label> <input name="txt" title="Text based message." />
-        <label>Duration:</label> <input is="u-duration" id="durInput" title="use format 00:00:00 or number of seconds."
-          style="width: 10em" />
+        <label>Duration:</label> <input is="u-duration" id="durInput" title="use format 00:00:00 or number of seconds." style="width: 10em" />
         <label>Start:</label> <input id="ts" name="ts" type="datetime-local" />
         <div><input type="submit"></div>
       </form>
@@ -99,7 +98,7 @@ A custom element that implements ...
     const formElem = document.querySelector('#paramForm form');
     const durElem = document.querySelector('#paramForm form #durInput');
     const tsElem = document.querySelector('#paramForm form #ts');
-// debugger;
+    // debugger;
     const ret = {};
 
     await allSFCLoaded;
@@ -116,20 +115,23 @@ A custom element that implements ...
     dh.publish("param", n ? ret : undefined);
     formElem.setJsonData(ret);
 
-    formElem.addEventListener('submit', evt=> {
-      debugger;
-      console.log(formElem.getJsonData());
-    let params = formElem.getJsonData();
+    // handle form submission and update the URL querystring causing a page reload
+    formElem.addEventListener('submit', evt => {
+      let paramsObj = formElem.getJsonData();
+      const paramsQS = new URLSearchParams(paramsObj);
 
-    URLSearchParams()
+      // dh.publish("param", paramsObj);
+      // use effect to update the URL querystring
+      // console.log(paramsObj, paramsQS.toString());
 
+      // navigate to the same page with new parameters
+      window.location.search = paramsQS.toString();
     });
 
-    durElem.addEventListener('change', evt=> {
+    // when duration changes, update the timestamp field
+    durElem.addEventListener('change', evt => {
       console.log('Duration changed: ', evt.currentTarget.value);
-      debugger;
-      tsElem.value = new Date(Date.now() + parseDuration(evt.currentTarget.value) * 1000).toISOString().slice(0,16);
-
+      tsElem.value = new Date(Date.now() + parseDuration(evt.currentTarget.value) * 1000).toISOString().slice(0, 16);
     });
 
     let startTime;
