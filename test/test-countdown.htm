@@ -22,10 +22,10 @@ A custom element that implements ...
       src: url("/font/OpenSans-VariableFont_wdth,wght.ttf") format('woff2');
     }
 
-    :root {
+    /* :root {
       --back: #17458f;
       --color: white;
-    }
+    } */
 
     html,
     body,
@@ -36,10 +36,13 @@ A custom element that implements ...
     }
 
     #timer {
-      border: 2px solid gray;
-      background-color: lightgray;
       padding: 1rem;
-      font-size: 300%;
+
+      #countdown {
+        font-family: 'Open Sans', Arial, ui-sans-serif, sans-serif;
+        font-size: 320%;
+        font-weight: 600;
+      }
     }
 
     #paramForm {
@@ -50,7 +53,7 @@ A custom element that implements ...
 
   <script src="../loader.js"></script>
   <script>
-    var allSFCLoaded = window.loadComponent(['u-duration']);
+    var allSFCLoaded = window.loadComponent(['u-duration', 'u-form-json']);
   </script>
 </head>
 
@@ -60,9 +63,9 @@ A custom element that implements ...
     <h1>Count Down Timer Test Page</h1>
   </header>
 
-  <div>
+  <!-- <div>
     <img src="/font/dark.min.svg" alt="dark mode" style="height: 12em; aspect-ratio: initial;" />
-  </div>
+  </div> -->
 
 
   <main>
@@ -76,11 +79,12 @@ A custom element that implements ...
     <hr>
     <div id="paramForm" style="display:none">
       <h3>Count Down Page parameters:</h3>
-      <form method="get" class="form-grid">
+      <form is="u-form-json" method="dialog" class="form-grid"> <!-- method="get" -->
         <label>title:</label> <input name="title" title="The title displayed upon the count-down timer." />
         <label>Sub-Text:</label> <input name="txt" title="Text based message." />
-        <label>Duration:</label> <input is="u-duration" id="durInput" title="use format 00:00:00 or number of seconds." style="width: 10em" />
-        <label>Start:</label> <input name="ts" type="datetime-local" />
+        <label>Duration:</label> <input is="u-duration" id="durInput" title="use format 00:00:00 or number of seconds."
+          style="width: 10em" />
+        <label>Start:</label> <input id="ts" name="ts" type="datetime-local" />
         <div><input type="submit"></div>
       </form>
     </div>
@@ -89,7 +93,45 @@ A custom element that implements ...
     <hr />
   </main>
 
-  <script>
+  <script type="module">
+    import { DataHub } from '/data-hub.js';
+    const dh = window.datahub;
+    const formElem = document.querySelector('#paramForm form');
+    const durElem = document.querySelector('#paramForm form #durInput');
+    const tsElem = document.querySelector('#paramForm form #ts');
+// debugger;
+    const ret = {};
+
+    await allSFCLoaded;
+    dh.configurePersistence(sessionStorage, "datahub_store");
+
+    // transfer parameters from QueryString into data-hub
+    let n = 0;
+    let params = new URLSearchParams(window.location.search);
+    for (const [key, value] of params) {
+      if (value !== '')
+        ret[key] = value;
+      n++;
+    } // for
+    dh.publish("param", n ? ret : undefined);
+    formElem.setJsonData(ret);
+
+    formElem.addEventListener('submit', evt=> {
+      debugger;
+      console.log(formElem.getJsonData());
+    let params = formElem.getJsonData();
+
+    URLSearchParams()
+
+    });
+
+    durElem.addEventListener('change', evt=> {
+      console.log('Duration changed: ', evt.currentTarget.value);
+      debugger;
+      tsElem.value = new Date(Date.now() + parseDuration(evt.currentTarget.value) * 1000).toISOString().slice(0,16);
+
+    });
+
     let startTime;
     let defaults = {
       title: "Meeting", txt: "Please wait for the meeting to start", d: "12:00",
@@ -157,7 +199,7 @@ A custom element that implements ...
     }
 
     const p = getParams();
-    debugger;
+    // debugger;
 
     if (!p) {
       document.querySelector('#paramForm').style.display = 'block';
@@ -178,7 +220,6 @@ A custom element that implements ...
       var oCD = document.querySelector('#countdown');
       const durFmt = new Intl.DurationFormat(navigator.languages, { style: style });
 
-
       if (false && (new Date() > startTime)) {
         oCD.textContent = p.message;
 
@@ -192,7 +233,6 @@ A custom element that implements ...
             window.clearInterval(wt);
             oCD.textContent = p.message;
           } else {
-
 
             // const d = new Date(startTime - new Date());
             const d = {
