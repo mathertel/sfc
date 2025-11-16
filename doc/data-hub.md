@@ -4,16 +4,17 @@ The JavaScript Data Hub (**JSDataHub**) is an open-source implementation that
 enables building and running web applications in the browser using reactive
 programming on a central data model.
 
-There is no dependency to huge reactive programming libraries like `Observer`
-and `RxJS` or other libraries.
+There is no dependency to huge reactive programming libraries like `Observer` and `RxJS`
+or other libraries to keep the size of the download and implementation small enough to
+be used in web frontends for IoT devices where [Size Matters].
 
-The implementation provides a lightweight footprint of 2.9kb and an efficient
-mechanism for managing and sharing state across components in a browser based
-web application.  It is supporting frontend components and applications also in
-scenarios where [Size Matters].
+As of now the JSDataHub requires about 3kb download size.
 
-The implementation can be found in [data-hub.ts](/src/data-hub.ts) and is
-typically compiled into a JavaScript ESM module.
+JSDataHub offers efficient mechanism for managing and sharing state across components in
+a browser based web application.
+
+The implementation can be found in [data-hub.ts](/src/data-hub.ts) and is typically
+compiled into a JavaScript ESM module.
 
 **JSDataHub** expose reactive data through a PubSub mechanism based on structured
 JavaScript object data and integrates services for exchanging data over http(s)
@@ -187,8 +188,25 @@ Paths are also given back to subscribers during the callback.  The path syntax u
 string.
 
 
-<!-- ### Guaranteed callback order -->
 
+## URL Parameters as Data Feed for JSDataHub
+
+The following small JavaScript code demonstrates how to capture parameters from the URL and deliver them into the JSDataHub. This allows using them directly in forms and components.
+
+``` js
+  // build a plain Object with the attributes from the search parameters
+  let node = {};
+  let params = new URLSearchParams(window.location.search);
+  for (const [key, value] of params) {
+    node[key] = value;
+  } // for
+
+  // add at once to the local reactive data
+  dh.publish("param", node);
+```
+
+
+<!-- ### Guaranteed callback order -->
 
 ### SFC Components using the JSDataHub
 
