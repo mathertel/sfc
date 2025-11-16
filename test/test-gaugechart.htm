@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>test &lt;u-gaugechart&gt;</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <script src="/loader.js"></script>
+  <script>
+    // Register the gaugechart and markdown components used on this page
+    window.loadComponent('u-gaugechart,u-markdown');
+  </script>
+</head>
+
+<body>
+  <h1>test &lt;u-gaugechart&gt;</h1>
+
+  <p>Placeholder test page for the <code>&lt;u-gaugechart&gt;</code> component.</p>
+
+  <section class="demo">
+    <h2>Interactive demo</h2>
+    <div style="display:flex;gap:2rem;align-items:center;flex-wrap:wrap;">
+      <div>
+        <u-gaugechart id="g1" style="width:240px;height:140px"></u-gaugechart>
+      </div>
+
+      <div>
+        <label for="g1-val">Value</label>
+        <input id="g1-val" type="range" min="0" max="240" value="60" />
+        <div style="margin-top:.5rem">
+          <button id="g1-dec">-10</button>
+          <button id="g1-inc">+10</button>
+          <button id="g1-rand">Random</button>
+        </div>
+        <div style="margin-top:.5rem">Current: <span id="g1-cur">60</span></div>
+      </div>
+    </div>
+  </section>
+
+  <u-markdown src="../doc/u-gaugechart.md"></u-markdown>
+
+  <script>
+    // Demo wiring: update gauge when controls change. Guard if methods are not implemented.
+    (function () {
+      const slider = document.getElementById('g1-val');
+      const dec = document.getElementById('g1-dec');
+      const inc = document.getElementById('g1-inc');
+      const rand = document.getElementById('g1-rand');
+      const cur = document.getElementById('g1-cur');
+
+      function updateGauge(value) {
+        const g = document.getElementById('g1');
+        cur.textContent = value;
+        if (!g) return;
+        if (typeof g.setValue === 'function') {
+          g.setValue(Number(value));
+        } else if (typeof g.draw === 'function') {
+          g.draw({ value: Number(value) });
+        } else {
+          // nothing to do — component may not be implemented yet
+        }
+      }
+
+      slider.addEventListener('input', (e) => updateGauge(e.target.value));
+      dec.addEventListener('click', () => { slider.value = Math.max(Number(slider.min), Number(slider.value) - 10); updateGauge(slider.value); });
+      inc.addEventListener('click', () => { slider.value = Math.min(Number(slider.max), Number(slider.value) + 10); updateGauge(slider.value); });
+      rand.addEventListener('click', () => { const v = Math.floor(Math.random() * (Number(slider.max) - Number(slider.min) + 1)) + Number(slider.min); slider.value = v; updateGauge(v); });
+
+      // initialize
+      requestAnimationFrame(() => updateGauge(slider.value));
+    })();
+  </script>
+
+</body>
+
+</html>

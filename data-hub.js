@@ -1,1 +1,293 @@
-function c(s){let e=[],t;for(;s.length>0;){if(!(t=s.match(/^[./\\]/)))if(t=s.match(/^[a-zA-Z_$][a-zA-Z0-9_$-]*/))e.push(t[0]);else if(t=s.match(/^\d+/))e.push(Number(t[0]));else if(t=s.match(/^\[(?<index>\d+)\]/))t.groups?.index&&e.push(Number(t.groups?.index));else if(t=s.match(/^\[['"]?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)['"]?\]/))t.groups?.ident&&e.push(t.groups?.ident);else if(t=s.match(/^[*]{1,2}/))e.push(t[0]);else throw new Error(`Invalid path syntax at '${s}'`);t&&(s=s.substring(t[0].length))}return e}function p(s,e,t=!1){let n,i={pathKeys:[""],pathNodes:[s]};if(e)typeof e=="string"?n=c(e):n=e;else return i;for(let a of n){if(!s[a])if(t)s[a]={};else throw new Error(`Node not found '${e}'`);i.pathKeys.push(a),i.pathNodes.push(s[a]),s=s[a]}return i}function f(s,e,t){function n(i){let a=i.pathNodes.at(-1);if(typeof a=="object")for(let o in a)i.pathKeys.push(o),i.pathNodes.push(a[o]),n(i),i.pathKeys.pop(),i.pathNodes.pop();t(i.pathKeys.join(".").substring(1),a)}n(p(s,e,!0))}function h(s,e,t){let n=!1,i=s.pathKeys.length;if(typeof e!="object"){let a=s.pathNodes[i-2],o=s.pathKeys[i-1];e==null?(delete a[o],n=!0):a[o]!==e&&(s.pathNodes[i-1]=a[o]=e,n=!0)}else for(let a in e)if(Object.prototype.hasOwnProperty.call(e,a)){let o=!1,r=e[a];if(typeof a=="string"&&(a=a.toLowerCase()),s.pathKeys.push(a),s.pathNodes.push(s.pathNodes[i-1][a]),typeof r!="object")h(s,r,t)&&(o=!0);else{let l=s.pathNodes[i-1];l[a]||(l[a]=Array.isArray(r)?[]:{},s.pathNodes[i]=l[a],o||=!0),h(s,r,t)&&(o=!0)}o&&(t(s.pathKeys.join(".").substring(1),s.pathNodes[i]),n=!0),s.pathKeys.pop(),s.pathNodes.pop()}return n}var u=class{#t=new Set;#i=0;#e={};#s=void 0;#n;constructor(e,t){this.clear(),e&&this.configurePersistence(e,t)}clear(){this.#t.clear(),this.#i=0,this.#e={}}configurePersistence(e,t="datahub"){if(!e||typeof e.setItem!="function")throw new Error("Invalid storage object. Must implement the Storage interface.");this.#s=e,this.#n=t||"datahub";let n=this.#s.getItem(this.#n);if(n)try{this.#e=JSON.parse(n)}catch{}}get(e){try{return p(this.#e,e,!1).pathNodes.at(-1)}catch{return}}#a(e,t){this.#t.forEach(n=>{e.match(n.match)&&n.callback(e,t)})}subscribe(e,t){let n=this.#i++,i=e.toLocaleLowerCase();i=i.replace("/","."),i[0]==="."&&(i=i.substring(1));let a="^"+i.replace(/\*\*/g,"[A-Za-z0-9._-]{0,}").replace(/\*/g,"[^.]*")+"$",o={id:n,match:RegExp(a),callback:t};return this.#t.add(o),n}unsubscribe(e){this.#t.forEach(t=>{t.id===e&&this.#t.delete(t)})}replay(e){f(this.#e,e,(t,n)=>{this.#a(t,n)})}publish(e,t){let n=p(this.#e,e,!0),i=h(n,t,this.#a.bind(this));if(i&&n.pathKeys.length>0&&!t){let a=n.pathKeys.join(".").substring(1);this.#a(a,void 0),n.pathKeys.pop(),n.pathNodes.pop()}for(;i&&n.pathKeys.length>0;){let a=n.pathKeys.join(".").substring(1);this.#a(a,n.pathNodes.at(-1)),n.pathKeys.pop(),n.pathNodes.pop()}if(this.#s)try{let a=JSON.stringify(this.#e);this.#s.setItem(this.#n,a)}catch{}}static tokenizePath(e){return c(e)}};window.datahub=new u;export{u as DataHub};
+// src/json-parse.ts
+function tokenizePath(path) {
+  const keys = [];
+  let m;
+  while (path.length > 0) {
+    if (m = path.match(/^[./\\]/)) {
+    } else if (m = path.match(/^[a-zA-Z_$][a-zA-Z0-9_$-]*/)) {
+      keys.push(m[0]);
+    } else if (m = path.match(/^\d+/)) {
+      keys.push(Number(m[0]));
+    } else if (m = path.match(/^\[(?<index>\d+)\]/)) {
+      if (m.groups?.index) keys.push(Number(m.groups?.index));
+    } else if (m = path.match(/^\[['"]?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)['"]?\]/)) {
+      if (m.groups?.ident) keys.push(m.groups?.ident);
+    } else if (m = path.match(/^[*]{1,2}/)) {
+      keys.push(m[0]);
+    } else {
+      throw new Error(`Invalid path syntax at '${path}'`);
+    }
+    if (m) {
+      path = path.substring(m[0].length);
+    }
+  }
+  return keys;
+}
+function find(obj, path, create = false) {
+  let keys;
+  const cursor = {
+    pathKeys: [""],
+    pathNodes: [obj]
+  };
+  if (!path) {
+    return cursor;
+  } else if (typeof path === "string") {
+    keys = tokenizePath(path);
+  } else {
+    keys = path;
+  }
+  for (const key of keys) {
+    if (!obj[key]) {
+      if (create) {
+        obj[key] = {};
+      } else {
+        throw new Error(`Node not found '${path}'`);
+      }
+    }
+    cursor.pathKeys.push(key);
+    cursor.pathNodes.push(obj[key]);
+    obj = obj[key];
+  }
+  return cursor;
+}
+function walk(store, path, cbFunc) {
+  function _walk(cursor) {
+    const obj = cursor.pathNodes.at(-1);
+    if (typeof obj === "object") {
+      for (const key in obj) {
+        cursor.pathKeys.push(key);
+        cursor.pathNodes.push(obj[key]);
+        _walk(cursor);
+        cursor.pathKeys.pop();
+        cursor.pathNodes.pop();
+      }
+    }
+    cbFunc(cursor.pathKeys.join(".").substring(1), obj);
+  }
+  _walk(find(store, path, true));
+}
+function merge(cursor, obj, cbFunc) {
+  let hasChanged = false;
+  const len = cursor.pathKeys.length;
+  if (typeof obj !== "object") {
+    const node = cursor.pathNodes[len - 2];
+    const k = cursor.pathKeys[len - 1];
+    if (obj === void 0 || obj === null) {
+      delete node[k];
+      hasChanged = true;
+    } else if (node[k] !== obj) {
+      cursor.pathNodes[len - 1] = node[k] = obj;
+      hasChanged = true;
+    }
+  } else {
+    for (let key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        let changedThis = false;
+        const newValue = obj[key];
+        if (typeof key === "string") {
+          key = key.toLowerCase();
+        }
+        cursor.pathKeys.push(key);
+        cursor.pathNodes.push(cursor.pathNodes[len - 1][key]);
+        if (typeof newValue !== "object") {
+          if (merge(cursor, newValue, cbFunc)) changedThis = true;
+        } else {
+          const node = cursor.pathNodes[len - 1];
+          if (!node[key]) {
+            node[key] = Array.isArray(newValue) ? [] : {};
+            cursor.pathNodes[len] = node[key];
+            changedThis ||= true;
+          }
+          if (merge(cursor, newValue, cbFunc)) changedThis = true;
+        }
+        if (changedThis) {
+          cbFunc(cursor.pathKeys.join(".").substring(1), cursor.pathNodes[len]);
+          hasChanged = true;
+        }
+        cursor.pathKeys.pop();
+        cursor.pathNodes.pop();
+      }
+    }
+  }
+  return hasChanged;
+}
+
+// src/data-hub.ts
+var DataHub = class {
+  #registry = /* @__PURE__ */ new Set();
+  #lastId = 0;
+  #store = {};
+  #storageObject = void 0;
+  #storageKey;
+  /**
+   * Constructs a new instance of the DataHub class.
+   * 
+   * @param storageObject - (Optional) The storage object where the data should be saved (e.g., sessionStorage or localStorage).
+   * @param key - (Optional) The key under which the data should be stored.
+   */
+  constructor(storageObject, key) {
+    this.clear();
+    if (storageObject) {
+      this.configurePersistence(storageObject, key);
+    }
+  }
+  // remove all subscribers and set data to empty object.
+  clear() {
+    this.#registry.clear();
+    this.#lastId = 0;
+    this.#store = {};
+  }
+  // clear()
+  /**
+   * Configures the DataHub to persist its store to a specified storage object.
+   * 
+   * @param storageObject - The storage object where the data should be saved (e.g., sessionStorage or localStorage).
+   * @param key - The key under which the data should be stored.
+   */
+  configurePersistence(storageObject, key = "datahub") {
+    if (!storageObject || typeof storageObject.setItem !== "function") {
+      throw new Error("Invalid storage object. Must implement the Storage interface.");
+    }
+    this.#storageObject = storageObject;
+    this.#storageKey = key || "datahub";
+    const storedData = this.#storageObject.getItem(this.#storageKey);
+    if (storedData) {
+      try {
+        this.#store = JSON.parse(storedData);
+      } catch (e) {
+        console.error("Failed to load DataHub store from storage:", e);
+      }
+    }
+  }
+  // configurePersistence()
+  /**
+   * Retrieves a value from the internal store using a JSON path specification.
+   * 
+   * @param path - The JSON path specification used to locate the desired value
+   * @returns The value at the specified path, or undefined if the path is invalid or doesn't exist
+   * 
+   * @example
+   * ```ts
+   * // Get value at path "users.0.name"
+   * const name = dataHub.get(["users", 0, "name"]);
+   * ```
+   */
+  get(path) {
+    try {
+      const cursor = find(this.#store, path, false);
+      return cursor.pathNodes.at(-1);
+    } catch (e) {
+      return void 0;
+    }
+  }
+  // get()
+  /**
+   * Notify all registered subscribers whose match pattern matches the given path.
+   * @param path - The path to match against registered patterns
+   * @param value - The value to pass to matching callbacks
+   * @private
+   */
+  #inform(path, value) {
+    this.#registry.forEach((r) => {
+      if (path.match(r.match)) {
+        r.callback(path, value);
+      }
+    });
+  }
+  // #inform()
+  /**
+   * Subscribe to changes in the store using a path expression
+   * @param {string} matchPath expression for the registration
+   * @param {JsonParseCallback} fCallback
+   * @param {boolean} replay
+   * @returns {number} number of registration
+   */
+  subscribe(matchPath, fCallback) {
+    const id = this.#lastId++;
+    let rn = matchPath.toLocaleLowerCase();
+    rn = rn.replace("/", ".");
+    if (rn[0] === ".") {
+      rn = rn.substring(1);
+    }
+    const re = "^" + rn.replace(/\*\*/g, "[A-Za-z0-9._-]{0,}").replace(/\*/g, "[^.]*") + "$";
+    console.debug("hub", `subscribe(${matchPath}) using '${re}'`);
+    const newEntry = {
+      id,
+      match: RegExp(re),
+      callback: fCallback
+    };
+    this.#registry.add(newEntry);
+    return id;
+  }
+  // subscribe
+  /**
+   * Cancel a subscription.
+   * @param id subscription registration id.
+   */
+  unsubscribe(id) {
+    this.#registry.forEach((r) => {
+      if (r.id === id) {
+        this.#registry.delete(r);
+      }
+    });
+  }
+  // unsubscribe
+  /**
+   * Replay the store data for a specific path.
+   * @param path root node of the data to be replayed
+   */
+  replay(path) {
+    walk(this.#store, path, (path2, value) => {
+      console.debug("hub", `replay(${path2}, ${JSON.stringify(value)})`);
+      this.#inform(path2, value);
+    });
+  }
+  // replay
+  /**
+   * Publishes data to a specified path in the data store and notifies subscribers.
+   * The data is merged with existing data at the specified path, and all subscribers
+   * of the path and its parent paths are informed about the changes.
+   * 
+   * @param path - The path specification where the data should be published
+   * @param obj - The data object to be published
+   * 
+   * @example
+   * ```typescript
+   * dataHub.publish(['users', 'id1'], { name: 'John', age: 30 });
+   * ```
+   */
+  publish(path, obj) {
+    console.debug("hub", `publish('${path}', ${JSON.stringify(obj)})`);
+    const cursor = find(this.#store, path, true);
+    const c = merge(cursor, obj, this.#inform.bind(this));
+    if (c && cursor.pathKeys.length > 0 && !obj) {
+      const path2 = cursor.pathKeys.join(".").substring(1);
+      this.#inform(path2, void 0);
+      cursor.pathKeys.pop();
+      cursor.pathNodes.pop();
+    }
+    while (c && cursor.pathKeys.length > 0) {
+      const path2 = cursor.pathKeys.join(".").substring(1);
+      this.#inform(path2, cursor.pathNodes.at(-1));
+      cursor.pathKeys.pop();
+      cursor.pathNodes.pop();
+    }
+    if (this.#storageObject) {
+      try {
+        const jsonData = JSON.stringify(this.#store);
+        this.#storageObject.setItem(this.#storageKey, jsonData);
+      } catch (e) {
+        console.error("Failed to save DataHub store to storage:", e);
+      }
+    }
+  }
+  // publish()
+  static tokenizePath(path) {
+    return tokenizePath(path);
+  }
+};
+window.datahub = new DataHub();
+export {
+  DataHub
+};
+//# sourceMappingURL=data-hub.js.map

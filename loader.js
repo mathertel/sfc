@@ -1,1 +1,155 @@
-"use strict";class UComponent extends HTMLElement{static observedAttributes=[];uRoot=this;sfcConnected=!1;uTemplate=this.constructor.uTemplate;uStyle=this.constructor.uStyle;#e=!1;extends;constructor(){super();for(const t of this.constructor.observedAttributes)Object.defineProperty(this,t,{set(s){this.setAttribute(t,s)},get(){return this.getAttribute(t)}});const e=this.uTemplate;if(e){let t="open";e.hasAttribute("light")&&(t="light"),e.hasAttribute("closed")&&(t="closed"),t==="light"?this.appendChild(document.importNode(e.content,!0)):(this.uRoot=this.attachShadow({mode:t}),this.uRoot.appendChild(document.importNode(e.content,!0)))}const a=this.uStyle;if(a){const t=a.cloneNode(!0);a.hasAttribute("scoped")?this.uRoot.insertBefore(t,this.uRoot.firstChild):this.#e||(document.head.insertAdjacentElement("afterbegin",t),this.#e=!0)}}connectedCallback(){this.sfcConnected||(this.sfcConnected=!0,Object.getOwnPropertyNames(this.constructor.prototype).filter(e=>e.startsWith("on")).forEach(e=>{e.toLowerCase(),this.addEventListener(e.substring(2).toLowerCase(),this)}),document.readyState==="loading"?window.addEventListener("DOMContentLoaded",this.init.bind(this)):window.requestAnimationFrame(this.init.bind(this)))}init(){}handleEvent(e){this["on"+e.type](e)}}const loaderURL=document.currentScript.src;function loadComponent(o,e=void 0){async function a(s,c=void 0){let i;c?i=new URL(c,document.location.href):i=new URL(loaderURL);const n=new URL(s+".sfc",i),r=await fetch(n).then(l=>l.text()).then(l=>new DOMParser().parseFromString(l,"text/html")),d=r.querySelectorAll("sfc");if(d.length===0)await t(s,r,i);else for(const l of d)await t(l.getAttribute("tag"),l,i)}async function t(s,c,i){let n;const r=c.querySelector("script");if(r&&r.textContent){const d=new Blob([r.textContent],{type:"application/javascript"});n=(await import(URL.createObjectURL(d))).default,n.extends=r.getAttribute("extends")}else n=UComponent;n.uTemplate=c.querySelector("template"),n.uStyle=c.querySelector("style"),n.uTemplate?.content.querySelectorAll("script").forEach(d=>{d.src=new URL(d.src,i).href}),n.extends?(customElements.define(s,n,{extends:n.extends}),n.uStyle&&document.head.appendChild(n.uStyle.cloneNode(!0))):customElements.define(s,n)}return typeof o=="string"&&(o=o.split(",")),Promise.all(o.map(s=>a(s,e)))}function _genID(o="id"){const e=window.sfc._ids;return e[o]||(e[o]=0),e[o]++,o+"-"+e[o]++}window.loadComponent=loadComponent,window.sfc={loaderURL,loadComponent,genID:_genID,_ids:{}};
+"use strict";
+class UComponent extends HTMLElement {
+  static observedAttributes = [];
+  // uRoot is the root node of the component. It is either the shadow root or the light DOM. 
+  uRoot = this;
+  sfcConnected = false;
+  // true if the SFC is loaded.
+  uTemplate = this.constructor.uTemplate;
+  uStyle = this.constructor.uStyle;
+  #uStyleDone = false;
+  extends;
+  constructor() {
+    super();
+    console.debug("UC", `constructor(${this.tagName})`);
+    for (const p of this.constructor.observedAttributes) {
+      Object.defineProperty(this, p, {
+        set(value) {
+          this.setAttribute(p, value);
+        },
+        get() {
+          return this.getAttribute(p);
+        }
+      });
+    }
+    const definedTemplate = this.uTemplate;
+    if (definedTemplate) {
+      let domMode = "open";
+      if (definedTemplate.hasAttribute("light")) domMode = "light";
+      if (definedTemplate.hasAttribute("closed")) domMode = "closed";
+      if (domMode === "light") {
+        this.appendChild(document.importNode(definedTemplate.content, true));
+      } else {
+        this.uRoot = this.attachShadow({ mode: domMode });
+        this.uRoot.appendChild(document.importNode(definedTemplate.content, true));
+      }
+    }
+    const definedStyle = this.uStyle;
+    if (definedStyle) {
+      const clonedStyle = definedStyle.cloneNode(true);
+      if (definedStyle.hasAttribute("scoped")) {
+        this.uRoot.insertBefore(clonedStyle, this.uRoot.firstChild);
+      } else if (!this.#uStyleDone) {
+        document.head.insertAdjacentElement("afterbegin", clonedStyle);
+        this.#uStyleDone = true;
+      }
+    }
+  }
+  // constructor()
+  // Web Component is initiated and connected to a page.
+  // * load template and css
+  // * further initialization by using the init() callback
+  connectedCallback() {
+    console.debug("UC", `connectedCallback(${this.tagName}, this.sfcConnected=${this.sfcConnected})`);
+    if (!this.sfcConnected) {
+      this.sfcConnected = true;
+      Object.getOwnPropertyNames(this.constructor.prototype).filter((key) => key.startsWith("on")).forEach((key) => {
+        console.debug("UC", `addEvent(${key})`);
+        if (key.toLowerCase() !== key) {
+          console.error("UC", `Event name ${key} is not lower case.`);
+        }
+        this.addEventListener(key.substring(2).toLowerCase(), this);
+      });
+      if (document.readyState === "loading") {
+        window.addEventListener("DOMContentLoaded", this.init.bind(this));
+      } else {
+        window.requestAnimationFrame(this.init.bind(this));
+      }
+    }
+  }
+  // disconnectedCallback() {
+  //   console.debug('UC', `disconnectedCallback(${this.tagName})`);
+  // }
+  // adoptedCallback() {
+  //   console.debug('UC', 'adoptedCallback');
+  // }
+  // attributeChangedCallback(name: string, oldValue: string | undefined, newValue: string | undefined) {
+  //   console.debug('UC', 'attributeChanged', name, oldValue, newValue);
+  // }
+  // The init function is called by UComponent when the whole DOM of the SFC is available. 
+  init() {
+    console.debug("UC", "init()");
+  }
+  // dispatch registered events.
+  handleEvent(event) {
+    this["on" + event.type](event);
+  }
+}
+const loaderURL = document.currentScript.src;
+function loadComponent(tags, folder = void 0) {
+  async function fetchSFC(fileName, folder2 = void 0) {
+    let baseUrl;
+    if (folder2) {
+      baseUrl = new URL(folder2, document.location.href);
+    } else {
+      baseUrl = new URL(loaderURL);
+    }
+    const sfcURL = new URL(fileName + ".sfc", baseUrl);
+    console.debug("SFC", `loading module ${fileName} from ${sfcURL.href}...`);
+    const dom = await fetch(sfcURL).then((response) => response.text()).then((html) => new DOMParser().parseFromString(html, "text/html"));
+    const a = dom.querySelectorAll("sfc");
+    if (a.length === 0) {
+      await define(fileName, dom, baseUrl);
+    } else {
+      for (const c of a) {
+        await define(c.getAttribute("tag"), c, baseUrl);
+      }
+    }
+  }
+  ;
+  async function define(tagName, dom, url) {
+    let def;
+    const scriptObj = dom.querySelector("script");
+    if (scriptObj && scriptObj.textContent) {
+      const jsFile = new Blob([scriptObj.textContent], { type: "application/javascript" });
+      const module = await import(URL.createObjectURL(jsFile));
+      def = module.default;
+      def.extends = scriptObj.getAttribute("extends");
+    } else {
+      console.error("SFC", `No class defined in ${url}`);
+      def = UComponent;
+    }
+    def.uTemplate = dom.querySelector("template");
+    def.uStyle = dom.querySelector("style");
+    def.uTemplate?.content.querySelectorAll("script").forEach((obj) => {
+      obj.src = new URL(obj.src, url).href;
+    });
+    if (def.extends) {
+      customElements.define(tagName, def, { extends: def.extends });
+      if (def.uStyle) document.head.appendChild(def.uStyle.cloneNode(true));
+      console.debug("SFC", `${def.extends}.${tagName} defined.`);
+    } else {
+      customElements.define(tagName, def);
+      console.debug("SFC", `${tagName} defined.`);
+    }
+  }
+  if (typeof tags === "string") tags = tags.split(",");
+  return Promise.all(tags.map((tag) => fetchSFC(tag, folder)));
+}
+function _genID(type = "id") {
+  const ids = window.sfc._ids;
+  if (!ids[type]) {
+    ids[type] = 0;
+  }
+  ids[type]++;
+  return type + "-" + ids[type]++;
+}
+window.loadComponent = loadComponent;
+window.sfc = {
+  loaderURL,
+  loadComponent,
+  genID: _genID,
+  _ids: {}
+};
+console.debug("SFC", "loadComponent...");
+//# sourceMappingURL=loader.js.map

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>test &lt;u-piechart&gt;</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <script src="/loader.js"></script>
+  <script>
+    // Register components used on this page
+    window.loadComponent('u-piechart,u-markdown');
+  </script>
+</head>
+
+<body>
+  <h1>test &lt;u-piechart&gt;</h1>
+
+  <p>This is a placeholder test page for the <code>&lt;u-piechart&gt;</code> component.</p>
+
+  <section class="demo">
+    <h2>Interactive demo</h2>
+    <div style="display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap;">
+      <div>
+        <u-piechart id="p1" style="width:300px;height:200px"></u-piechart>
+      </div>
+
+      <div style="max-width:30rem">
+        <p>Use the controls to change the pie values. The demo calls `draw()` or `setOptions()`
+          depending on the available API of the component implementation.</p>
+
+        <label>Values (comma separated)</label>
+        <input id="p1-values" style="width:100%" value="20,30,50" />
+
+        <div style="margin-top:.5rem">
+          <button id="p1-update">Update</button>
+          <button id="p1-rand">Randomize</button>
+          <button id="p1-clear">Clear</button>
+        </div>
+
+        <div style="margin-top:.5rem">Current: <span id="p1-cur">20,30,50</span></div>
+      </div>
+    </div>
+  </section>
+
+  <u-markdown src="../doc/u-piechart.md"></u-markdown>
+
+  <script>
+    (function () {
+      const inp = document.getElementById('p1-values');
+      const upd = document.getElementById('p1-update');
+      const rand = document.getElementById('p1-rand');
+      const clr = document.getElementById('p1-clear');
+      const cur = document.getElementById('p1-cur');
+
+      function parseValues(text) {
+        return text.split(',').map(s => Number(s.trim())).filter(n => !Number.isNaN(n));
+      }
+
+      function applyValues(values) {
+        cur.textContent = values.join(',');
+        const p = document.getElementById('p1');
+        if (!p) return;
+        // try common APIs: draw(...) or setOptions({ data: [...] })
+        if (typeof p.draw === 'function') {
+          // u-piechart expects objects with {value, title?, color?}
+          const data = values.map(v => ({ value: v }));
+          try { p.draw(...data); } catch (e) { try { p.draw(data); } catch (e2) { console.debug('pie draw failed', e2); } }
+        } else if (typeof p.setOptions === 'function') {
+          try { p.setOptions({ data: values }); } catch (e) { console.debug('pie setOptions failed', e); }
+        } else {
+          console.debug('pie: no draw/setOptions API found');
+        }
+      }
+
+      upd.addEventListener('click', () => applyValues(parseValues(inp.value)));
+      rand.addEventListener('click', () => {
+        const values = Array.from({ length: 3 }, () => Math.floor(Math.random() * 100) + 1);
+        inp.value = values.join(',');
+        applyValues(values);
+      });
+      clr.addEventListener('click', () => { inp.value = ''; applyValues([]); });
+
+      // init
+      requestAnimationFrame(() => applyValues(parseValues(inp.value)));
+    })();
+  </script>
+
+</body>
+
+</html>
