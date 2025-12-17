@@ -105,8 +105,16 @@ Example: <u-tabs> <button>...</button> <div>...</div> </u-tabs>
       // this.addEventListener('keyup', (evt) => this.onKeyUp(evt), false);
     } // constructor()
 
+
+    // select tab by index or panel ID
     selectTab(n = 0) {
       const tabs = this._panels;
+
+      if (typeof n === 'string') {
+        // find tab with given panel ID
+        n = tabs.findIndex(item => item.panelID === n);
+      }
+
       // constrain n to index of panels
       if (n >= tabs.length) n = tabs.length - 1;
       if (n < 0) n = 0;
