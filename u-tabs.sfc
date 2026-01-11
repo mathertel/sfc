@@ -150,19 +150,29 @@ Example: <u-tabs> <button>...</button> <div>...</div> </u-tabs>
     // select tab using keyboard...
     onkeydown(evt) {
       let n = this._active;
+      let canFlip = false;
 
-      switch (evt.key) {
-        case 'ArrowLeft': n--; break;
-        case 'ArrowRight': n++; break;
-        case 'Home': n = 0; break;
-        case 'End': n = 999; break;
-        default: return;
+      if (document.activeElement === this._panels[n].tab) {
+        canFlip = true;
+      } else if (document.activeElement === this._panels[n].panel) {
+        canFlip = ((evt.key === 'PageDown') || (evt.key === 'PageUp'));
       }
-      evt.stopPropagation();
-      evt.preventDefault();
-      this.selectTab(n);
-    } // onKeyDown()
 
+      if (canFlip) {
+        switch (evt.key) {
+          case 'ArrowLeft': n--; break;
+          case 'ArrowRight': n++; break;
+          case 'PageDown': n++; break;
+          case 'PageUp': n--; break;
+          case 'Home': n = 0; break;
+          case 'End': n = 999; break;
+          default: return;
+        }
+        evt.stopPropagation();
+        evt.preventDefault();
+        this.selectTab(n);
+      }
+    } // onKeyDown()
 
   }
 </script>

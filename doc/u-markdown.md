@@ -10,7 +10,7 @@ Markdown can be injected by 2 methods:
 
 &lt;u-markdown style="... " src="..."&gt;# markdown&gt;/u-markdown&lt;
 
-This component has implemented loading the Markdown specific scripts by a local importScript function.
+This component loads the Markdown library scripts by the importScript function defined in the uComponent class.
 
 
 ## Attributes
@@ -29,12 +29,11 @@ Open Topics:
 
 The foldername /sfc/ is hardcoded. It should be replaced by a variable / placeholder.
 
-References: 
+References:
+
 * https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
 * https://zerodevx.github.io/zero-md/
 * requestIdleCallback, SetTimeout VS RequestAnimationFrame
-
-importScript
 
 ## See also
 

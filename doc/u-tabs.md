@@ -168,7 +168,6 @@ The implementation for this functionality is included in the [SFC loader]
 interface Window {
   loadComponent: (tags: string | string[], folder?: string) => Promise<void[]>;
   sfc : {
-    loaderURL: string;
     loadComponent: (tags: string | string[], folder?: string) => Promise<void[]>;
     genID: (type?: string) => string;
     _ids : { [type: string]: string } = {};

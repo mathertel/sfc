@@ -23,10 +23,11 @@
       >div[role='tabpanel'] {
         height: 9em;
       }
+    }
   </style>
   <script src="/loader.js"></script>
   <script>
-    var allSFCLoaded = window.loadComponent('u-tabs,u-markdown');
+    window.loadComponent('u-tabs,u-markdown');
   </script>
 </head>
 
@@ -36,6 +37,11 @@
   </header>
 
   <main>
+
+    <nav class="text">
+      <button id="doTab0">Select Tab #0</button>
+      <button id="doTabThree">Select Tab Three</button>
+    </nav>
 
     <p>This is a test page for the <code>&lt;u-tabs&gt;</code> single file control (sfc) implementation.</p>
 
@@ -57,7 +63,7 @@
         excepturi magni vero repellendus expedita.</div>
 
       <button>Three</button>
-      <div>Lorem 3 ipsum dolor sit amet consectetur adipisicing elit. Cupiditate
+      <div id="three">Lorem 3 ipsum dolor sit amet consectetur adipisicing elit. Cupiditate
         perferendis sed unde omnis atque inventore quas doloremque adipisci soluta
         impedit veritatis veniam aliquam magnam nobis in quidem, nihil voluptates
         nesciunt.</div>
@@ -67,6 +73,18 @@
     <u-markdown src="../doc/u-tabs.md"></u-markdown>
 
   </main>
+
+  <script>
+    const uTabsObj = document.querySelector('u-tabs');
+
+    document.querySelector('#doTab0').addEventListener('click', (e) => {
+      uTabsObj.selectTab(0);
+    });
+
+    document.querySelector('#doTabThree').addEventListener('click', (e) => {
+      uTabsObj.selectTab('three');
+    });
+  </script>
 
 </body>
 
