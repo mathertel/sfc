@@ -1,5 +1,6 @@
 "use strict";
 class UComponent extends HTMLElement {
+  // observedAttributes is a list of attributes that are observed for changes.
   static observedAttributes = [];
   // uRoot is the root node of the component. It is either the shadow root or the light DOM. 
   uRoot = this;
@@ -9,6 +10,25 @@ class UComponent extends HTMLElement {
   uStyle = this.constructor.uStyle;
   #uStyleDone = false;
   extends;
+  // _scriptsUnloaded counts the number of scripts to be loaded.
+  _scriptsUnloaded = 0;
+  // importScript() loads a external script required by the component into the shadow DOM and tracks loading.
+  // this function must be called in the constructor of the component.
+  // init() is deferred and called when all the scripts are loaded.
+  importScript(src) {
+    const base = new URL(this.constructor.url);
+    const url = new URL(src, base);
+    const scr = document.createElement("script");
+    scr.addEventListener("load", (evt) => {
+      console.log(this.tagName, `script ${src} loaded.`);
+      this._scriptsUnloaded--;
+      if (this._scriptsUnloaded == 0) this.init();
+    });
+    this._scriptsUnloaded++;
+    scr.src = url.href;
+    this.shadowRoot?.appendChild(scr);
+    console.log(this.tagName, `loading script ${src} from ${url.href}...`);
+  }
   constructor() {
     super();
     console.debug("UC", `constructor(${this.tagName})`);
@@ -85,24 +105,24 @@ class UComponent extends HTMLElement {
     this["on" + event.type](event);
   }
 }
-const loaderURL = document.currentScript.src;
+const _SFCloaderURL = document.currentScript.src;
 function loadComponent(tags, folder = void 0) {
   async function fetchSFC(fileName, folder2 = void 0) {
     let baseUrl;
     if (folder2) {
       baseUrl = new URL(folder2, document.location.href);
     } else {
-      baseUrl = new URL(loaderURL);
+      baseUrl = new URL(_SFCloaderURL);
     }
     const sfcURL = new URL(fileName + ".sfc", baseUrl);
     console.debug("SFC", `loading module ${fileName} from ${sfcURL.href}...`);
     const dom = await fetch(sfcURL).then((response) => response.text()).then((html) => new DOMParser().parseFromString(html, "text/html"));
     const a = dom.querySelectorAll("sfc");
     if (a.length === 0) {
-      await define(fileName, dom, baseUrl);
+      await define(fileName, dom, sfcURL);
     } else {
       for (const c of a) {
-        await define(c.getAttribute("tag"), c, baseUrl);
+        await define(c.getAttribute("tag"), c, sfcURL);
       }
     }
   }
@@ -115,15 +135,13 @@ function loadComponent(tags, folder = void 0) {
       const module = await import(URL.createObjectURL(jsFile));
       def = module.default;
       def.extends = scriptObj.getAttribute("extends");
+      def.url = url.href;
     } else {
-      console.error("SFC", `No class defined in ${url}`);
+      console.error("SFC", `No SFC defined in ${url.href}`);
       def = UComponent;
     }
     def.uTemplate = dom.querySelector("template");
     def.uStyle = dom.querySelector("style");
-    def.uTemplate?.content.querySelectorAll("script").forEach((obj) => {
-      obj.src = new URL(obj.src, url).href;
-    });
     if (def.extends) {
       customElements.define(tagName, def, { extends: def.extends });
       if (def.uStyle) document.head.appendChild(def.uStyle.cloneNode(true));
@@ -146,7 +164,6 @@ function _genID(type = "id") {
 }
 window.loadComponent = loadComponent;
 window.sfc = {
-  loaderURL,
   loadComponent,
   genID: _genID,
   _ids: {}

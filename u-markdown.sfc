@@ -14,58 +14,57 @@ See [u-markdown documentation](https://github.com/mathertel/sfc/blob/main/doc/u-
 </template>
 
 <style scoped>
-:host {
-  display: block;
-}
-
-:root {
-  --code-back: rgb(245 245 230);
-  --code-text: black;
-  --code-border: 1px solid var(--code-text);
-  --code-radius: var(--text-spacing);
-}
-
-pre:has(>code) {
-  display: block;
-  clear: both;
-  padding: 0; 
-  font-size: 1rem;
-  border: var(--code-border);
-  border-left: var(--code-radius) solid #4060A0;
-  border-radius: var(--code-radius);
-  background-color: var(--code-back);
-  background-image: linear-gradient(transparent 50%, rgb(0 0 0 / 6%) 50%);
-  background-size: auto 2.4em;
-  background-origin: content-box;
-  background-attachment: local;
-
-  &:not(:first-child) {
-    margin-top: calc(var(--text-spacing) * 3);
+  :host {
+    display: block;
   }
 
-  code {
+  :root {
+    --code-back: rgb(245 245 230);
+    --code-text: black;
+    --code-border: 1px solid var(--code-text);
+    --code-radius: var(--text-spacing);
+  }
+
+  pre:has(>code) {
     display: block;
-    color: black;
-
+    clear: both;
+    padding: 0;
     font-size: 1rem;
-    line-height: 1.2;
-    padding-left: 0.2em;
+    border: var(--code-border);
+    border-left: var(--code-radius) solid #4060A0;
+    border-radius: var(--code-radius);
+    background-color: var(--code-back);
+    background-image: linear-gradient(transparent 50%, rgb(0 0 0 / 6%) 50%);
+    background-size: auto 2.4em;
+    background-origin: content-box;
+    background-attachment: local;
 
-    @media print {
-      border: 1px solid var(--code-text);
+    &:not(:first-child) {
+      margin-top: calc(var(--text-spacing) * 3);
+    }
+
+    code {
+      display: block;
+      color: black;
+
+      font-size: 1rem;
+      line-height: 1.2;
+      padding-left: 0.2em;
+
+      @media print {
+        border: 1px solid var(--code-text);
+      }
     }
   }
-}
 
 
-p>code {
-  // font-family: Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;
-  font-size: 1rem;
-  padding: 0 var(--text-spacing);
-  background-color: var(--code-back);
-  color: black;
-}
-
+  p>code {
+    // font-family: Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;
+    font-size: 1rem;
+    padding: 0 var(--text-spacing);
+    background-color: var(--code-back);
+    color: black;
+  }
 </style>
 
 <script>
@@ -83,29 +82,10 @@ export default class MyMarkdown extends UComponent {
   // Markdown renderer
   md = null;
 
-  // counter for unloaded scripts
-  _scriptsUnloaded = 0;
-
-  importScript(src) {
-    const base = new URL(loaderURL);
-    const url = new URL(src, base);
-
-    var scr = document.createElement('script');
-    scr.addEventListener("load", (evt) => {
-      console.log(this.tagName, `script ${src} loaded.`);
-      this._scriptsUnloaded--;
-      if (this._scriptsUnloaded == 0) this.init();
-    });
-    this._scriptsUnloaded++;
-    scr.src = url.href;
-    this.shadowRoot.appendChild(scr);
-    console.log(this.tagName, `loading script ${src} from ${url.href}...`);
-  }
-
   constructor() {
     super();
-    this.importScript("/markdown-it.js");
-    this.importScript("/markdown-it-attrs.js");
+    this.importScript("markdown-it.js");
+    this.importScript("markdown-it-attrs.js");
   }
 
   // fetch file content
@@ -132,7 +112,7 @@ export default class MyMarkdown extends UComponent {
         linkify: true,
         typographer: true
       })
-      .use (window.markdownItAttrs);
+        .use(window.markdownItAttrs);
     }
     oDiv.innerHTML = this.md.render(this.srcText);
   }
