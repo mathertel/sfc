@@ -1,22 +1,27 @@
-# Single-File Custom Elements (SFC)
+# Single-File Components (SFC)
 
-Custom Elements also known as Web Components is a set of functionality and technologies enabling creating new HTML tags
-side-to-side with the existing standard elements and utilize them in your web pages and apps.  They offer the same
-general benefits of React/Angular/Vue components without being tied to a specific framework.
+Custom Elements also known as [Web Components] is a set of functionality and
+technologies enabling creating new HTML tags side-to-side with the existing standard
+elements and utilize them in your web pages and apps. They offer the same general
+benefits of React/Angular/Vue components without being tied to a specific framework.
 
-**Single File Components (SFC)** got popular as they allow to define the code for a component in one place.
+**Single File Components (SFC)** got popular as they allow to define the code for a
+component in one place to create an easy adoption and enhance the maintainability.
 
-Web standards for HTML, CSS, and JavaScript have matured significantly, providing a robust foundation for modern web
-development.  While these standards offer extensive capabilities, they can't cover every possible use case.
+Web standards for HTML, CSS, and JavaScript have matured significantly, providing a
+robust foundation for modern web development. While these standards offer extensive
+capabilities, they can't cover every possible use case.
 
-One way to extend HTML's declarative nature is through JavaScript, enabling functionality beyond standard tags.  This
-approach has a long history, including proprietary solutions like HTML Components (.htc) in Internet Explorer 5.5.
+One way to extend HTML's declarative nature is through JavaScript, enabling
+functionality beyond standard tags. This approach has a long history, including
+proprietary solutions like HTML Components (.htc) in Internet Explorer 5.5.
 
-As of 2024, web standards now include official support for creating and extending HTML tags through Web Components and
-Custom Elements, utilizing the browser's `customElements` interface.
+As of 2024, web standards now include official support for creating and extending HTML
+tags through Web Components and Custom Elements, utilizing the browser's
+`customElements` interface.
 
-Single-File Components (SFC) have become increasingly popular as they allow developers to define all component code in
-one file, eliminating the need to:
+Single-File Components (SFC) have become increasingly popular as they allow developers
+to define all component code in one file, eliminating the need to:
 
 * Maintain separate CSS files for styling
 * Keep JavaScript code in separate files
@@ -114,6 +119,11 @@ production deployment, these can be stripped by using esbuild with the minify op
 javascript esm module.
 
 
+## References to Web Standards
+
+* [Web Components at MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
+* [Using custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)
+
 ## See Also
 
 * [Building and Bundling in the SFC library](doc/building.md)
@@ -127,3 +137,4 @@ javascript esm module.
   * <https://github.com/WebReflection/>
   * <https://gist.github.com/WebReflection/ec9f6687842aa385477c4afca625bbf4>
 
+[Web Components]:https://developer.mozilla.org/en-US/docs/Web/API/Web_components
