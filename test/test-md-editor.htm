@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+
+u-md-editor test page
+
+A custom element that implements applying markdown formatting to the text.
+
+-->
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Test Markdown-Edit Page</title>
+
+  <link Content-Type="text/css" href="../docstyle.css" rel="stylesheet" />
+  <style>
+  </style>
+  <script src="../loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-keyshortcuts,u-markdown');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <u-time style="--log-color: gray"></u-time>
+  <header>
+    <h1>Test Page</h1>
+  </header>
+
+  <main>
+    <button id="btnBold" aria-keyshortcuts="control+B">B</button>
+    <button id="btnItalic" aria-keyshortcuts="control+I">I</button>
+    <button id="btnList" aria-keyshortcuts="control+L">List</button>
+    <hr>
+    <textarea name="txt" id="txt" style="height: 12em;width: 100%;">
+Lorem ipsum dolor sit, amet consectetur adipisicing elit. Distinctio tempora sequi aperiam quia ratione laudantium laborum consectetur, dolore consequatur soluta? Obcaecati eum voluptate unde ab pariatur nostrum saepe eaque esse.
+
+Lorem ipsum dolor sit none;
+
+Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quae ex, nam laudantium facere dignissimos quasi, provident ducimus blanditiis tempora, cum tenetur est repellendus dolorem architecto illo modi commodi? Quae, natus.
+</textarea>
+
+  </main>
+
+  <script>
+    const boldBtnObj = document.getElementById("btnBold");
+    const italicBtnObj = document.getElementById("btnItalic");
+    const txtAreaObj = document.getElementById("txt");
+const    listBtnObj = document.getElementById("btnList");
+
+    function restoreFocus() {
+
+    }
+
+    /**
+     * Get selection details from a textarea element.
+     * Extend the selection in a textarea to encompass the entire word at the current selection.
+     * Trim selection to remove leading or trailling spaces.
+     * @param {HTMLTextAreaElement} txtElem - The textarea element.
+     * @param {boolean} adjust - Whether to adjust the selection to word boundaries and trim
+     */
+    function getSelection(txtElem, adjust = true) {
+      const value = txtElem.value;
+
+      const sel = {
+        elem: txtElem,
+        start: txtElem.selectionStart,
+        end: txtElem.selectionEnd
+      };
+
+      // apply some heuristics when selection
+      if (adjust) {
+        // when selection is not covering any characters the select the full word at the cursor position
+        if (sel.start === sel.end) {
+          while (sel.start > 0 && !/\s/.test(value.charAt(sel.start - 1))) sel.start--;
+          while (sel.end < value.length && !/\s/.test(value.charAt(sel.end))) sel.end++;
+        }
+
+        if (sel.start !== sel.end) {
+          // trim the selection, removing leading and trailing whitespace
+          while (sel.start > 0 && /\s/.test(value.charAt(sel.start))) {
+            sel.start++;
+          }
+          while (sel.end > sel.start && /\s/.test(value.charAt(sel.end - 1))) {
+            sel.end--;
+          }
+        }
+      } // if adjust
+
+      sel.text = txtElem.value.substring(sel.start, sel.end)
+      return (sel);
+    } // getSelection()
+
+
+    // find the boundaries of the markdown block containing the selection
+    function getBlockBounds(sel) {
+      const txt = sel.elem.value;
+      let start = sel.start;
+      let end = sel.end;
+
+      // find the start of the block
+      while (start > 0) {
+        const lineStart = txt.lastIndexOf("\n", start - 1) + 1;
+        const line = txt.substring(lineStart, start).trim();
+        if (line === "") break; // empty line indicates block boundary
+        start = lineStart;
+      }
+
+      // find the end of the block
+      while (end < txt.length) {
+        const lineEnd = txt.indexOf("\n", end);
+        if (lineEnd === -1) {
+          end = txt.length;
+          break;
+        }
+        const line = txt.substring(end, lineEnd).trim();
+        if (line === "") break; // empty line indicates block boundary
+        end = lineEnd + 1;
+      }
+
+      sel.blockStart = start;
+      sel.blockEnd = end;
+      sel.blockText = txt.substring(start, end);
+      return sel;
+    }
+
+    /**
+     * Toggle markdown text character based formatting around the selected text in a textarea.
+     * If the selected text is already formatted, remove the formatting.
+     * Otherwise, apply the formatting.
+     * @param {HTMLTextAreaElement} el - The textarea element.
+     * @param {string} fmt - The formatting string to toggle (e.g., '**' for bold).
+     */
+    function toggleTextFormat(el, fmt) {
+      const sel = getSelection(el);
+
+      const before = el.value.substring(0, sel.start);
+      const after = el.value.substring(sel.end);
+      let text = sel.text;
+
+      if (text.startsWith(fmt) && text.endsWith(fmt)) {
+        // already formatted - remove it
+        text = text.substring(fmt.length, text.length - fmt.length);
+      } else {
+        // add format
+        text = fmt + text + fmt;
+      }
+
+      el.value = before + text + after;
+      el.focus();
+      el.setSelectionRange(sel.start, sel.start + text.length);
+    } // toggleTextFormat()
+
+
+    /**
+     * Toggle markdown line formatting on the current text line.
+     * If the selected text is already formatted, remove the formatting.
+     * Otherwise, apply the formatting.
+     * @param {HTMLTextAreaElement} el - The textarea element.
+     * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
+     */
+    function toggleLineFormat(el, fmt) {
+      const sel = getSelection(el, false);
+
+      // extend selection to line start and end
+      sel.start = el.value.lastIndexOf('\n', sel.start - 1) + 1;
+      sel.end = el.value.indexOf('\n', sel.end);
+      let text = el.value.substring(sel.start, sel.end);;
+
+      const before = el.value.substring(0, sel.start);
+      const after = el.value.substring(sel.end);
+      fmt = fmt.trim() + ' ';
+
+      if (text.startsWith(fmt)) {
+        // already formatted - remove it
+        text = text.substring(fmt.length, text.length - fmt.length);
+      } else {
+        text = fmt + text;
+      }
+
+      el.value = before + text + after;
+      el.focus();
+      el.setSelectionRange(sel.start, sel.start + text.length);
+    } // toggleLineFormat()
+
+    boldBtnObj.addEventListener("click", () => {
+      toggleTextFormat(txtAreaObj, '**');
+    });
+
+    italicBtnObj.addEventListener("click", () => {
+      toggleTextFormat(txtAreaObj, '*');
+    });
+
+    listBtnObj.addEventListener("click", () => {
+      toggleLineFormat(txtAreaObj, '*');
+    });
+
+  </script>
+  <u-keyshortcuts></u-keyshortcuts>
+</body>
+
+</html>
