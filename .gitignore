@@ -3,8 +3,7 @@ package-lock.json
 .markdownlint.json
 .vscode
 *.code-workspace
-/dist*
-
+/build*
 
 _*
 

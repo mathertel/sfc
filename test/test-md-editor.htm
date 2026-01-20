@@ -17,35 +17,6 @@ A custom element that implements applying markdown formatting to the text.
 
   <link Content-Type="text/css" href="../docstyle.css" rel="stylesheet" />
   <style>
-    button {
-      /* width: 1.6em; */
-       min-width: 1.6em;
-      /* height: 1.6em; */
-      cursor: pointer;
-      vertical-align: center;
-
-      /* background-color: lime; */
-      /* color: white; */
-      padding: 2px 2px;
-      border-radius: 4px;
-
-      >svg {
-        width: 1.2em;
-        height: 1.2em;
-      }
-    }
-
-    .xedBtn {
-      width: 1.6em;
-      height: 1.6em;
-      cursor: pointer;
-      vertical-align: middle;
-
-      background-color: hsl(220, 80%, 30%);
-      color: white;
-      padding: 2px 4px;
-      border-radius: 4px;
-    }
   </style>
   <script src="../loader.js"></script>
   <script>
@@ -60,19 +31,19 @@ A custom element that implements applying markdown formatting to the text.
   </header>
 
   <main>
-    <button id="btnBold"><svg>
+    <button class="icon " id="btnBold"><svg>
         <use href="/ed-icons.svg#ed-bold" />
       </svg></button>
-    <button>
-      <svg id="btnItalic">
+    <button class="icon" id="btnItalic">
+      <svg>
         <use href="/ed-icons.svg#ed-italic" />
       </svg></button>
-    <button>
-      <svg id="btnStrike">
+    <button class="icon" id="btnStrike">
+      <svg>
         <use href="/ed-icons.svg#ed-strike" />
       </svg></button>
-    <button>
-      <svg id="btnList">
+    <button class="icon" id="btnList">
+      <svg >
         <use href="/ed-icons.svg#ed-ulist" />
       </svg></button>
 
