@@ -41,7 +41,7 @@ The `<u-keyshortcuts>` custom element ....
     _createKeyShortcuts() {
       // process all defined aria-keyshortcuts
       const shortcuts = document.querySelectorAll('[aria-keyshortcuts]');
-      console.log('u-keyshortcuts', shortcuts.length + " keyshortcuts found.");
+      // console.log('u-keyshortcuts', shortcuts.length + " keyshortcuts found.");
 
       shortcuts.forEach(e => {
         // normalize the shortcut
@@ -64,7 +64,7 @@ The `<u-keyshortcuts>` custom element ....
 
 
     connectedCallback() {
-      console.debug('u-keyshortcuts', 'connected()');
+      // console.debug('u-keyshortcuts', 'connected()');
       super.connectedCallback();
 
       // capture keydown and keyup events on the body level.
@@ -79,12 +79,12 @@ The `<u-keyshortcuts>` custom element ....
         let key = e.key.toLocaleLowerCase();
         if (key === ' ') key = 'space';
 
-        let txt = `${e.ctrlKey ? 'control+' : ''}${e.altKey ? 'alt+' : ''}${e.shiftKey ? 'shift+' : ''}${key}`;
-        console.log('u-keyshortcuts', 'down', e, txt);
+        let txt = `${e.ctrlKey ? 'strg+' : ''}${e.altKey ? 'alt+' : ''}${e.shiftKey ? 'shift+' : ''}${key}`;
+        // console.log('u-keyshortcuts', 'down', e, txt);
 
         const elem = this.shortcut_elements.get(txt);
         if (elem) {
-          console.log('u-keyshortcuts', 'found', txt, elem);
+          // console.log('u-keyshortcuts', 'found', txt, elem);
 
           if (elem.tagName == 'BUTTON') {
             elem.click();
