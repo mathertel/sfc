@@ -30,13 +30,23 @@ class UComponent extends HTMLElement {
   // uRoot is the root node of the component. It is either the shadow root or the light DOM. 
   uRoot = this as HTMLElement | ShadowRoot;
 
+  /// true if the SFC is loaded.
+  sfcConnected = false;
 
-  sfcConnected = false; // true if the SFC is loaded.
-
+  /// uTemplate is the HTML template element defined in the SFC.
   uTemplate?: HTMLTemplateElement = (this.constructor as any as UComponent).uTemplate as HTMLTemplateElement;
+
+  /// uStyle is the HTML style element defined in the SFC.
   uStyle?: HTMLStyleElement = (this.constructor as any as UComponent).uStyle as HTMLStyleElement;
+
+  // #uStyleDone is true if the global style has been added to the document.
   #uStyleDone = false;
+
+  // extends is the name of the HTML element to extend.
   extends?: string;
+
+  // #oldTextContent stores the textContent inside the custom control before adding the template. 
+  #oldTextContent = '';
 
   // _scriptsUnloaded counts the number of scripts to be loaded.
   _scriptsUnloaded = 0;
@@ -60,6 +70,11 @@ class UComponent extends HTMLElement {
     console.log(this.tagName, `loading script ${src} from ${url.href}...`);
   }
 
+  /** @return the textContent inside the custom control before adding the template. */
+  getOldTextContent() {
+    return this.#oldTextContent;
+  }
+
   constructor() {
     super();
     console.debug('UC', `constructor(${this.tagName})`);
@@ -80,6 +95,10 @@ class UComponent extends HTMLElement {
       if (definedTemplate.hasAttribute('closed')) domMode = 'closed';
 
       if (domMode === 'light') {
+        debugger;
+        this.#oldTextContent = this.textContent.trim();
+        this.textContent = '';
+
         this.appendChild(document.importNode(definedTemplate.content, true));
 
 

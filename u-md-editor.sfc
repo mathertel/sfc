@@ -1,0 +1,303 @@
+<!--
+
+File: u-md-editor.sfc
+
+Implementation of a custom element that renders html to display cards with header, body and footer.
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
+
+-->
+
+<template light>
+  <div class="u-md-editor-menu">
+    <button class="icon" aria-keyshortcuts="Control+B" id="btnBold"><svg>
+        <use href="/ed-icons.svg#ed-bold" />
+      </svg></button>
+    <button class="icon" aria-keyshortcuts="Control+I" id="btnItalic">
+      <svg>
+        <use href="/ed-icons.svg#ed-italic" />
+      </svg></button>
+    <button class="icon" id="btnStrike">
+      <svg>
+        <use href="/ed-icons.svg#ed-strike" />
+      </svg></button>
+    <button id="btnCode">Code</button>
+    &nbsp;
+    <button class="icon" id="btnList">
+      <svg>
+        <use href="/ed-icons.svg#ed-ulist" />
+      </svg></button>
+    <button id="btnQuote">Quote</button>
+    <button id="btnCodeBlock">CodeBlock</button>
+  </div>
+  <textarea class="u-md-editor-txt"></textarea>
+</template>
+
+<style>
+  u-md-editor {
+    background-color: #ccc;
+    height: 16lh;
+    margin: 0.1em;
+    padding: 0.1em;
+    display: flex;
+    flex-direction: column;
+
+    >.u-md-editor-menu {
+      padding: 0.1em;
+    }
+
+    >textarea {
+      flex: 1;
+      resize: none;
+      margin: 2px;
+    }
+  }
+</style>
+
+<script>
+  export default class UMDEditor extends UComponent {
+    static get observedAttributes() {
+      return ["textcontent", "src"];
+    }
+
+    #menuObj; // private reference to the menu element
+    #textObj; // private reference to the textarea element
+
+    srcLink = undefined;
+
+    constructor() {
+      super();
+
+      this.#menuObj = this.querySelector(".u-md-editor-menu");
+      this.#textObj = this.querySelector(".u-md-editor-txt");
+
+      // initialize the text content from the element content
+      this.attributeChangedCallback('textcontent', null, this.getOldTextContent() + '\n');
+
+      // Setup event listeners for formatting buttons
+      this.#menuObj.querySelector("#btnBold")?.addEventListener("click", () => {
+        this.#toggleTextFormat('**');
+      });
+
+      this.#menuObj.querySelector("#btnItalic")?.addEventListener("click", () => {
+        this.#toggleTextFormat('*');
+      });
+
+      this.#menuObj.querySelector("#btnStrike")?.addEventListener("click", () => {
+        this.#toggleTextFormat('~~');
+      });
+
+      this.#menuObj.querySelector("#btnCode")?.addEventListener("click", () => {
+        this.#toggleTextFormat('`');
+      });
+
+      this.#menuObj.querySelector("#btnList")?.addEventListener("click", () => {
+        this.#toggleLineFormat('*');
+      });
+
+      this.#menuObj.querySelector("#btnQuote")?.addEventListener("click", () => {
+        this.#toggleLineFormat('>');
+      });
+
+      this.#menuObj.querySelector("#btnCodeBlock")?.addEventListener("click", () => {
+        this.#toggleBlockFormat('```');
+      });
+    }
+
+    /** Called when an observed attribute changes.
+     * @param {string} name - The name of the attribute that changed.
+     * @param {string} oldValue - The old value of the attribute.
+     * @param {string} newValue - The new value of the attribute.
+     */
+    attributeChangedCallback(name, oldValue, newValue) {
+      // console.log(name, oldValue, newValue);
+      if (name === 'textcontent') {
+        this.#textObj.value = newValue;
+
+      } else if (name === 'src') {
+        // loading from src
+        if (newValue) {
+          fetch(newValue)
+            .then(response => response.text())
+            .then(text => {
+              this.#textObj.value = text;
+            })
+            .catch(err => console.error('Failed to load markdown:', err));
+        }
+      }
+    } // attributeChangedCallback()
+
+
+    // ====== Markdown Editing Functions ======
+
+    /**
+     * Get selection details from a textarea element.
+     * Extend the selection in a textarea to encompass the entire word at the current selection.
+     * Trim selection to remove leading or trailling spaces.
+     * @param {HTMLTextAreaElement} txtElem - The textarea element.
+     * @param {boolean} adjust - Whether to adjust the selection to word boundaries and trim
+     */
+    #getSelection(txtElem, adjust = true) {
+      const value = txtElem.value;
+
+      const sel = {
+        elem: txtElem,
+        start: txtElem.selectionStart,
+        end: txtElem.selectionEnd
+      };
+
+      // apply some heuristics when selection
+      if (adjust) {
+        // when selection is not covering any characters the select the full word at the cursor position
+        if (sel.start === sel.end) {
+          while (sel.start > 0 && !/\s/.test(value.charAt(sel.start - 1))) sel.start--;
+          while (sel.end < value.length && !/\s/.test(value.charAt(sel.end))) sel.end++;
+        }
+
+        if (sel.start !== sel.end) {
+          // trim the selection, removing leading and trailing whitespace
+          while (sel.start > 0 && /\s/.test(value.charAt(sel.start))) {
+            sel.start++;
+          }
+          while (sel.end > sel.start && /\s/.test(value.charAt(sel.end - 1))) {
+            sel.end--;
+          }
+        }
+      } // if adjust
+
+      sel.text = txtElem.value.substring(sel.start, sel.end)
+      return (sel);
+    } // #getSelection()
+
+
+    /**
+     * Find the boundaries of the markdown block containing the selection.
+     */
+    #getBlockBounds(sel) {
+      const txt = sel.elem.value;
+      let start = sel.start;
+      let end = sel.end;
+
+      start = txt.lastIndexOf('\n', sel.start - 1) + 1;
+      end = txt.indexOf('\n', sel.end);
+
+      // find the start of the block
+      while (start > 0) {
+        const lineStart = txt.lastIndexOf("\n", start - 1) + 1;
+        const line = txt.substring(lineStart, start).trim();
+        if (line === "") break; // empty line indicates block boundary
+        start = lineStart - 1;
+      }
+
+      // find the end of the block
+      while (end < txt.length) {
+        const lineEnd = txt.indexOf("\n", end);
+        if (lineEnd === -1) {
+          end = txt.length;
+          break;
+        }
+        const line = txt.substring(end, lineEnd).trim();
+        if (line === "") break; // empty line indicates block boundary
+        end = lineEnd + 1;
+      }
+
+      sel.blockStart = start;
+      sel.blockEnd = end;
+      sel.blockText = txt.substring(start, end);
+      return sel;
+    } // #getBlockBounds()
+
+
+    /**
+     * Toggle markdown text character based formatting around the selected text in a textarea.
+     * If the selected text is already formatted, remove the formatting.
+     * Otherwise, apply the formatting.
+     * @param {string} fmt - The formatting string to toggle (e.g., '**' for bold).
+     */
+    #toggleTextFormat(fmt) {
+      const sel = this.#getSelection(this.#textObj);
+
+      const before = this.#textObj.value.substring(0, sel.start);
+      const after = this.#textObj.value.substring(sel.end);
+      let text = sel.text;
+
+      if (text.startsWith(fmt) && text.endsWith(fmt)) {
+        // already formatted - remove it
+        text = text.substring(fmt.length, text.length - fmt.length);
+      } else {
+        // add format
+        text = fmt + text + fmt;
+      }
+
+      this.#textObj.value = before + text + after;
+      this.#textObj.focus();
+      this.#textObj.setSelectionRange(sel.start, sel.start + text.length);
+    } // toggleTextFormat()
+
+
+    /**
+     * Toggle markdown line formatting on the current text line.
+     * If the selected text is already formatted, remove the formatting.
+     * Otherwise, apply the formatting.
+     * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
+     */
+    #toggleLineFormat(fmt) {
+      const sel = this.#getSelection(this.#textObj, false);
+
+      // extend selection to line start and end
+      sel.start = this.#textObj.value.lastIndexOf('\n', sel.start - 1) + 1;
+      sel.end = this.#textObj.value.indexOf('\n', sel.end);
+      let text = this.#textObj.value.substring(sel.start, sel.end);
+
+      const before = this.#textObj.value.substring(0, sel.start);
+      const after = this.#textObj.value.substring(sel.end);
+      fmt = fmt.trim() + ' ';
+
+      if (text.startsWith(fmt)) {
+        // already formatted - remove it
+        text = text.substring(fmt.length, text.length - fmt.length);
+      } else {
+        text = fmt + text;
+      }
+
+      this.#textObj.value = before + text + after;
+      this.#textObj.focus();
+      this.#textObj.setSelectionRange(sel.start, sel.start + text.length);
+    } // toggleLineFormat()
+
+
+    /**
+     * Toggle markdown block formatting.
+     * @param {string} fmt - The formatting string to toggle (e.g., '```' for code block).
+     */
+    #toggleBlockFormat(fmt) {
+      const sel = this.#getBlockBounds(this.#getSelection(this.#textObj, false));
+
+      const before = this.#textObj.value.substring(0, sel.blockStart);
+      const after = this.#textObj.value.substring(sel.blockEnd);
+      let text = sel.blockText;
+      const n = text.indexOf('\n');
+
+      if (n < 0) {
+        // nothing
+
+      } else if (text.startsWith(fmt)) {
+        // already formatted - remove first and last line
+        let lastLineStart = text.length;
+        if (text.endsWith(fmt + '\n')) lastLineStart -= 4;
+        text = text.substring(n + 1, lastLineStart);
+
+      } else {
+        text = fmt + '\n' + text + fmt + '\n';
+      }
+
+      this.#textObj.value = before + text + after;
+      this.#textObj.focus();
+      this.#textObj.setSelectionRange(sel.blockStart, sel.blockStart + text.length);
+    } // #toggleBlockFormat()
+
+  }
+</script>
