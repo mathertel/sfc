@@ -5,7 +5,7 @@ HTML using the markdown-it library.
 
 Markdown can be injected by 2 methods:
 
-* Loading a *.md file from the same web server. After the file is loaded it gets compiled inti HTML and displayed.
+* Loading a *.md file from the same web server. After the file is loaded it gets compiled into HTML and displayed.
 * Passing markdown text directly to the component by setting the `textContent` property.
 
 &lt;u-markdown style="... " src="..."&gt;# markdown&gt;/u-markdown&lt;
