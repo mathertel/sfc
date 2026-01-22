@@ -46,16 +46,19 @@ The `<u-keyshortcuts>` custom element ....
       shortcuts.forEach(e => {
         // normalize the shortcut
         let txt = e.getAttribute('aria-keyshortcuts').toLocaleLowerCase();
-        txt = txt.replace(' ', '').replace('-', '+').replace('strg', 'control').replace('alt+control+', 'control+alt+');
+        const nx = e.nextElementSibling;
+        if ((!nx) || (nx.className !== 'u-keytip')) {
+          txt = txt.replace(' ', '').replace('-', '+').replace('control', 'strg').replace('ctrl', 'strg').replace('alt+strg+', 'strg+alt+');
 
-        // add to the shortcut_elements map.
-        this.shortcut_elements.set(txt, e);
+          // add to the shortcut_elements map.
+          this.shortcut_elements.set(txt, e);
 
-        // create visuals for shortcuts
-        const ind = document.createElement('span');
-        ind.className = 'u-keytip';
-        ind.textContent = txt;
-        e.insertAdjacentElement('afterend', ind);
+          // create visuals for shortcuts
+          const ind = document.createElement('span');
+          ind.className = 'u-keytip';
+          ind.textContent = txt;
+          e.insertAdjacentElement('afterend', ind);
+        }
       });
     } // _createKeyShortcuts()
 
@@ -64,13 +67,12 @@ The `<u-keyshortcuts>` custom element ....
       console.debug('u-keyshortcuts', 'connected()');
       super.connectedCallback();
 
-      this._createKeyShortcuts()
-
       // capture keydown and keyup events on the body level.
       // toggle visibility of keyshortcuts and search shortcut definition.
       document.addEventListener("keydown", e => {
         if ((e.key === 'Control') && (e.ctrlKey)) {
           // show control shortcuts
+          this._createKeyShortcuts();
           document.body.classList.add('u-show-keytip');
         }
 
@@ -108,21 +110,5 @@ The `<u-keyshortcuts>` custom element ....
       })
 
     }
-
-    init() {
-      console.debug('u-keyshortcuts', 'init()');
-    } // init()
-
-    /// @brief values registered as observedAttributes got changed
-    attributeChangedCallback(name, oldValue, newValue) {
-      console.debug("attributeChanged", name, oldValue, newValue);
-
-      if (oldValue !== newValue) {
-        if (name === "value") {
-          // this._inputObj.value = this.value;
-        }
-      }
-
-    } // attributeChangedCallback()
   }
 </script>
