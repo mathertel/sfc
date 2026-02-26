@@ -53,13 +53,17 @@ Example: <u-tabs> <button>...</button> <div>...</div> </u-tabs>
     constructor(p) {
       super();
 
+      // restore all contained html elements (e.g., buttons and divs) that were saved by the loader before the template was added.
+      const oldNodes = this.getOldNodes();
+      oldNodes.forEach(node => { this.appendChild(node) });
+
       let btnObjs = this.querySelectorAll(':scope > button');
       let divObjs = this.querySelectorAll(':scope > div');
       this._tabListObj = this.querySelector(':scope > div[role=tablist]');
 
       if ((btnObjs) && (divObjs)) {
 
-        if (!this._tabListObjj) {
+        if (!this._tabListObj) {
           this._tabListObj = document.createElement('div');
           this.insertAdjacentElement("afterbegin", this._tabListObj);
           this._tabListObj.role = 'tablist';

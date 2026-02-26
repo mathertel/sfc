@@ -19,6 +19,7 @@
     "build:bundle": "pack-sfc *.sfc -o bundle.sfc",
     "clean": "del *.js.map data-hub.js loader.js json-parse.js",
     "build": "npm run test:src && npm run build:hub && npm run build:loader",
+    "pack": "bin\\pack.bat",
     "dev": "run-p test:src build:hub-watch build:loader-watch serve"
   },
   "devDependencies": {

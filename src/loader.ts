@@ -48,6 +48,9 @@ class UComponent extends HTMLElement {
   // #oldTextContent stores the textContent inside the custom control before adding the template. 
   #oldTextContent = '';
 
+  // #oldContent stores the content inside the custom control before adding the template. 
+  #oldNodes: Node[] = [];
+
   // _scriptsUnloaded counts the number of scripts to be loaded.
   _scriptsUnloaded = 0;
 
@@ -75,6 +78,11 @@ class UComponent extends HTMLElement {
     return this.#oldTextContent;
   }
 
+  /** @return the textContent inside the custom control before adding the template. */
+  getOldNodes() {
+    return this.#oldNodes;
+  }
+
   constructor() {
     super();
     console.debug('UC', `constructor(${this.tagName})`);
@@ -95,12 +103,18 @@ class UComponent extends HTMLElement {
       if (definedTemplate.hasAttribute('closed')) domMode = 'closed';
 
       if (domMode === 'light') {
-        debugger;
+        // save contained text for components that need text content.
         this.#oldTextContent = this.textContent.trim();
+
+        // save contained HTML element for components that need embedded Elements.
+        this.childNodes.forEach((node) => this.#oldNodes.push(node));
+
+        // if (definedTemplate.childElementCount > 0) {
+        //   // when there is a meaningful template, use it and put the old text content into the template.
+        debugger;
         this.textContent = '';
-
         this.appendChild(document.importNode(definedTemplate.content, true));
-
+        // }
 
       } else {
         this.uRoot = this.attachShadow({ mode: domMode as ShadowRootMode });
