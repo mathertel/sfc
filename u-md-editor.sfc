@@ -60,8 +60,34 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
 <script>
   export default class UMDEditor extends UComponent {
     static get observedAttributes() {
-      return ["textcontent", "src"];
+      return ["textcontent", "value", "src"];
     }
+
+    // prefix and postfix for block level elements, to be added before and after the nested text content.
+    static htmlTags = {
+      'P': ['', '\n\n'],
+      'H1': ['\n# ', '\n\n'],
+      'H2': ['\n## ', '\n\n'],
+      'H3': ['\n### ', '\n\n'],
+      'H4': ['\n#### ', '\n\n'],
+
+      'UL': ['', '\n\n'],
+      'OL': ['', '\n\n'],
+      'LI': ['* ', '\n'],
+
+      'SPAN': ['', ' '],
+      'STRONG': ['**', '** '],
+      'B': ['**', '** '],
+      'EM': ['*', '* '],
+      'I': ['*', '* '],
+      'DEL': ['~~', '~~ '],
+      'CODE': ['`', '` '],
+
+      'TABLE': ['', '\n'],
+      'TBODY': ['', ''],
+      'TR': ['| ', '\n'],
+      'TD': ['', ' |']
+    };
 
     #menuObj; // private reference to the menu element
     #textObj; // private reference to the textarea element
@@ -70,41 +96,46 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
 
     constructor() {
       super();
-
       this.#menuObj = this.querySelector(".u-md-editor-menu");
       this.#textObj = this.querySelector(".u-md-editor-txt");
 
-      // initialize the text content from the element content
-      this.attributeChangedCallback('textcontent', null, this.getOldTextContent() + '\n');
+      const c1 = this.getOldTextContent();
+
+      if (c1.trim().length > 0) {
+        // initialize the text content from the element content
+        this.attributeChangedCallback('textcontent', null, c1.trim() + '\n');
+      }
 
       // Setup event listeners for formatting buttons
       this.#menuObj.querySelector("#btnBold")?.addEventListener("click", () => {
-        this.#toggleTextFormat('**');
+        this._toggleTextFormat('**');
       });
 
       this.#menuObj.querySelector("#btnItalic")?.addEventListener("click", () => {
-        this.#toggleTextFormat('*');
+        this._toggleTextFormat('*');
       });
 
       this.#menuObj.querySelector("#btnStrike")?.addEventListener("click", () => {
-        this.#toggleTextFormat('~~');
+        this._toggleTextFormat('~~');
       });
 
       this.#menuObj.querySelector("#btnCode")?.addEventListener("click", () => {
-        this.#toggleTextFormat('`');
+        this._toggleTextFormat('`');
       });
 
       this.#menuObj.querySelector("#btnList")?.addEventListener("click", () => {
-        this.#toggleLineFormat('*');
+        this._toggleLineFormat('*');
       });
 
       this.#menuObj.querySelector("#btnQuote")?.addEventListener("click", () => {
-        this.#toggleLineFormat('>');
+        this._toggleLineFormat('>');
       });
 
       this.#menuObj.querySelector("#btnCodeBlock")?.addEventListener("click", () => {
-        this.#toggleBlockFormat('```');
+        this._toggleBlockFormat('```');
       });
+
+      this.#textObj.addEventListener("paste", this._onPaste.bind(this));
     }
 
     /** Called when an observed attribute changes.
@@ -114,7 +145,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
      */
     attributeChangedCallback(name, oldValue, newValue) {
       // console.log(name, oldValue, newValue);
-      if (name === 'textcontent') {
+      if ((name === 'textcontent') || (name === 'value')) {
         this.#textObj.value = newValue;
 
       } else if (name === 'src') {
@@ -129,6 +160,106 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
         }
       }
     } // attributeChangedCallback()
+
+    // ====== HTML to Markdown formatting for paste event ======
+
+    _onPaste(event) {
+
+      // ====== Markdown convertion for paste event functions ======
+
+      // https://www.xjavascript.com/blog/detect-pasted-text-with-ctrl-v-or-right-click-paste/
+
+      // sanitizeHtml('<p>');
+      // sanitizeHtml('<p style="color:red">');
+      // sanitizeHtml('<p style="color:red" onclick="alert(8)">');
+      // sanitizeHtml('<p onclick="alert(8)" style="color:red" >');
+      // sanitizeHtml('<p onclick=\'alert(8)\' style="color:red" >');
+
+      // remove anything that needs to be removed from input for security reasons.
+      function sanitizeHtml(rawHTML) {
+        if (rawHTML) {
+          // no script tags
+          rawHTML = rawHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+          // remove attributes from html tags (including events)
+          // rawHTML = rawHTML.replace(/\<([a-z][a-z0-9]*)[^>]*?(\/?)\>/gi, '<$1$2>');
+          // add a regex replace on rawHTML to remove all 'style' attributes on tags 
+
+        }
+        return (rawHTML);
+      } // sanitizeHtml()
+
+      // recursively run through the DOM and create markdown from the supported HTML tags. 
+      function extractMD(parent) {
+        let res = '';
+
+        for (let e of parent.childNodes) {
+          if (e.nodeType === 3) {
+            // Text nodes with real content
+            const txt = e.textContent.trim();
+            if (txt.length > 0) {
+              if (res.length > 0) { res += ' '; }
+              res += txt;
+            }
+
+          } else if (e.nodeType === 1) {
+            // Element nodes
+
+            // get nested text content for the element.
+            const tag = e.tagName;
+            const mdText = extractMD(e).trim();
+
+            const en = UMDEditor.htmlTags[tag];
+
+            // most formattings are supported by prefix and postfix strings, defined in the htmlTags map.
+
+            if (en) {
+              // console.log(en[0] + '...' + en[1]);
+              res += en[0] + mdText + en[1];
+
+              // ===== Special formattings =====
+
+            } else if ((tag === 'BLOCKQUOTE') || (tag === 'DIV')) {
+              // add '> ' at the beginning of each line              
+              const lines = mdText.split('\n');
+              const quotedLines = lines.map(line => '> ' + line);
+              res += quotedLines.join('\n') + '\n\n';
+
+
+            } else if (tag === 'A') {
+              res += `[${mdText}](${e.href}) `;
+
+              // ===== any other element as text only ===== 
+
+            } else {
+              const txt = e.textContent.trim();
+              if (txt.length > 0) {
+                if (res.length > 0) { res += ' '; }
+                res += txt;
+              }
+
+            }
+          }
+        }
+        return (res);
+      } // extractMD
+
+      let htmlData = event.clipboardData.getData('text/html');
+
+      if (htmlData) {
+        event.preventDefault();
+        // console.log("HTML pasted:", htmlData);
+        // You could parse and convert HTML to Markdown or keep formatting
+
+        htmlData = sanitizeHtml(htmlData);
+
+        const parser = new DOMParser();
+        const doc1 = parser.parseFromString(htmlData, "text/html");
+
+        document.execCommand('insertText', false, extractMD(doc1.body));
+      }
+    } // #onPaste()
+
 
 
     // ====== Markdown Editing Functions ======
@@ -217,7 +348,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
      * Otherwise, apply the formatting.
      * @param {string} fmt - The formatting string to toggle (e.g., '**' for bold).
      */
-    #toggleTextFormat(fmt) {
+    _toggleTextFormat(fmt) {
       const sel = this.#getSelection(this.#textObj);
 
       const before = this.#textObj.value.substring(0, sel.start);
@@ -233,7 +364,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
       }
 
       this.#textObj.value = before + text + after;
-      this.#textObj.focus();
+      this.#textObj.focus({ preventScroll: true });
       this.#textObj.setSelectionRange(sel.start, sel.start + text.length);
     } // toggleTextFormat()
 
@@ -244,7 +375,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
      * Otherwise, apply the formatting.
      * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
      */
-    #toggleLineFormat(fmt) {
+    _toggleLineFormat(fmt) {
       const sel = this.#getSelection(this.#textObj, false);
 
       // extend selection to line start and end
@@ -264,7 +395,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
       }
 
       this.#textObj.value = before + text + after;
-      this.#textObj.focus();
+      this.#textObj.focus({ preventScroll: true });
       this.#textObj.setSelectionRange(sel.start, sel.start + text.length);
     } // toggleLineFormat()
 
@@ -273,7 +404,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
      * Toggle markdown block formatting.
      * @param {string} fmt - The formatting string to toggle (e.g., '```' for code block).
      */
-    #toggleBlockFormat(fmt) {
+    _toggleBlockFormat(fmt) {
       const sel = this.#getBlockBounds(this.#getSelection(this.#textObj, false));
 
       const before = this.#textObj.value.substring(0, sel.blockStart);
@@ -295,7 +426,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
       }
 
       this.#textObj.value = before + text + after;
-      this.#textObj.focus();
+      this.#textObj.focus({ preventScroll: true });
       this.#textObj.setSelectionRange(sel.blockStart, sel.blockStart + text.length);
     } // #toggleBlockFormat()
 
