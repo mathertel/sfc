@@ -138,6 +138,14 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
       this.#textObj.addEventListener("paste", this._onPaste.bind(this));
     }
 
+    getAttribute (name) {
+      if (name === 'value') {
+        return this.#textObj.value;
+      } else {
+        return super.getAttribute(name);
+      }
+    }
+
     /** Called when an observed attribute changes.
      * @param {string} name - The name of the attribute that changed.
      * @param {string} oldValue - The old value of the attribute.

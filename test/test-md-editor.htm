@@ -27,15 +27,23 @@ A custom element that implements applying markdown formatting to the text.
     <h1>&lt;u-md-edit&gt; Test Page</h1>
   </header>
 
+  <button id="getvalv">getValue()</button>
   <main>
     <u-md-editor id="ed" src="/doc/u-markdown.md">
-      #title 
+      #title
 
       and text
     </u-md-editor>
   </main>
 
   <script>
+    editorObj = document.getElementById('ed');
+
+    document.getElementById('getvalv').addEventListener('click', () => {
+      debugger;
+      alert(ed.value); 
+    });
+
   </script>
   <u-keyshortcuts></u-keyshortcuts>
 </body>
