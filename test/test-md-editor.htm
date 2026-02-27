@@ -4,7 +4,12 @@
 <!-- 
 u-md-editor test page
 
-A custom element that implements applying markdown formatting to the text.
+The u-md-editor is a custom element that implements a plain text editor with some
+markdown syntax support to the text.
+
+* buttons with commands
+* combinable with key shortcuts
+* combinable with u-markdown to format the actual markdown
 
 
 ## HTML to Markdown conversion when pasting
@@ -42,21 +47,31 @@ See also <https://gomakethings.com/how-to-sanitize-html-strings-with-vanilla-js-
     <h1>&lt;u-md-edit&gt; Test Page</h1>
   </header>
 
-  <button id="getvalv">getValue()</button>
+  <nav>
+    <button id="getvalv">test getValue()</button>
+  </nav>
   <main>
-    <u-md-editor id="ed" src="/doc/u-markdown.md">
-      #title
-
-      and text
-    </u-md-editor>
+    <u-md-editor id="ed" xsrc="/doc/u-md-editor.md"></u-md-editor>
+    <u-markdown id="out"></u-markdown>
   </main>
 
   <script>
     editorObj = document.getElementById('ed');
+    outObj = document.getElementById('out');
+
+    allSFCLoaded.then(() => {
+      console.log('all components loaded');
+
+      editorObj.addEventListener('input', () => {
+        // update the markdown output when the editor content changes
+        outObj.value = editorObj.value;
+      });
+
+      editorObj.src = "/doc/u-md-editor.md";
+    });
 
     document.getElementById('getvalv').addEventListener('click', () => {
-      debugger;
-      alert(ed.value); 
+      alert(ed.value);
     });
 
   </script>

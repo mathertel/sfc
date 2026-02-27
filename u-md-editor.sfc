@@ -154,7 +154,6 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
      * @param {string} newValue - The new value of the attribute.
      */
     attributeChangedCallback(name, oldValue, newValue) {
-      // console.log(name, oldValue, newValue);
       if ((name === 'textcontent') || (name === 'value')) {
         this.#textObj.value = newValue;
 
@@ -165,6 +164,9 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
             .then(response => response.text())
             .then(text => {
               this.#textObj.value = text;
+
+              // Create an 'input' event (bubbles = true so it behaves like a real user event)
+              this.#textObj.dispatchEvent(new InputEvent('input', { bubbles: true }));
             })
             .catch(err => console.error('Failed to load markdown:', err));
         }
