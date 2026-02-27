@@ -9,6 +9,8 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
 
 Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
 
+
+
 -->
 
 <template light>
@@ -138,7 +140,7 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
       this.#textObj.addEventListener("paste", this._onPaste.bind(this));
     }
 
-    getAttribute (name) {
+    getAttribute(name) {
       if (name === 'value') {
         return this.#textObj.value;
       } else {
@@ -174,28 +176,6 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
     _onPaste(event) {
 
       // ====== Markdown convertion for paste event functions ======
-
-      // https://www.xjavascript.com/blog/detect-pasted-text-with-ctrl-v-or-right-click-paste/
-
-      // sanitizeHtml('<p>');
-      // sanitizeHtml('<p style="color:red">');
-      // sanitizeHtml('<p style="color:red" onclick="alert(8)">');
-      // sanitizeHtml('<p onclick="alert(8)" style="color:red" >');
-      // sanitizeHtml('<p onclick=\'alert(8)\' style="color:red" >');
-
-      // remove anything that needs to be removed from input for security reasons.
-      function sanitizeHtml(rawHTML) {
-        if (rawHTML) {
-          // no script tags
-          rawHTML = rawHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-
-          // remove attributes from html tags (including events)
-          // rawHTML = rawHTML.replace(/\<([a-z][a-z0-9]*)[^>]*?(\/?)\>/gi, '<$1$2>');
-          // add a regex replace on rawHTML to remove all 'style' attributes on tags 
-
-        }
-        return (rawHTML);
-      } // sanitizeHtml()
 
       // recursively run through the DOM and create markdown from the supported HTML tags. 
       function extractMD(parent) {
@@ -255,19 +235,15 @@ Example: <u-md-editor icon="button" title="Clickable"> ...  </u-md-editor>
       let htmlData = event.clipboardData.getData('text/html');
 
       if (htmlData) {
+        // do not include the pasted original HTML.
         event.preventDefault();
-        // console.log("HTML pasted:", htmlData);
-        // You could parse and convert HTML to Markdown or keep formatting
 
-        htmlData = sanitizeHtml(htmlData);
-
+        // convert the pasted HTML to markdown and insert it as plain text at the cursor position.
         const parser = new DOMParser();
-        const doc1 = parser.parseFromString(htmlData, "text/html");
-
-        document.execCommand('insertText', false, extractMD(doc1.body));
+        const pasteDoc = parser.parseFromString(htmlData, "text/html");
+        document.execCommand('insertText', false, extractMD(pasteDoc.body));
       }
     } // #onPaste()
-
 
 
     // ====== Markdown Editing Functions ======

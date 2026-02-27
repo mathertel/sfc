@@ -5,6 +5,21 @@
 u-md-editor test page
 
 A custom element that implements applying markdown formatting to the text.
+
+
+## HTML to Markdown conversion when pasting
+
+Pasting formatted text to the editor in text/html format is processed
+by a simple HTML to Markdown converter while pasting as plain text will not
+try to convert anything.
+
+This conversion is implemented by using the `DOMParser()` to parse the text as `text/html`
+without rendering it so no script will be executed to avoid xss attacks.
+The DOM tree then is traversed by creating plain Markdown text.
+
+See also <https://gomakethings.com/how-to-sanitize-html-strings-with-vanilla-js-to-reduce-your-risk-of-xss-attacks/>
+
+
 -->
 
 <head>
