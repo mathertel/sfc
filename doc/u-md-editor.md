@@ -23,7 +23,7 @@ See also <https://gomakethings.com/how-to-sanitize-html-strings-with-vanilla-js-
 
 ## Linking Markdown editor to Markdown rendering
 
-The u-md-editor dispatches the standard `input` enevt as this event bubbles from the
+The u-md-editor dispatches the standard `input` event as this event bubbles from the
 internal textarea up the DOM elements. This event can be used to sync the raw markdown
 text to another element like the `u-markdown`.
 
