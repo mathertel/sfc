@@ -1,33 +1,76 @@
 # Web component to render markdown files
 
-The `<u-markdown>` component can be used to display Markdown formatted documents in the browser by compiling Markdown to
-HTML using the markdown-it library.
+The `<u-markdown>` component displays Markdown-formatted text by compiling it to
+HTML using the **markdown-it** library.  Content may be supplied either via a
+remote markdown file or directly as text.
 
-Markdown can be injected by 2 methods:
+## Setup
 
-* Loading a *.md file from the same web server. After the file is loaded it gets compiled into HTML and displayed.
-* Passing markdown text directly to the component by setting the `textContent` property.
+Load the SFC loader and either import the component or call `loadComponent`:
 
-&lt;u-markdown style="... " src="..."&gt;# markdown&gt;/u-markdown&lt;
+```html
+<script type="module" src="/loader.js"></script>
+<script type="module">
+  import '/u-markdown.sfc';
+</script>
+```
 
-This component loads the Markdown library scripts by the importScript function defined in the uComponent class.
+or:
 
+```html
+<script src="/loader.js"></script>
+<script>
+  window.sfc.loadComponent('/u-markdown.sfc');
+</script>
+```
 
-## Attributes
+Usage examples:
 
-none. typically the style needs to be specified by using css rules.
+```html
+<!-- load a remote markdown document -->
+<u-markdown src="/docs/intro.md"></u-markdown>
 
-## JavaScript accessible attributes
+<!-- supply markdown text directly -->
+<u-markdown>## Hello world
+This is **bold** text.</u-markdown>
+```
 
-* **`src`** -- The URL of the markdown file to be loaded and displayed.
-* **`textContent`** -- The markdown text to be compiled and displayed.
+## Attributes & Properties
 
-The markdown-it library is required to be loaded. It can be found in https://markdown-it.github.io/.
-The `markdown-it.js` and `markdown-it-attrs.js` files must be present in the 
+The component observes the following attributes (see `observedAttributes`):
+
+* `src` – URL to fetch a markdown file. When the file is loaded its contents are
+  rendered automatically.
+* `textcontent` – raw markdown text. Setting this attribute or the `value`
+  property bypasses loading from a URL and renders the supplied text instead.
+* `value` – alias for `textcontent`.
+
+You can get/set these with `getAttribute`/`setAttribute` or via the corresponding
+properties on the element instance.
+
+No other HTML attributes are required; style your markdown output using CSS rules
+targeting `u-markdown` or its child elements.
+
+## Instance Methods
+
+* `process()` – manually trigger rendering. Normally this is called automatically
+  when the element is first initialized or when an observed attribute changes.
+  Can be useful if you mutate `srcText` programmatically.
+
+Other methods (`fetchMarkdown`, `renderMarkdown`, `init`, etc.) are considered
+internal implementation details.
+
+## Additional Notes
+
+The component loads `markdown-it.js` and `markdown-it-attrs.js` via
+`importScript`.  Ensure those files are available on the server (they are
+included in the repository).  The library version is the one shipped with the
+project.
 
 Open Topics:
 
-The foldername /sfc/ is hardcoded. It should be replaced by a variable / placeholder.
+* The loader currently hardcodes the `/sfc/` folder name when importing scripts;
+  this could be made configurable in a future update.
 
 References:
 

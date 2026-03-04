@@ -46,3 +46,22 @@ Purpose: Quickly orient an AI coding agent to be productive in this repository.
   - Favor minimal, focused changes that preserve the `UComponent` lifecycle (`connectedCallback`/`init`) and the `datahub` API.
 
 If anything here is unclear or you want other repository conventions added (linting, release steps, CI), tell me which area to expand.
+
+## Documentation of the components
+
+Each component implemented as a *.sfc file hat a corresponding documentation in the
+folder `/doc` using a markdown file with the name of the component from the *.sfc filename.
+
+- Include a Level 2 Header titled "Setup" that includes 2 code snippets how to include
+  the component in a page.
+  - create the code snippet that includes loading the loader and the component
+  - create the code snippet that instatiates the component and shows the specific
+    attributes as example.
+
+- Include a Level 2 Header titled "Instance Properties"
+  - include a list of the component attributes with a short description that are listed
+    in observedAttributes.
+
+- Include a Level 2 Header titled "Instance Methods"
+  - include a list of all methods of the class with a short description that are
+    available externally.
