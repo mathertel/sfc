@@ -6,16 +6,7 @@ remote markdown file or directly as text.
 
 ## Setup
 
-Load the SFC loader and either import the component or call `loadComponent`:
-
-```html
-<script type="module" src="/loader.js"></script>
-<script type="module">
-  import '/u-markdown.sfc';
-</script>
-```
-
-or:
+Load the SFC loader and either import the components by calling the `window.sfc.loadComponent()`:
 
 ```html
 <script src="/loader.js"></script>
@@ -31,8 +22,10 @@ Usage examples:
 <u-markdown src="/docs/intro.md"></u-markdown>
 
 <!-- supply markdown text directly -->
-<u-markdown>## Hello world
-This is **bold** text.</u-markdown>
+<u-markdown>
+## Hello world
+This is **bold** text.
+</u-markdown>
 ```
 
 ## Attributes & Properties
@@ -72,11 +65,9 @@ Open Topics:
 * The loader currently hardcodes the `/sfc/` folder name when importing scripts;
   this could be made configurable in a future update.
 
-References:
+## See also
 
 * https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
 * https://zerodevx.github.io/zero-md/
 * requestIdleCallback, SetTimeout VS RequestAnimationFrame
-
-## See also
 

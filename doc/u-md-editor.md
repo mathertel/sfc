@@ -10,18 +10,7 @@ formatting commands and will convert pasted HTML into Markdown automatically.
 
 ## Setup
 
-You can load the loader script and register the component as shown below:
-
-```html
-<!-- load the SFC loader once per page -->
-<script type="module" src="/loader.js"></script>
-<!-- import the editor component (relative path to your server) -->
-<script type="module">
-  import '/u-md-editor.sfc';
-</script>
-```
-
-Alternatively you can call `window.sfc.loadComponent()`:
+Load the SFC loader and either import the components by calling the `window.sfc.loadComponent()`:
 
 ```html
 <script src="/loader.js"></script>
@@ -84,4 +73,3 @@ via the corresponding properties off the element.
 Other helper methods (`_toggleTextFormat`, `_toggleLineFormat`, etc.) are internal
 and not part of the public API.
 
-```
