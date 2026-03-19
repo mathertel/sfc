@@ -36,6 +36,7 @@ Example:
         <use href="/ed-icons.svg#ed-ulist" />
       </svg></button>
     <button data-command="quote">Quote</button>
+    <button data-command="reflow">ReFlow</button>
   </div>
   <textarea class="u-md-editor-txt"></textarea>
 </template>
@@ -111,6 +112,25 @@ Example:
 
     srcLink = undefined;
 
+    // The markdown formatting commands supported by the editor,
+    // use a structure/type to define the selected part of the text document.
+
+    // The user selection, beeing character based, can be extended to a block selection
+    // containing all lines using the same line formatting (e.g. blockquotes, lists, plain text, ...)
+
+    // is represented as an object that contains the following properties:
+    // This selection type uses the following attributes:
+    // - elem: the textarea element containing the text
+    // - start: character based selection start offset,
+    // - end: character based selection end offset,
+    // - text: the selected text content (for convenience)
+    // - lines: an array of all text lines in the textarea 
+    // - blockStart: first textline of the block containing the selection
+    // - blockEnd: last textline of the block containing the selection
+
+    // - blockFormat: the markdown line level formatting at the beginning of the lines in the block (e.g. '> ' for blockquotes, '* ' for lists, ...).
+    // - blockText: the text content of the markdown block containing the selection
+
     /**
      * Constructor for the UMDEditor class.
      * Initializes the menu and textarea elements, sets up event listeners for formatting buttons and paste events.
@@ -176,7 +196,7 @@ Example:
     /**
      * Executes a formatting command.
      * @param {string} commandName - The name of the command to execute.
-     * Supported commands: 'bold', 'italic', 'strike', 'code', 'case', 'list', 'quote'.
+     * Supported commands: 'bold', 'italic', 'strike', 'code', 'case', 'list', 'quote', 'reflow'.
     */
     exec(commandName) {
       switch (commandName.toLowerCase()) {
@@ -195,6 +215,7 @@ Example:
 
         case 'list': this._toggleLineFormat('*'); break;
         case 'quote': this._toggleLineFormat('>'); break;
+        case 'reflow': this._reflow(); break;
 
         default: break;
       }
@@ -321,44 +342,6 @@ Example:
 
 
     /**
-     * Find the boundaries of the markdown block containing the selection.
-     */
-    #getBlockBounds(sel) {
-      const txt = sel.elem.value;
-      let start = sel.start;
-      let end = sel.end;
-
-      start = txt.lastIndexOf('\n', sel.start - 1) + 1;
-      end = txt.indexOf('\n', sel.end);
-
-      // find the start of the block
-      while (start > 0) {
-        const lineStart = txt.lastIndexOf("\n", start - 1) + 1;
-        const line = txt.substring(lineStart, start).trim();
-        if (line === "") break; // empty line indicates block boundary
-        start = lineStart - 1;
-      }
-
-      // find the end of the block
-      while (end < txt.length) {
-        const lineEnd = txt.indexOf("\n", end);
-        if (lineEnd === -1) {
-          end = txt.length;
-          break;
-        }
-        const line = txt.substring(end, lineEnd).trim();
-        if (line === "") break; // empty line indicates block boundary
-        end = lineEnd + 1;
-      }
-
-      sel.blockStart = start;
-      sel.blockEnd = end;
-      sel.blockText = txt.substring(start, end);
-      return sel;
-    } // #getBlockBounds()
-
-
-    /**
      * Toggle markdown text character based formatting around the selected text in a textarea.
      * If the selected text is already formatted, remove the formatting.
      * Otherwise, apply the formatting.
@@ -447,35 +430,133 @@ Example:
 
 
     /**
+     * Extend the selection to encompass all lines that share the same markdown formatting at the beginning of the line.
+     * The function identifies the common markdown formatting (e.g., blockquotes, lists) at the start of the current line and extends the selection to include all contiguous lines with the same formatting.
+     * It returns an extended selection object that includes the original selection details, an array of lines within the extended selection, and the common markdown formatting identified.
+     * @param {object} sel - The original selection object containing details about the current selection in the textarea.
+     * @returns {object} - An extended selection object that includes the original selection details, an array of lines within the extended selection, and the common markdown formatting identified.
+     */
+    extendSelLines(sel) {
+
+      // match and return for any line-level formatting characters at the start of the current line.
+      // supports:
+      // > for blockquotes
+      // [*+-] for unnumberes lists
+      // NN. for numberes lists
+      // 4-spaces for untyped code blocks
+      function mdFmt(txt) {
+        // matches all formatting characters at line start
+        // this matches always including empty format.
+        const m = txt.match(/^(\s{0,3})?(([>*+-])\s{1,4}|(\d+)\.\s{1,4}|(\#+)\s{1,4})*|(\s{4,4})/);
+        return (m[0]);
+      }
+
+      // extends the selection by the following attributes:
+      // - lines: an array of all text lines in the textarea
+      // - format: the markdown line level formatting at the beginning of the lines in the block (e.g. '> ' for blockquotes, '* ' for lists, ...).
+
+      const txt = this.#textObj.value;
+      // console.log(txt.substring(sel.start, sel.end));
+
+      sel.lines = txt.split('\n');
+
+      const LN = txt.substr(0, sel.start).split('\n').length - 1;
+      const fmt = mdFmt(sel.lines[LN]);
+      sel.format = fmt;
+      sel.blockStart = sel.blockEnd = LN;
+
+      // console.log("LN:", `'${fmt}'`, sel.lines[LN]);
+      // debugger;
+
+      // extend block start
+      while (sel.blockStart > 0) {
+        const prevLine = sel.lines[sel.blockStart - 1];
+        // console.log("LN-1:", prevLine);
+
+        if (prevLine.trim() === "") break; // empty line indicates block boundary
+        if (!prevLine.startsWith(fmt)) break; // line with different format indicates block boundary
+        sel.blockStart--;
+      }
+      sel.start = sel.lines.slice(0, sel.blockStart).join('\n').length + 1;
+
+      // extend block end
+      while (sel.blockEnd < sel.lines.length) {
+        const nextLine = sel.lines[sel.blockEnd + 1];
+        // console.log("LN+1:", nextLine);
+
+        if (nextLine.trim() === "") break; // empty line indicates block boundary
+        if (!nextLine.startsWith(fmt)) break; // line with different format indicates block boundary
+
+        sel.blockEnd++;
+      }
+      sel.end = sel.lines.slice(0, sel.blockEnd + 1).join('\n').length;
+      // console.log(txt.substring(sel.start, sel.end));
+
+
+      // while (LN > 0) {
+      //   const f = mdFmt(sel.lines[LN - 1]);
+      //   if (f !== fmt) break;
+      //   sel.blockStart -= sel.lines[LN - 1].length + 1;
+      //   LN--;
+      // }
+
+      this.#textObj.focus({ preventScroll: true });
+      this.#textObj.setSelectionRange(sel.start, sel.end);
+
+
+      return (sel);
+    } // extendSelLines()
+
+    /**
      * Toggle markdown line formatting on the beginning of all selected text lines.
      * If the selected text is already formatted, remove the formatting.
      * Otherwise, apply the formatting.
      * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
      */
+    _reflow(fmt) {
+      debugger;
+
+      let sel = this.#getSelection();
+      let txt = this.#textObj.value;
+
+      sel = this.extendSelLines(sel);
+
+
+
+    }
+
+
+    /**
+   * Toggle markdown line formatting on the beginning of all selected text lines.
+   * If the selected text is already formatted, remove the formatting.
+   * Otherwise, apply the formatting.
+   * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
+   */
     _toggleLineFormat(fmt) {
-      const sel = this.#getSelection();
+      const sel = this.extendSelLines(this.#getSelection());
 
-      // extend selection to line start and end
-      sel.start = this.#textObj.value.lastIndexOf('\n', sel.start - 1) + 1;
-      sel.end = this.#textObj.value.indexOf('\n', sel.end);
-      let text = this.#textObj.value.substring(sel.start, sel.end);
-
-      const before = this.#textObj.value.substring(0, sel.start);
-      const after = this.#textObj.value.substring(sel.end);
       fmt = fmt.trim() + ' ';
 
-      if (text.startsWith(fmt)) {
-        // already formatted - remove all formats at line start in the text 
-        text = text.replaceAll(new RegExp('^' + fmt.replace(/(.)/g, '\\$1'), 'mg'), '');
+      if (sel.lines[sel.blockStart].startsWith(fmt)) {
+        // already formatted - remove the format at the beginning of all lines in the block
+        for (let i = sel.blockStart; i <= sel.blockEnd; i++) {
+          if (sel.lines[i].startsWith(fmt)) {
+            sel.lines[i] = sel.lines[i].substring(fmt.length);
+          }
+        }
 
       } else {
-        // add format ot all textlines
-        text = text.replaceAll(new RegExp('^', 'mg'), fmt);
+        // not formatted - add the format at the beginning of all lines in the block
+        for (let i = sel.blockStart; i <= sel.blockEnd; i++) {
+          sel.lines[i] = fmt + sel.lines[i];
+        }
       }
+      sel.start = sel.lines.slice(0, sel.blockStart).join('\n').length + 1;
+      sel.end = sel.lines.slice(0, sel.blockEnd + 1).join('\n').length;
 
-      this.#textObj.value = before + text + after;
+      this.#textObj.value = sel.lines.join('\n');
       this.#textObj.focus({ preventScroll: true });
-      this.#textObj.setSelectionRange(sel.start, sel.start + text.length);
+      this.#textObj.setSelectionRange(sel.start, sel.end);
     } // toggleLineFormat()
 
 
@@ -484,28 +565,40 @@ Example:
      * @param {string} fmt - The formatting string to toggle (e.g., '```' for code block).
      */
     _toggleBlockFormat(fmt) {
-      const sel = this.#getBlockBounds(this.#getSelection());
+      const sel = this.extendSelLines(this.#getSelection());
 
-      const before = this.#textObj.value.substring(0, sel.blockStart);
-      const after = this.#textObj.value.substring(sel.blockEnd);
-      let text = sel.blockText;
-      const n = text.indexOf('\n');
-      const fmtLength = fmt.length;
+      let isFormatted = false;
+      let newText;
 
-      if (n < 0) {
-        // nothing
+      if (sel.lines[sel.blockStart].startsWith(fmt))
+        isFormatted = true;
 
-      } else if ((text.startsWith(fmt)) && (text.endsWith(fmt))) {
-        // already formatted - remove first and last line
-        text = text.substring(n + 1, text.length - fmtLength - 1);
+      if (isFormatted) {
+        // already formatted - remove the format lines at the beginning and end of the block
+
+        this.#textObj.value =
+          sel.lines.slice(0, sel.blockStart).join('\n') +
+          '\n' +
+          sel.lines.slice(sel.blockStart + 1, sel.blockEnd).join('\n') +
+          '\n' +
+          sel.lines.slice(sel.blockEnd + 1).join('\n');
+
+        this.#textObj.focus({ preventScroll: true });
+        this.#textObj.setSelectionRange(sel.start, sel.end - (2 * fmt.length) - 1);
 
       } else {
-        text = fmt + '\n' + text + '\n' + fmt;
-      }
+        // not formatted - add the format lines at the beginning and end of the block
 
-      this.#textObj.value = before + text + after;
-      this.#textObj.focus({ preventScroll: true });
-      this.#textObj.setSelectionRange(sel.blockStart, sel.blockStart + text.length);
+        this.#textObj.value =
+          sel.lines.slice(0, sel.blockStart).join('\n') +
+          '\n' + fmt + '\n' +
+          sel.lines.slice(sel.blockStart, sel.blockEnd + 1).join('\n') +
+          '\n' + fmt + '\n' +
+          sel.lines.slice(sel.blockEnd + 1).join('\n');
+
+        this.#textObj.focus({ preventScroll: true });
+        this.#textObj.setSelectionRange(sel.start, sel.end + (2 * fmt.length) + 3);
+      }
     } // #toggleBlockFormat()
 
   }

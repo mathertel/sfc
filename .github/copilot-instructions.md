@@ -55,7 +55,7 @@ folder `/doc` using a markdown file with the name of the component from the *.sf
 - Include a Level 2 Header titled "Setup" that includes 2 code snippets how to include
   the component in a page.
   - create the code snippet that includes loading the loader and the component
-  - create the code snippet that instatiates the component and shows the specific
+  - create the code snippet that instantiates the component and shows the specific
     attributes as example.
 
 - Include a Level 2 Header titled "Instance Properties"

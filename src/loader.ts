@@ -111,7 +111,7 @@ class UComponent extends HTMLElement {
 
         // if (definedTemplate.childElementCount > 0) {
         //   // when there is a meaningful template, use it and put the old text content into the template.
-        debugger;
+        debugger; // unfinished situation ???
         this.textContent = '';
         this.appendChild(document.importNode(definedTemplate.content, true));
         // }
@@ -188,7 +188,8 @@ class UComponent extends HTMLElement {
 
   // dispatch registered events.
   handleEvent(event: Event) {
-    this['on' + event.type](event);
+    if (this['on' + event.type])
+      this['on' + event.type](event);
   }
 
 } // class UComponent
