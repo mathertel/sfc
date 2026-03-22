@@ -31,12 +31,12 @@ Example:
     <button data-command="code">Code</button>
     <button data-command="case">Case</button>
     &nbsp;
-    <button class="icon" data-command="list">
+    <button class="icon" data-command="list" aria-keyshortcuts="Control+Shift+L">
       <svg>
         <use href="/ed-icons.svg#ed-ulist" />
       </svg></button>
-    <button data-command="quote">Quote</button>
-    <button data-command="reflow">ReFlow</button>
+    <button data-command="quote" aria-keyshortcuts="Control+Shift+Q">Quote</button>
+    <button data-command="reflow" aria-keyshortcuts="Alt+Q" >ReFlow</button>
   </div>
   <textarea class="u-md-editor-txt"></textarea>
 </template>
@@ -124,12 +124,12 @@ Example:
     // - start: character based selection start offset,
     // - end: character based selection end offset,
     // - text: the selected text content (for convenience)
+
     // - lines: an array of all text lines in the textarea 
     // - blockStart: first textline of the block containing the selection
     // - blockEnd: last textline of the block containing the selection
 
-    // - blockFormat: the markdown line level formatting at the beginning of the lines in the block (e.g. '> ' for blockquotes, '* ' for lists, ...).
-    // - blockText: the text content of the markdown block containing the selection
+    // - format: the markdown line level formatting at the beginning of the lines in the block (e.g. '> ' for blockquotes, '* ' for lists, ...).
 
     /**
      * Constructor for the UMDEditor class.
@@ -317,7 +317,7 @@ Example:
         end: txtElem.selectionEnd
       };
 
-      // apply some heuristics when selection
+      // apply some heuristics when selecting text to adjust the selection to word boundaries and trim leading/trailing spaces
       if (adjust) {
         // when selection is not covering any characters the select the full word at the cursor position
         if (sel.start === sel.end) {
@@ -429,83 +429,157 @@ Example:
     } // _toggleCaseFormat()
 
 
-    /**
-     * Extend the selection to encompass all lines that share the same markdown formatting at the beginning of the line.
-     * The function identifies the common markdown formatting (e.g., blockquotes, lists) at the start of the current line and extends the selection to include all contiguous lines with the same formatting.
-     * It returns an extended selection object that includes the original selection details, an array of lines within the extended selection, and the common markdown formatting identified.
-     * @param {object} sel - The original selection object containing details about the current selection in the textarea.
-     * @returns {object} - An extended selection object that includes the original selection details, an array of lines within the extended selection, and the common markdown formatting identified.
-     */
-    extendSelLines(sel) {
+    // match and return for any line-level formatting characters at the start of the current line.
+    // supports:
+    // > for blockquotes
+    // [*+-] for unnumberes lists
+    // NN. for numberes lists
+    // 4-spaces for untyped code blocks
+    _mdFmt(txt) {
+      // matches all formatting characters at line start
+      // this matches always including empty format.
+      const m = txt.match(/^(\s{0,3})?(([>*+-])\s{1,4}|(\d+)\.\s{1,4}|(\#+)\s{1,4})*|(\s{4,4})/);
+      return (m[0]);
+    } // mdFmt()
 
-      // match and return for any line-level formatting characters at the start of the current line.
-      // supports:
-      // > for blockquotes
-      // [*+-] for unnumberes lists
-      // NN. for numberes lists
-      // 4-spaces for untyped code blocks
-      function mdFmt(txt) {
-        // matches all formatting characters at line start
-        // this matches always including empty format.
-        const m = txt.match(/^(\s{0,3})?(([>*+-])\s{1,4}|(\d+)\.\s{1,4}|(\#+)\s{1,4})*|(\s{4,4})/);
-        return (m[0]);
+    // return true when the 2 line formats are the same line-level format and fmt2 is continuing the same block
+    // like a paragraph, a blockquote or a list item
+    _mdFmtMatch(fmt1, fmt2) {
+      let result = false;
+
+      if (fmt1.length === fmt2.length) {
+        if (fmt1.replace(/[#*+-]/g, ' ') === fmt2)
+          result = true;
       }
 
-      // extends the selection by the following attributes:
+      return (result);
+    } // _mdFmtMatch
+
+
+    /**
+    * Extend the selection to encompass all lines that share the same markdown formatting at the beginning of the line.
+    * The function identifies the common markdown formatting (e.g., blockquotes, lists) at the start of the current line and extends the selection to include all contiguous lines with the same formatting.
+    * It returns an extended selection object that includes the original selection details, an array of lines within the extended selection, and the common markdown formatting identified.
+    * @param {object} sel - The original selection object containing details about the current selection in the textarea.
+    * @returns {object} - An extended selection object that includes the original selection details, an array of lines within the extended selection, and the common markdown formatting identified.
+    */
+    extendSelLines(sel, toBlock = true) {
+      let fmt = sel.format;
+
+      // extend the selection object by the following attributes:
       // - lines: an array of all text lines in the textarea
       // - format: the markdown line level formatting at the beginning of the lines in the block (e.g. '> ' for blockquotes, '* ' for lists, ...).
+      // - blockStart: first selected line of the block
+      // - blockEnd: last selected line of the block
+      // do not overwrite these attributes when they already exist enabling using `extendSelLines` multiple times on the same sel object
+      if (!sel.lines) {
+        const txt = this.#textObj.value;
+        sel.lines = txt.split('\n');
 
-      const txt = this.#textObj.value;
-      // console.log(txt.substring(sel.start, sel.end));
-
-      sel.lines = txt.split('\n');
-
-      const LN = txt.substr(0, sel.start).split('\n').length - 1;
-      const fmt = mdFmt(sel.lines[LN]);
-      sel.format = fmt;
-      sel.blockStart = sel.blockEnd = LN;
-
-      // console.log("LN:", `'${fmt}'`, sel.lines[LN]);
-      // debugger;
+        const lineNumber = txt.substr(0, sel.start).split('\n').length - 1;
+        fmt = sel.format = this._mdFmt(sel.lines[lineNumber]);
+        sel.blockStart = sel.blockEnd = lineNumber;
+      }
 
       // extend block start
       while (sel.blockStart > 0) {
         const prevLine = sel.lines[sel.blockStart - 1];
-        // console.log("LN-1:", prevLine);
-
         if (prevLine.trim() === "") break; // empty line indicates block boundary
-        if (!prevLine.startsWith(fmt)) break; // line with different format indicates block boundary
+
+        if (!toBlock) {
+          // break without extending into another line with same formatting (list item)
+          const prevFmt = this._mdFmt(prevLine);
+          if (!this._mdFmtMatch(prevFmt, fmt)) break;
+          sel.format = fmt = prevFmt;
+        } // if
+
         sel.blockStart--;
-      }
-      sel.start = sel.lines.slice(0, sel.blockStart).join('\n').length + 1;
+      } // while extend to the beginning
 
       // extend block end
       while (sel.blockEnd < sel.lines.length) {
         const nextLine = sel.lines[sel.blockEnd + 1];
-        // console.log("LN+1:", nextLine);
-
         if (nextLine.trim() === "") break; // empty line indicates block boundary
-        if (!nextLine.startsWith(fmt)) break; // line with different format indicates block boundary
+
+        if (!toBlock) {
+          const nextFmt = this._mdFmt(nextLine);
+          if (!this._mdFmtMatch(fmt, nextFmt)) break;
+          fmt = nextFmt;
+        }
 
         sel.blockEnd++;
       }
+
+      // recalc character start and end
+      sel.start = sel.lines.slice(0, sel.blockStart).join('\n').length + 1;
       sel.end = sel.lines.slice(0, sel.blockEnd + 1).join('\n').length;
-      // console.log(txt.substring(sel.start, sel.end));
-
-
-      // while (LN > 0) {
-      //   const f = mdFmt(sel.lines[LN - 1]);
-      //   if (f !== fmt) break;
-      //   sel.blockStart -= sel.lines[LN - 1].length + 1;
-      //   LN--;
-      // }
-
-      this.#textObj.focus({ preventScroll: true });
-      this.#textObj.setSelectionRange(sel.start, sel.end);
-
 
       return (sel);
     } // extendSelLines()
+
+    /**
+     * Reflows a block of text to a given maximum line length.
+     * Words are preserved; no mid-word breaks.
+     * @param {string} txt - The input text to reflow.
+     * @param {number} [maxLen=40] - Maximum characters per line.
+     * @returns {string} - The reflowed text.
+     */
+    _reflowText(txt, maxLen = 40) {
+      // Normalize whitespace and split into words
+      const words = txt.trim().split(/\s+/);
+      let lines = [];
+      let currentLine = "";
+
+      for (let word of words) {
+        // If adding the next word exceeds maxLen, push current line and start new
+        if ((currentLine + (currentLine ? " " : "") + word).length > maxLen) {
+          if (currentLine) {
+            lines.push(currentLine);
+          }
+          // If a single word is longer than maxLen, place it on its own line
+          currentLine = word;
+        } else {
+          currentLine += (currentLine ? " " : "") + word;
+        }
+      }
+
+      // Push the last line if not empty
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      return (lines);
+    } // _reflowText()
+
+
+    /**  reflow text of current line to fit into a max line length in source code
+     */
+    _reflow() {
+      let sel = this.extendSelLines(this.#getSelection(), false);
+
+      const fmtLen = sel.format.length;
+      let fmt2 = sel.format.replace(/[#*+-]/g, ' ');
+      const lineCount = sel.blockEnd - sel.blockStart + 1;
+
+      let textLines = sel.lines.slice(sel.blockStart, sel.blockEnd + 1);
+      let txt = textLines.map(e => e.substr(fmtLen)).join(' ');
+
+      textLines = this._reflowText(txt, 88 - fmtLen);
+      textLines[0] = sel.format + textLines[0];
+      for (let n = 1; n < textLines.length; n++) {
+        textLines[n] = fmt2 + textLines[n];
+      }
+
+      // replace old lines by new ones
+      sel.lines.splice(sel.blockStart, lineCount, ...textLines);
+      sel.blockEnd += textLines.length - lineCount;
+      sel.end = sel.lines.slice(0, sel.blockEnd + 1).join('\n').length;
+
+      this.#textObj.value = sel.lines.join('\n');
+      this.#textObj.focus({ preventScroll: true });
+      this.#textObj.setSelectionRange(sel.start, sel.end);
+    } // _reflow()
+
 
     /**
      * Toggle markdown line formatting on the beginning of all selected text lines.
@@ -513,25 +587,6 @@ Example:
      * Otherwise, apply the formatting.
      * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
      */
-    _reflow(fmt) {
-      debugger;
-
-      let sel = this.#getSelection();
-      let txt = this.#textObj.value;
-
-      sel = this.extendSelLines(sel);
-
-
-
-    }
-
-
-    /**
-   * Toggle markdown line formatting on the beginning of all selected text lines.
-   * If the selected text is already formatted, remove the formatting.
-   * Otherwise, apply the formatting.
-   * @param {string} fmt - The formatting string to toggle (e.g., '*' for list).
-   */
     _toggleLineFormat(fmt) {
       const sel = this.extendSelLines(this.#getSelection());
 
