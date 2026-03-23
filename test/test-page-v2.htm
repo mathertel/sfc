@@ -1,0 +1,369 @@
+<!-- 
+
+<u-window> is a Web Component that provides a simple and flexible way to create a window-like interface in a web application.
+  It allows you to display content in a modal or non-modal window, with support for dragging, resizing, and custom styling.
+
+The v-window component provides the baseline functionality for transitioning content from one pane to another.
+Other components such as v-tabs, v-carousel and v-stepper utilize this component at their core.
+
+https://vuetifyjs.com/en/components/windows/#usage
+
+
+I want to use Web Components (customElements) based <u-viewport> element to implement
+an HTML based systems of showing pages each containing html one after other.
+
+The pages can be switched and navigated by using buttons for
+* next page
+* previous page
+* page by index
+* page by id
+
+All pages will have to fit into the size given by the <u-viewport> element.
+
+There are 2 buttons layering upon the pages to navigate forward and back.  
+
+Each page content to come directly from <template> elements in the HTML, so I can write
+the actual HTML for each page in the document, and the <u-viewport> Web Component will
+pick them up and display them one at a time.
+
+TODO: - Add support for page transition animations (e.g., fade, slide).
+      - Add support for dynamic page loading (e.g., via AJAX or from a JSON file
+      - Add support for page indicators (e.g., dots or numbers) to show the current page and total pages.
+      - Add support for keyboard navigation (e.g., left/right arrow keys to navigate between pages).
+      - Add support for touch gestures (e.g., swipe left/right to navigate between pages).
+      - Add support for custom events (e.g., page change event) to allow external scripts to react to page changes.
+      - Add support for accessibility features (e.g., ARIA roles and attributes) to improve usability for screen readers and other assistive technologies.
+      - Add support for responsive design (e.g., adjust layout and navigation controls for different screen sizes).
+      - Add support for theming (e.g., allow users to customize the appearance of the viewport and pages through CSS variables or classes).
+      - Add support for nested viewports (e.g., allow a page to contain another <u-viewport> with its own set of pages).
+      - Add support for bringing a custom nav element as an overlay replacement.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Viewport Test</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <script src="/loader.js"></script>
+
+  <style>
+    u-viewport {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      padding: 1rem;
+      width: 600px;
+      height: 450px;
+      background-color: #fafafa;
+
+      border: 1px solid #ccc;
+      border-radius: 6px;
+
+      nav * {
+        /* position: absolute; */
+        z-index: 2;
+      }
+
+      .pages {
+        position: relative;
+        height: 100%;
+        overflow-x: hidden;
+
+        .page {
+          display: none;
+          position: absolute;
+          background-color: yellow;
+          width: 100%;
+          height: 100%;
+
+          &.active {
+            display: block;
+            background-color: lime;
+            transition: transform 0.5s ease-in-out;
+          }
+
+          /* &.slide-in {
+          }
+
+          &.slide-out {
+            animation: slideLeftOut 0.5s ease-in-out forwards;
+          } */
+
+        }
+      }
+
+      /* Default Navigation buttons styling */
+      nav.default {
+        button {
+          position: absolute;
+          cursor: pointer;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4rem;
+          height: 4rem;
+          border: none;
+          background-color: rgba(0, 0, 0, 0.1);
+
+          opacity: 0.1;
+          background-color: rgba(255, 255, 255, 0.4);
+          background-size: 3rem;
+          background-repeat: no-repeat;
+          background-position: center;
+          transition-property: opacity;
+          transition-duration: 0.2s;
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          /* Using background images for navigation buttons */
+          &[data-action="prev"] {
+            left: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='currentColor'><path d='M34,44l-28,-20l28,-20Z' /></svg>");
+          }
+
+          &[data-action="next"] {
+            right: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='currentColor'><path d='M14,44l28,-20l-28,-20Z' /></svg>");
+          }
+        }
+      }
+    }
+
+    @keyframes slideLeftIn {
+      from {
+        left: 100%;
+      }
+
+      to {
+        left: 0;
+      }
+    }
+
+    @keyframes slideLeftOut {
+      from {
+        left: 0;
+      }
+
+      to {
+        left: -100%;
+      }
+    }
+  </style>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em;">
+
+  <nav>
+    <button onclick="viewPortElement.showPage('about')">about</button>
+    <input type="text" id="pageNumber" style="width: 12ch;" />
+  </nav>
+  <u-viewport id="viewport">
+    <nav class="default">
+      <button data-action="prev"></button>
+      <button data-action="next"></button>
+    </nav>
+    <template data-id="intro">
+      <h3>Welcome-00</h3>
+      <p>This is the Welcome page.</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.
+        Illum minus error excepturi, at debitis modi aliquam a ullam minima ex nisi asperiores,
+        obcaecati harum cum expedita inventore eveniet pariatur incidunt!</p>
+      <p>This is the Welcome page.</p>
+      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+        Aliquam totam unde obcaecati fuga at, provident hic assumenda ipsum
+        officia porro soluta cumque ab excepturi saepe.
+        Veniam quaerat omnis magnam reiciendis!.</p>
+      <p>This is the Welcome page.</p>
+      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+        Aliquam totam unde obcaecati fuga at, provident hic assumenda ipsum
+        officia porro soluta cumque ab excepturi saepe.
+        Veniam quaerat omnis magnam reiciendis!.</p>
+    </template>
+
+    <template>
+      <h2>Page-01</h2>
+      <p>Next steps....</p>
+    </template>
+
+    <template>
+      <h2>Page-02</h2>
+      <p>Next steps....</p>
+    </template>
+
+    <template data-id="about">
+      <h2>About-03</h2>
+      <p>Some information about this system.</p>
+    </template>
+
+    <template data-id="contact">
+      <h2>Contact-04</h2>
+      <p>Get in touch with us here.</p>
+    </template>
+  </u-viewport>
+
+  <script>
+    class UViewport extends UComponent {
+      pages = []; // array with all defined pages
+
+      index = -1;  // current displayed page
+      lastIndex = -1;  // last displayed page
+
+
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        // Extract templates from inside the element
+        const templates = Array.from(this.querySelectorAll('template'));
+        this.pages = templates.map((tmpl, n) => {
+          const e = {
+            id: tmpl.dataset.id || ('id-' + String(n)),
+            content: tmpl.innerHTML.trim()
+          };
+          // e.remove();
+          return (e);
+        });
+
+        this.setup();
+        this.showPage(0);
+      }
+
+      setup() {
+        // add default navigation if not provided by the user 
+        let nav = this.querySelector('nav');
+        if (!nav) {
+          nav = document.createElement('nav');
+          nav.classList.add('default');
+          nav.innerHTML = '<button data-action="prev"></button><button data-action="next"></button>';
+          this.insertBefore(nav, this.firstChild);
+        }
+
+        // attach event listeners to navigation buttons
+        nav.querySelector('[data-action="prev"]')?.addEventListener('click', () => this.prevPage());
+        nav.querySelector('[data-action="next"]')?.addEventListener('click', () => this.nextPage());
+
+        let pageContainer = this.querySelector('.pages');
+        if (!pageContainer) {
+          pageContainer = document.createElement('div');
+          pageContainer.classList.add('pages');
+          this.appendChild(pageContainer);
+        };
+
+        // Add templates content of as pages
+        this.pages.forEach(p => {
+          const pageEl = document.createElement('div');
+          pageEl.classList.add('page');
+          if (p.id) pageEl.dataset.id = p.id;
+          pageEl.innerHTML = p.content;
+          pageContainer.appendChild(pageEl);
+          p.page = pageEl; // store reference to the page element for later use
+        });
+      } // setup()
+
+      ontransitionend(evt) {
+        // this.showPage(this.index);
+
+        const last = this.pages[this.lastIndex];
+        if (evt.srcElement === last) {
+        debugger;
+          last.page.classList.remove('active'); // hide the last page
+          // last.page.classList.remove('animation'); // hide the last page
+          console.log('last', last.page.classList);
+        }
+
+        let next = this.pages[this.index];
+        if (evt.srcElement === next) {
+        debugger;
+          // next.page.className = 'page active';
+          console.log('next', next.page.classList);
+        }
+
+      }
+
+      /// Navigation methods
+
+      /**
+       *  Show page by index or id, if the index is out of bounds it will do nothing.
+       */
+      showPage(index, animation = 'slide') {
+        if (typeof (index) === 'string') {
+          index = this.pages.findIndex(p => p.id === index);
+        }
+
+        if (index < 0 || index >= this.pages.length) return;
+
+        debugger;
+
+        if (this.index !== index) {
+          // this.pages.forEach(p => p.page.classList.remove('active'));
+          this.lastIndex = this.index;
+          this.index = index;
+          const isReverse = this.lastIndex > this.index; // determine the direction of the animation
+          console.log('showPage', `${this.lastIndex} => ${this.index}, reverse: ${isReverse}`);
+
+          debugger;
+          let last = this.pages[this.lastIndex];
+          if (last) {
+            // last.page.style.transform = 'translateX(0)';
+            last.page.style.transform = isReverse ? 'translateX(100%)' : 'translateX(-100%)';
+          }
+
+          let next = this.pages[this.index];
+          if (next) {
+            next.page.style.transform = isReverse ? 'translateX(-100%)' : 'translateX(100%)';
+            next.page.classList.add('active');
+            next.page.style.transform = 'translateX(0)'
+            // console.log(next.page.classList);
+          }
+        }
+
+        // Dispatch a custom event to notify about the page change
+        this.dispatchEvent(
+          new CustomEvent('pagechange', {
+            detail: {
+              currentPage: index,
+              totalPages: this.pages.length,
+              pageId: this.pages[index].id
+            }
+          }));
+      } //showPage()
+
+      /**
+       * Show the next page, if the current page is the last one, it will loop back to the first page
+       */
+      nextPage() {
+        this.showPage((this.index + 1) % this.pages.length);
+      }
+
+      /**
+       * Show the previous page, if the current page is the first one, it will loop back to the last page 
+       */
+      prevPage() {
+        this.showPage((this.index - 1 + this.pages.length) % this.pages.length);
+      }
+
+    }
+
+    customElements.define('u-viewport', UViewport);
+  </script>
+
+  <script>
+    const pageNumberElement = document.getElementById('pageNumber');
+    const viewPortElement = document.getElementById('viewport');
+
+    viewPortElement.addEventListener('pagechange', (event) => {
+      pageNumberElement.value = event.detail.currentPage + ' ' + event.detail.pageId; // Assuming currentPage is zero-indexed
+    });
+
+    viewPortElement.showPage(0)
+    // debugger;
+
+  </script>
+</body>
+
+</html>

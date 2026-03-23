@@ -45,7 +45,7 @@ methods:
 
 The viewport element can be used as a base implementation for
 
-* caroulses
+* carousels
 * interactive slide shows
 * multi-step applications.
 
@@ -60,13 +60,15 @@ content swapping. In your project's naming convention, this would be `u-viewport
 
 ---
 
-I want to implement a Custom Web Components (customElements) based on the u-viewport 
+I want to implement a Custom Web Components (customElements) based on the u-viewport
 element to implement a carousel in the file `u-carousel.sfc`.
 
 The pages can be switched by using buttons in an overlay to the for
 
-* switching to the next page. When already on the last page the first page should be shown.
-* switching to the previous page. When already on the first page the last page should be shown.
+* switching to the next page. When already on the last page the first page should be
+  shown.
+* switching to the previous page. When already on the first page the last page should be
+  shown.
 
 
 * page by index

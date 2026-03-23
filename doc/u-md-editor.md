@@ -19,14 +19,51 @@ Load the SFC loader and either import the components by calling the `window.sfc.
 </script>
 ```
 
-Instantiate the editor with optional attributes:
+### Instantiate the editor
+
+The simples version of using the component:
 
 ```html
 <u-md-editor></u-md-editor>
-
-<!-- preload a document or set initial value -->
-<u-md-editor value="**bold** text" src="/docs/intro.md"></u-md-editor>
 ```
+
+To preload a document use the src attribute:
+
+```html
+<u-md-editor src="/docs/intro.md"></u-md-editor>
+```
+
+To load a default text use inline text:
+
+```html
+<u-md-editor>
+This is **bold** text
+</u-md-editor>
+```
+
+### Customized menu bar
+
+As an optiona you can add a HTML element inside the `u-md-edit` component to provide a
+custom menubar marked with class="u-md-editor-menu".
+
+To link a button in the menubar to a command you can specify the command name in the
+`data-command` attribute. The click is recognized by the u-md-edit component and the command is triggered automatically.
+
+``` html
+<u-md-editor>
+  <nav class="u-md-editor-menu">
+    Your buttons:
+    <button data-command="case">Case</button>
+  </nav>
+</u-md-editor>
+```
+
+### Keyboard shortcuts
+
+To enable keyboard bindings on buttons in the menu bar use the `aria-keyshortcuts`
+attribute and extend the page by capturing keyboard shortcuts with the
+[u-keyshortcuts](u-keyshortcuts.md) element.
+
 
 ## HTML to Markdown conversion when pasting
 
@@ -94,6 +131,4 @@ The commands in detail:
 * **quote** : The selection is expanded to the current lines and the quote format is applied using the `>` character.
 * **reflow** : The selection is expanded to the current line and surrounding lines with
   the same formatting or continuing lines. The the contained text is broken into lines with maximum 88 characters length.
-
-
 

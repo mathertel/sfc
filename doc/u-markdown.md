@@ -67,7 +67,7 @@ Open Topics:
 
 ## See also
 
-* https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
-* https://zerodevx.github.io/zero-md/
+* <https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements>
+* <https://zerodevx.github.io/zero-md/>
 * requestIdleCallback, SetTimeout VS RequestAnimationFrame
 
