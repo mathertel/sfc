@@ -110,7 +110,7 @@ via the corresponding properties off the element.
 Other helper methods (`_toggleTextFormat`, `_toggleLineFormat`, etc.) are internal
 and not part of the public API.
 
-The commands in detail:
+## Character Formatting Commands
 
 * **bold** : The selection is expanded to the current word boundaries and then will be
   formatted as bold using the `**` characters. When the selection is already surrounded
@@ -121,14 +121,25 @@ The commands in detail:
 * **strike**: The selection is expanded to the current word and then will be formatted
   as strikethrough using the `~~` characters. When the selection is already surrounded
   by strike formatting the formatting is removed.
-* **code**: When the selection spans multiple lines it is expanded to the current block
-  of lines and the block level code formatting is added using the ``` characters.  
-* **code**: When the selection spans only characters these are expanded to the word
-  boundaries and will be formatted as code using the \` character.
+* **code**: When the selection spans only characters butg not multiple lines the
+  character selection is expanded to the word boundaries and will be formatted as code
+  using the \` character.
 * **case**: The selection is expanded to the current word boundaries and then each word
   will be changed to lowercase, uppercase or Camel case.
-* **list** : The selection is expanded to the current lines and the list format is applied using the `*` character.
-* **quote** : The selection is expanded to the current lines and the quote format is applied using the `>` character.
+
+## Line Formatting Commands
+
+* **list** : The selection is expanded to the current lines and the list format is
+  applied using the `*` character.
+* **quote** : The selection is expanded to the current lines and the quote format is
+  applied using the `>` character.
+
+## Block Formatting Commands
+
+* **code**: When the selection spans multiple lines it is expanded to the current block
+  of lines and the block level code formatting is added using the ``` characters.  
+
 * **reflow** : The selection is expanded to the current line and surrounding lines with
-  the same formatting or continuing lines. The the contained text is broken into lines with maximum 88 characters length.
+  the same formatting or continuing lines. The the contained text is broken into lines
+  with maximum 88 characters length.
 
