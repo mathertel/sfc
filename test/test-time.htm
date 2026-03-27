@@ -1,82 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>u-time Test Page</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
-    <style>
-      time[is='u-time'] {
-        display: inline-block;
-        padding: 0.2rem;
-        box-shadow: 0 0 0.1rem 0.2rem lime;
-      }
-    </style>
-    <script src="/loader.js"></script>
-    <script>
-      var allSFCLoaded = window.loadComponent('u-time,u-markdown');
-    </script>
-  </head>
+  <title>u-time Test Page</title>
 
-  <body class="sitelayout" style="--main-width: 60em">
-    <u-time style="--log-color: gray"></u-time>
-    <header>
-      <h1>u-time Test Page</h1>
-    </header>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    time[is='u-time'] {
+      display: inline-block;
+      padding: 0.2rem;
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-time,u-markdown');
+  </script>
+</head>
 
-    <main>
-      <nav class="text">
-        values: <button id="t1">Five to Noon</button> <button id="t2">Now</button>
-      </nav>
+<body class="sitelayout" style="--main-width: 60em">
+  <u-time style="--log-color: gray"></u-time>
+  <header>
+    <h1>u-time Test Page</h1>
+  </header>
 
-      <nav class="text">
-        format: <button id="fd">date</button> <button id="ft">time</button> <button id="f1">short</button>
-        <button id="f4">full</button>
-      </nav>
-      
-      <hr />
+  <main>
+    <nav class="text">
+      values: <button id="t1">Five to Noon</button> <button id="t2">Now</button>
+    </nav>
 
-      <p>The time is
-        <time is="u-time" datetime="2025-02-28 14:02" datestyle="long" timestyle="short">kkk</time>.</p>
+    <nav class="text">
+      format: <button id="fd">date</button> <button id="ft">time</button> <button id="f1">short</button>
+      <button id="f4">full</button>
+    </nav>
 
-      <hr />
+    <nav class="text">
+      language: <button id="lang_en">en</button> <button id="lang_de">de</button> <button id="lang_es">es</button>
+    </nav>
 
-      <u-markdown src="../doc/u-time.md"></u-markdown>
-    </main>
 
-    <script>
-      const tObj = document.querySelector('time');
+    <hr />
 
-      document.querySelector('#t1').addEventListener('click', (e) => {
-        tObj.datetime ='2024-12-25 12:00:00';
-      });
+    <p>The time is: 
+      <time is="u-time" style="color: blue;" datestyle="long" timestyle="short">*</time>.
+    </p>
+    <hr />
 
-      document.querySelector('#t2').addEventListener('click', (e) => {
-        tObj.datetime= Date.now();
-      });
+    <u-markdown src="../doc/u-time.md"></u-markdown>
+  </main>
 
-      document.querySelector('#fd').addEventListener('click', (e) => {
-        tObj.datestyle='medium';
-        tObj.timestyle='';
-      });
+  <script>
+    const tObj = document.querySelector('time');
 
-      document.querySelector('#ft').addEventListener('click', (e) => {
-        tObj.datestyle='';
-        tObj.timestyle='medium';
-      });
+    document.querySelector('#t1').addEventListener('click', (e) => {
+      tObj.datetime = '2024-12-25 11:55:00';
+    });
 
-      document.querySelector('#f1').addEventListener('click', (e) => {
-        tObj.datestyle = 'short';
-        tObj.timestyle='short';
-      });
+    document.querySelector('#t2').addEventListener('click', (e) => {
+      tObj.datetime = Date.now();
+    });
 
-      document.querySelector('#f4').addEventListener('click', (e) => {
-        tObj.datestyle = 'full';
-        tObj.timestyle='full';
-      });
+    document.querySelector('#fd').addEventListener('click', (e) => {
+      tObj.datestyle = 'medium';
+      tObj.timestyle = '';
+    });
 
-    </script>
-  </body>
+    document.querySelector('#ft').addEventListener('click', (e) => {
+      tObj.datestyle = '';
+      tObj.timestyle = 'medium';
+    });
+
+    document.querySelector('#f1').addEventListener('click', (e) => {
+      tObj.datestyle = 'short';
+      tObj.timestyle = 'short';
+    });
+
+    document.querySelector('#f4').addEventListener('click', (e) => {
+      tObj.datestyle = 'full';
+      tObj.timestyle = 'full';
+    });
+
+    document.querySelector('#lang_en').addEventListener('click', (e) => {
+      tObj.languages = 'en';
+    });
+
+    document.querySelector('#lang_de').addEventListener('click', (e) => {
+      tObj.languages = 'de';
+    });
+
+    document.querySelector('#lang_es').addEventListener('click', (e) => {
+      tObj.languages = 'es';
+    });
+
+  </script>
+</body>
+
 </html>

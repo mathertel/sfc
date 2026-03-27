@@ -8,7 +8,7 @@ values while providing a machine-readable timestamp as an attribute for semantic
 The `u-time` custom Element implementation extends the functionality of the standard `<time>` element to support locale
 specific formatting of date, time datetime values by using the SFC loader.
 
-![u-time component](./images/u-time.png){style="margin-left:2em"} 
+> ![u-time component](/doc/images/u-time.png)
 
 Formatting time or date output is challenging because the appropriate format for users depends on user language preferences. As
 this is known at runtime only this cannot be pre-calculated in HTML generating frameworks like Angular or Eleventy. You either
@@ -26,26 +26,38 @@ window.loadComponent('u-time');
 ```
 
 
-## Example
+## Examples
 
-The `u-time` extended `<time>` tag can be placed at the destination and the size can be applied in the style attribute:
+The `u-time` extends the `<time>` tag can be placed at the destination in the page DOM.
 
-```html
-<time is='u-time' datetime='2025-03-28 14:09:29' datestyle='short' timestyle='short'>2025-03-28 14:09:29</time>
-```
-
-will show up as `3/28/25, 2:09 PM` on `en` locales.
+The initial value can be defined by the inner text of the element or by assigning it to the `datetime` attribute.
 
 ```html
-<time is='u-time' datetime='${new Date().toISOString()}' datestyle='medium' timestyle='medium'>${new Date().toISOString()}</time>
+<time is='u-time' style="color: blue;" datetime='2025-03-28 14:09:29' datestyle='short' timestyle='short'></time>
+
+<time is='u-time' datestyle='medium' timestyle='medium'>2025-03-28 14:09:29</time>
 ```
 
-will show up as `Mar 28, 2025, 2:09:29 PM` on `en` locales.
+Both will show up as `Mar 28, 2025, 2:09:29 PM` on `en` locales.
+
+To display the current local time a pseudo value of '*' can be used:
+
+```html
+<time is='u-time' datestyle='short' timestyle='short'>*</time>
+```
+
 
 
 ## Style Attributes
 
-The standard `<time>` component can be styled according the standard CSS styling attributes.
+The extended `<time>` component can be styled according the standard CSS styling
+attributes like colors and size in the `style` attribute like with standard `<time>`
+element:
+
+```html
+<time is='u-time' style="color: blue;" datetime='2025-03-28 14:09:29' datestyle='short' timestyle='short'></time>
+```
+
 
 
 ## HTML and JavaScript accessible Attributes
@@ -53,6 +65,9 @@ The standard `<time>` component can be styled according the standard CSS styling
 The following attributes can be used to configure the behavior of the extended time element:
 
 * `datetime` -- the value of the date/time to be displayed. A date object or ISO date format can be used.
+* `languages`-- the value of a language for language specific formatting or a comma
+  sepateted list of languages where the first supported will be used. If not given the
+  `navigator.languages` are used.
 * `datestyle` -- the style of the date part beeing displayed. Possible values are `"full"`, `"long"`, `"medium"`, and `"short"`.
 * `timestyle` -- The style of the time part beeing displayed  Possible values are `"full"`, `"long"`, `"medium"`, and `"short"`.
 <!-- * `timezone` -- The timezone to be used. The local timezone is used as default when undefined.  -->

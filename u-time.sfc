@@ -5,8 +5,8 @@ File: u-time.sfc
 Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
 This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
-Implementation of a custom element that enriches the functionality of regular <time> elements to support locale specific
-formatting of date & time values.
+Implementation of a custom element that enriches the functionality of regular <time>
+elements to support locale specific formatting of date & time values.
 
 Documentation is available at <https://github.com/mathertel/sfc/blob/main/doc/u-time.md>
 
@@ -17,18 +17,30 @@ Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2
 <!-- <style></style> -->
 
 <script extends="time">
+  // The MyTime class is extending the HTMLTimeElement. 
+  // The supporting functionality from UComponent in loader.js is not in use.
   export default class MyTime extends HTMLTimeElement {
-    static observedAttributes = ["datetime", "datestyle", "timestyle"];
+    static observedAttributes = ["datetime", "datestyle", "timestyle", "languages"];
 
     _value = '2020-01-01';
     _frm = undefined;
+    _languages = navigator.languages;
     _dateStyle = "medium";
     _timeStyle = "medium";
 
     constructor() {
       super();
-      console.debug('constructor()');
+
+      const txt = this.textContent.trim();
+      // if the element has textContent, use it as initial value.
+      if (txt == '*') {
+        this._value = Date.now();
+      } else if (txt.length > 0) {
+        this._value = this.textContent.trim();
+      }
+
       // create setters and getters for the observedAttributes.
+      // this allows to set the attributes as properties, e.g. el.datetime = '2024-12-25 12:00:00';
       for (const a of this.constructor.observedAttributes) {
         Object.defineProperty(this, a, {
           set(x) { this.setAttribute(a, x); },
@@ -50,6 +62,9 @@ Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2
       if (this._value === '') {
         date = new Date();
 
+      } else if (typeof this._value === 'number') {
+        date = new Date(this._value);
+
       } else if (this._value.match(/^\d+$/)) {
         date = new Date(Number(this._value));
 
@@ -57,7 +72,7 @@ Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2
         date = new Date(this._value);
       }
 
-      const fmt = new Intl.DateTimeFormat(navigator.languages, {
+      const fmt = new Intl.DateTimeFormat(this._languages, {
         dateStyle: this._dateStyle,
         timeStyle: this._timeStyle,
       });
@@ -86,6 +101,9 @@ Example: <time is='u-time' datestyle='short' timestyle='short' datetime='31.01.2
           this._timeStyle = undefined;
         }
 
+      } else if (name === 'languages') {
+        this._languages = newValue ? newValue.split(',') : navigator.languages;
+        
       }
       this.showValue();
     } // attributeChangedCallback()
