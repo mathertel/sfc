@@ -64,6 +64,20 @@ To enable keyboard bindings on buttons in the menu bar use the `aria-keyshortcut
 attribute and extend the page by capturing keyboard shortcuts with the
 [u-keyshortcuts](u-keyshortcuts.md) element.
 
+When using the menu provided by the element implementation the following shortcuts are
+defined with the `aria-keyshortcuts` attribute:
+
+| command | keyshortcut     |
+| ------- | --------------- |
+| bold    | Control+B       |
+| italic  | Control+I       |
+| strike  |                 |
+| code    | Control+Shift+' |
+| case    | Shift+F3        |
+| list    | Control+Shift+L |
+| quote   | Control+Shift+Q |
+| reflow  | Alt+Q           |
+
 
 ## HTML to Markdown conversion when pasting
 
@@ -138,7 +152,6 @@ and not part of the public API.
 
 * **code**: When the selection spans multiple lines it is expanded to the current block
   of lines and the block level code formatting is added using the ``` characters.  
-
 * **reflow** : The selection is expanded to the current line and surrounding lines with
   the same formatting or continuing lines. The the contained text is broken into lines
   with maximum 88 characters length.

@@ -35,8 +35,8 @@ Example:
       <svg>
         <use href="/ed-icons.svg#ed-strike" />
       </svg></button>
-    <button data-command="code">Code</button>
-    <button data-command="case">Case</button>
+    <button data-command="code" aria-keyshortcuts="Control+Shift+'">Code</button>
+    <button data-command="case" aria-keyshortcuts="Shift+F3">Case</button>
     &nbsp;
     <button class="icon" data-command="list" aria-keyshortcuts="Control+Shift+L">
       <svg>
