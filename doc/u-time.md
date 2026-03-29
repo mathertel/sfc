@@ -59,12 +59,12 @@ element:
 ```
 
 
-
 ## HTML and JavaScript accessible Attributes
 
 The following attributes can be used to configure the behavior of the extended time element:
 
-* `datetime` -- the value of the date/time to be displayed. A date object or ISO date format can be used.
+* `value` -- the value of the date/time to be displayed. A date object or ISO date format can be used.
+* `datetime` -- same as `value`.
 * `languages`-- the value of a language for language specific formatting or a comma
   sepateted list of languages where the first supported will be used. If not given the
   `navigator.languages` are used.
