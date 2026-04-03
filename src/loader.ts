@@ -12,6 +12,7 @@ interface Window {
   sfc: {
     loadComponent: (tags: string | string[], folder?: string) => Promise<void[]>;
     genID: (type?: string) => string;
+    defined: { [tag: string]: any };
     _ids: { [type: string]: number };
   }
 }
@@ -109,9 +110,7 @@ class UComponent extends HTMLElement {
         // save contained HTML element for components that need embedded Elements.
         this.childNodes.forEach((node) => this.#oldNodes.push(node));
 
-        // if (definedTemplate.childElementCount > 0) {
-        //   // when there is a meaningful template, use it and put the old text content into the template.
-        debugger; // unfinished situation ???
+        // use defined template from the SFC
         this.textContent = '';
         this.appendChild(document.importNode(definedTemplate.content, true));
         // }
@@ -212,6 +211,7 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
 
     if (folder) {
       // resolve folder relative to the document location.
+      if (!folder.endsWith('/')) folder += '/';
       baseUrl = new URL(folder, document.location.href);
     } else {
       // resolve folder relative to the sfc loader location whe no folder is specified.
@@ -246,11 +246,17 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
 
     if (scriptObj && scriptObj.textContent) {
       const jsFile = new Blob([scriptObj.textContent], { type: 'application/javascript' });
-      const module = await import(URL.createObjectURL(jsFile));
+      const jsUrl = URL.createObjectURL(jsFile);
+      const module = await import(jsUrl);
+      URL.revokeObjectURL(jsUrl);
+
       def = module.default; // default export of the JS module
       def.extends = scriptObj.getAttribute('extends');
       def.url = url.href; // reachable via this.constructor.url
 
+      // make the class detectable and available globally for other SFCs
+      window[def.name] = window.sfc.defined[def.name] = def;
+      
     } else {
       console.error('SFC', `No SFC defined in ${url.href}`);
       def = UComponent;
@@ -292,6 +298,7 @@ window.loadComponent = loadComponent;
 window.sfc = {
   loadComponent: loadComponent,
   genID: _genID,
+  defined: {},
   _ids: {}
 };
 
