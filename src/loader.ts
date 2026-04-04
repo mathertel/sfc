@@ -206,7 +206,7 @@ const _SFCloaderURL = (document.currentScript as HTMLScriptElement).src;
 function loadComponent(tags: string | string[], folder: string | undefined = undefined): Promise<void[]> {
 
   // load a SFC file from a web server and triggers defining the contained web components.
-  async function fetchSFC(fileName: string, folder: string | undefined = undefined) {
+  async function fetchSFC(tag: string, folder: string | undefined = undefined) {
     let baseUrl;
 
     if (folder) {
@@ -218,8 +218,9 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
       baseUrl = new URL(_SFCloaderURL);
     }
 
-    const sfcURL = new URL(fileName + '.sfc', baseUrl);
-    console.debug('SFC', `loading module ${fileName} from ${sfcURL.href}...`);
+    if (tag.endsWith('.sfc')) tag = tag.replace(/\.sfc$/, '');
+    const sfcURL = new URL(tag + '.sfc', baseUrl);
+    console.debug('SFC', `loading ${tag} from ${sfcURL.href}...`);
 
     // get DOM from sfc-file
     const dom = await fetch(sfcURL)
@@ -229,7 +230,7 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
     const a = dom.querySelectorAll('sfc');
 
     if (a.length === 0) {
-      await define(fileName, dom, sfcURL);
+      await define(tag, dom, sfcURL);
 
     } else {
       for (const c of a) {

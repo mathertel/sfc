@@ -34,13 +34,19 @@ const options = yargs(process.argv.slice(2))
 // wrap component
 async function wrapSFC(sfcName, pack = false) {
   let txt;
-  console.log(`reading ${sfcName} ...`);
+  let tagName = sfcName.replace(/\.sfc$/, '');
+
+  // extract tag name from path
+  tagName = tagName.substring(tagName.lastIndexOf('\\') + 1);
+  tagName = tagName.substring(tagName.lastIndexOf('/') + 1);
+
+  console.log(`defining ${tagName} from file ${sfcName} ...`);
 
   if (!sfcName.endsWith(sfcExt)) {
     sfcName += sfcExt;
   }
 
-  txt = await readFile(sfcFolder + '/' + sfcName, 'utf8')
+  txt = await readFile(sfcFolder + '/' + sfcName, 'utf8');
   // console.log(txt);
 
   if (pack) {
@@ -59,7 +65,7 @@ async function wrapSFC(sfcName, pack = false) {
       quoteCharacter: "'"
     });
   }
-  txt = `<sfc tag='${sfcName}'>\n${txt}\n</sfc>\n`;
+  txt = `<sfc tag='${tagName}'>\n${txt}\n</sfc>\n`;
 
   return (txt);
 }
@@ -69,7 +75,6 @@ console.log(`Start bundling SFCs...`);
 let txt = '';
 
 for await (const f of glob(options._)) {
-  console.log(`reading ${f} ...`);
   txt += await wrapSFC(f, options.pack);
 }
 

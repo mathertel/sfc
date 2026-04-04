@@ -29,7 +29,7 @@ template content:
 
 
     connectedCallback() {
-      console.debug('u-include', 'connected()');
+      // console.debug('u-include', 'connected()');
       super.connectedCallback();
 
       if (!this._ref) this._ref = this.getAttribute("ref");
@@ -38,7 +38,7 @@ template content:
 
 
     _render() {
-      console.debug('u-include', 'render()', this._ref);
+      // console.debug('u-include', 'render()', this._ref);
       this._templateObj = document.querySelector(this._ref);
 
       if (this._templateObj) {
@@ -69,7 +69,7 @@ template content:
 
     /// @brief values registered as observedAttributes got changed 
     attributeChangedCallback(name, oldValue, newValue) {
-      console.debug('u-include', "attributeChanged", name, oldValue, newValue);
+      // console.debug('u-include', "attributeChanged", name, oldValue, newValue);
 
       if (oldValue !== newValue) {
         if (name === "ref") {
