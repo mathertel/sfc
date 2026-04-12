@@ -34,8 +34,6 @@ The `<u-keyshortcuts>` custom element ....
 <script>
 
   export default class UKeyShortcuts extends UComponent {
-    static observedAttributes = ["value"];
-
     shortcut_elements = new Map();
 
     _createKeyShortcuts() {

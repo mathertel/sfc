@@ -1,0 +1,162 @@
+<!--
+
+File: u-switch.sfc
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+Implementation of a custom element that can be used with forms to enable the input
+of 0/1 values using a switch UI.
+
+Documentation is available at <https://github.com/mathertel/sfc/blob/main/doc/u-switch.md>
+
+Example: <switch is='u-switch' value='1'></switch>
+
+See Also
+
+* <https://web.dev/articles/more-capable-form-controls>
+* <https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/attachInternals>
+* <https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals>
+
+
+-->
+
+<style scoped>
+  :host {
+    height: 1.6em;
+    display: inline-block;
+
+    button,
+    input {
+      display: inline-block;
+      height: 1.6em;
+      cursor: pointer;
+      vertical-align: middle;
+      pointer-events: all;
+    }
+
+  }
+
+  button {
+    border: none;
+  }
+
+  input {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0.2em;
+    padding: 0;
+    width: 2.6em;
+    transition: 0.4s all ease-out;
+    border-radius: 0.8em;
+  }
+
+  input::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 1.4em;
+    width: 1.4em;
+    border-radius: 0.7em;
+    background: #203050;
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+  }
+</style>
+
+<template>
+  <button class="off">off</button>
+  <input value="0" type="range" min="0" max="1" step="1">
+  <button class="on">on</button>
+</template>
+
+<script>
+  export default class USwitch extends UComponent {
+    static formAssociated = true; // Enable form association
+
+    static observedAttributes = ["value"]; // "name"];
+
+    _input;
+    _value = "0";
+
+    // _languages = navigator.languages;
+    // _dateStyle = "medium";
+    // _timeStyle = "medium";
+    _internals;
+
+    // Update the switch state and the visual representation based on the new value
+    // and update the form value using ElementInternals.
+    draw(newValue) {
+      if (newValue !== undefined) {
+        this._value = newValue;
+      }
+
+      if (this._value !== this._input.value) {
+        // Avoid infinite loop of input event and attribute changes by only updating the input value if it differs from the current value
+        this._input.value = this._value;
+      }
+      this._internals.setFormValue(this._value);
+    }
+
+    constructor() {
+      super();
+
+      this._input = this.shadowRoot.querySelector('input');
+
+      this.shadowRoot.querySelector('button.on').addEventListener('click', (evt) => {
+        this.draw('1');
+      });
+
+      this.shadowRoot.querySelector('button.off').addEventListener('click', (evt) => {
+        this.draw('0');
+      });
+
+      this._input.addEventListener('click', (evt) => {
+        this.draw((this._value === "0") ? "1" : "0");
+      });
+
+      // Sync native value changes
+      this._input.addEventListener('input', (evt) => {
+        this.draw(this._input.value);
+      });
+
+      // allows users to toggle the switch using the keyboard
+      // this is required for accessibility and is default for checkboxes and radio buttons
+      this._input.addEventListener('keydown', (evt) => {
+        if (evt.code === 'Space') {
+          evt.preventDefault(); // Prevent page scrolling
+          this.draw((this._value === "0") ? "1" : "0");
+        }
+      });
+
+      // ElementInternals for form integration
+      this._internals = this.attachInternals();
+
+      // Initialize the switch state
+      this.draw(this._value);
+    } // constructor()
+
+    // Called when form is reset
+    formResetCallback() {
+      this.draw('0');
+    }
+
+    getAttribute(name) {
+      let v = undefined;
+      if (name === 'value') {
+        v = this._value;
+
+      } else {
+        v = super.getAttribute(name);
+      }
+      return v;
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.debug("attributeChanged", name, oldValue, newValue);
+
+      if ((name === 'value')) {
+        this.draw(newValue);
+      }
+    } // attributeChangedCallback()
+  }
+</script>

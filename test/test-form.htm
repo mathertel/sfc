@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Form Data and Form Elements Test</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+
+  <style>
+    /* input[is="u-duration"] {
+      display: inline-block;
+      padding: 0.2rem;
+      box-shadow: 0 0 0.1rem 0.2rem lime;
+    } */
+  </style>
+
+  <script src="/loader.js"></script>
+  <script type="module">
+    await window.loadComponent('u-switch,u-duration,u-form-json'); // ,u-markdown
+    console.log('loaded');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>Form Data and Form Elements Test</h1>
+  </header>
+
+  <main>
+    <nav>
+      <button id="bs0">Switch-off</button>
+      <button id="bs1">Switch-on</button>
+    </nav>
+
+    <form id="myForm" is="u-form-json" method="dialog">
+      <hr>
+      <div class="form-grid">
+        <label>aInput:</label>
+        <input name="aInput" value="default"></input>
+
+        <label>aCheckBox:</label>
+        <input name="aCheckbox" type="checkbox"></input>
+
+        <label>aDuration:</label>
+        <input name="aDuration" is="u-duration" style="width: 10em" />
+
+        <label>aSwitch:</label>
+        <u-switch name="aSwitch" value="0"></u-switch>
+
+      </div>
+      <hr>
+      <button type="submit">Submit</button>
+      <button type="reset">Reset</button>
+    </form>
+    <hr />
+    <h3>Dialog Form-Data in JSON</h3>
+    <pre id="data" style="min-height: 3em;background-color: azure;">---</pre>
+    <p>This is data updated by fetching the JSON data Object from the form using the <code>getJsonData()</code> method of the <code>&lt;u-form-json&gt;</code> component.</p>
+
+    <h3>What to test here...</h3> <p>This page tests form data handling with various
+    input elements:</p>
+    <ul>
+      <li>text input</li>
+      <li>checkbox</li>
+      <li>duration input (u-duration)</li>
+      <li>switch (u-switch)</li>
+    </ul>
+    <p>Interact with the form, submit to view JSON data, reset, or use buttons
+    to toggle the switch. JSON data updates live every 500ms.</p>
+
+    <h2>See Also</h2>
+    <ul>
+      <li><a href="../doc/u-form-json.md">Documentation for u-form-json</a></li>
+      <li><a href="../doc/u-switch.md">Documentation for u-switch</a></li>
+      <li><a href="../doc/u-duration.md">Documentation for u-duration</a></li>
+    </ul>
+
+  </main>
+
+  <script type="module">
+    const bs0Elem = document.getElementById('bs0');
+    const bs1Elem = document.getElementById('bs1');
+
+    const fElem = document.getElementById('myForm');
+    const dataElem = document.getElementById('data');
+
+    bs0Elem.addEventListener('click', () => {
+      document.querySelector('u-switch').value = 0;
+    });
+
+    bs1Elem.addEventListener('click', () => {
+      document.querySelector('u-switch').value = 1;
+    });
+
+    fElem.addEventListener('change', e => {
+      // debugger;
+    });
+
+    // display form data as JSON by polling the form's getJsonData() method when the "get Data" button is clicked
+    window.setInterval(() => {
+      dataElem.textContent = JSON.stringify(fElem.getJsonData(), null, 2);
+    }, 500);
+
+  </script>
+  </script>
+
+</body>
+
+</html>
