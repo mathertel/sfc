@@ -47,7 +47,6 @@ To display the current local time a pseudo value of '*' can be used:
 ```
 
 
-
 ## Style Attributes
 
 The extended `<time>` component can be styled according the standard CSS styling

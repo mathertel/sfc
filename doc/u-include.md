@@ -45,7 +45,7 @@ The `<u-include>` tag can be used at the destination place and will be replaced 
 
 The `<u-include>` is must not be visible at first rendering. As it will be replaced any further styling is meaningless.
 
-As a good practice a css rule to hide all unreplaced u-includes can be added: 
+As a good practice a css rule to hide all unreplaced u-includes can be added:
 
 ``` css
 u-include {

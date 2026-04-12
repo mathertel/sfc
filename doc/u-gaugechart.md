@@ -1,4 +1,3 @@
-````markdown
 # Gauge Chart Web Component
 
 The `<u-gaugechart>` component displays a single-value gauge (dial) using SVG. It's intended as
@@ -49,11 +48,11 @@ gauge.clear();
 
 Use `setOptions()` to configure visual and numeric behaviour. Typical options include:
 
-- `min` (number): lower bound (default: 0)
-- `max` (number): upper bound (default: 100)
-- `color` (string): default fill/stroke color for the gauge (CSS/SVG color)
-- `thresholds` (array): optional array of { value, color } entries to color segments
-- `showLabel` (boolean): show the numeric value as text (default: true)
+* `min` (number): lower bound (default: 0)
+* `max` (number): upper bound (default: 100)
+* `color` (string): default fill/stroke color for the gauge (CSS/SVG color)
+* `thresholds` (array): optional array of { value, color } entries to color segments
+* `showLabel` (boolean): show the numeric value as text (default: true)
 
 Example:
 
@@ -64,19 +63,17 @@ gauge.setOptions({ min: 0, max: 240, color: '#1e90ff', showLabel: true,
 
 ## Behavior notes
 
-- Values passed to `setValue()` are clamped to the configured range.
-- When `thresholds` are provided the gauge background or arc color changes according to the active range.
-- The component uses SVG and scales to its container size — prefer explicit `width`/`height` or a well-constrained layout.
+* Values passed to `setValue()` are clamped to the configured range.
+* When `thresholds` are provided the gauge background or arc color changes according to the active range.
+* The component uses SVG and scales to its container size — prefer explicit `width`/`height` or a well-constrained layout.
 
 ## Testing and examples
 
 There is a placeholder test page: `/test/test-gaugechart.htm`. Use the dev server to open
-`/test/test-gaugechart.htm` and interact with the component. See `test/test-piechart.htm` for a reference of how markdown docs
+`/test/test-gaugechart.htm` and interact with the component. See `/test/test-piechart.htm` for a reference of how markdown docs
 can be embedded into a test page.
 
 ## See also
 
-- [Pie Chart SFC](/doc/u-piechart.md)
-- [Line Chart SFC](/doc/u-linechart.md)
-
-````
+* [Pie Chart SFC](/doc/u-piechart.md)
+* [Line Chart SFC](/doc/u-linechart.md)

@@ -1,6 +1,6 @@
 # Web component to display a line chart
 
-The `<u-linechart>` component can be used to create line chart visualizations by displaying 
+The `<u-linechart>` component can be used to create line chart visualizations by displaying
 a series of values using a line on a x/y area with optional axis and reference lines.
 
 It is a pure JavaScript based implementation that uses SVG to display the graph and axis wrapped into a SFC control.
@@ -17,7 +17,7 @@ The Line Chart needs to be created by adding the individual elements:
 * The **hline** element can display a horizontal reference line.
 * The **vAxis** element specified the vertical axis format.
 * The **hAxis** element specified the horizontal axis format.
-* The **indicator** elements specifies how data values are shown on mouse hover. 
+* The **indicator** elements specifies how data values are shown on mouse hover.
 
 
 ## Draw the data
@@ -42,7 +42,7 @@ By adding a **line** element the id of the line is returned this id can be used 
 
 When adding the **line** element the following options may be used:
 
-* **linetype** - The linetype controls how the line is drawn. Options are "line" and "steps", 
+* **linetype** - The linetype controls how the line is drawn. Options are "line" and "steps",
 * **color** - the color of the line can be defines; defaults to "black".
 
 
@@ -68,7 +68,7 @@ chartAPI.add('VAxis', options);
 
 ## Add horizontal line
 
-By adding a horizontal line the y-range will probably be extended to include the line value. 
+By adding a horizontal line the y-range will probably be extended to include the line value.
 
 ``` javascript
 chartAPI.add('hline', options);
@@ -79,14 +79,14 @@ chartAPI.add('hline', options);
 * **marker** - : The data points are market with small dots on the line.
 
 
-
 ## Add Indicator
 
 ``` javascript
 chartAPI.add('indicator', options);
 ```
+
 * **xFormat** - format of the x value. See *Data Formats* below.
-* **yFormat** - format of the y value. 
+* **yFormat** - format of the y value.
 
 
 has no additional elements to be added. The **add()** method is available but without any effect.
@@ -99,7 +99,7 @@ The values on given points may be presented using the following formatting optio
 * **date** - The data is formatted as a date.
 * **time** - The data is formatted as a time.
 * **datetime** - The data is formatted as a date + time.
-* **num[:n]** - The data is formatted as a number with an optional precision. e.g. 'num:2'. 
+* **num[:n]** - The data is formatted as a number with an optional precision. e.g. 'num:2'.
 
 
 ## Internal sizing of the linechart control
@@ -155,8 +155,8 @@ ranges analog vertical axis implementation.
 Have a look at the source of the [Line Chart Test Page](/test/test-linechart.htm) to see how the example buttons use the
 api of this web component.
 
- 
- ## See also
+
+## See also
 
 * [Pie Chart SFC](/doc/u-piechart.md)
 

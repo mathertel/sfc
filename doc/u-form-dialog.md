@@ -16,7 +16,7 @@ pre-defined activities.
 
 ## Opening the dialog
 
-The `open` function allows opening the dialog element in the center of the screen by passing initial data and a callback function 
+The `open` function allows opening the dialog element in the center of the screen by passing initial data and a callback function
 
 ``` javascript
 const dlg = document.querySelector('dialog#contactDetails');
@@ -66,7 +66,7 @@ OPTIONS to SELECT elements or creating more form elements.
 ### Actions with dialog data
 
 To add specific actions to close the dialog the click on buttons in the dialog can be attributed with
-`u-action=[cancel,...]". This is equal to calling the close(action) function.
+`u-action=[cancel, ...]`. This is equal to calling the close(action) function.
 
 
 ### Action Event
@@ -83,8 +83,6 @@ attributes in the event:
 Do not mixup with the close event issued by the dialog element out-of-the-box.
 
 
-
-
 ## -- form element value changed
 
 * a `datachange` event is created
@@ -97,9 +95,6 @@ Do not mixup with the close event issued by the dialog element out-of-the-box.
   * detail.newValue
 
 newValue can be modified ?
-
-
-
 
 
 // DialogClass.ts: Behavior implementation for native dialogs with forms.

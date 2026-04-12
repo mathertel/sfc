@@ -1,5 +1,3 @@
-<link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
-
 # Web component to add a sort function to HTML tables
 
 The `u-tablesort` custom element implementation extends the functionality of the standard `<table>` element to support

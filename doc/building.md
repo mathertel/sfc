@@ -2,7 +2,7 @@
 
 A customized building and bundling can be established to create optimal results regarding the number of files and size to be downloaded.
 
-### SFC Loader
+## SFC Loader
 
 The SFC loader is implemented in Typescript (not ESM module) and can be transpiled and minified to JavaScript using the
 esbuild tool with `npm run build:loader`.  This will also remove and debugger and console statements not required for
@@ -18,7 +18,7 @@ To watch and re-create during development the loader use `npm run build:loader-w
 These npm scripts are defined in package.json.
 
 
-### Data-Hub
+## Data-Hub
 
 The [Data Hub](data-hub.md) is implemented in Typescript as a ESM module and can be transpiled and minified to
 JavaScript using the esbuild tool too.

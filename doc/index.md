@@ -8,8 +8,6 @@
 
 ![Extended Code Example](images/u-code.png)
 
-
-
 ## [Toast Component](u-toast.md)
 
 ![Toast Messages](images/u-toast.png)

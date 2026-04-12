@@ -70,12 +70,12 @@ application.
 > This is the core idea used in many frontend libraries like React, Angular,
 > Vue.js, MobX...
 
-This statement on defining **reactive programming** is true for the above library 
+This statement on defining **reactive programming** is true for the above library
 
 See
-[Data binding in Web components](<https://www.mathertel.de/blog/2025/0417-sfc-data.htm)
+[Data binding in Web components](https://www.mathertel.de/blog/2025/0417-sfc-data.htm)
 for further conceptual information that was published in the blog of
-__mathertel.de__.
+**mathertel.de**.
 
 
 ## Implementation
@@ -188,7 +188,6 @@ Paths are also given back to subscribers during the callback.  The path syntax u
 string.
 
 
-
 ## URL Parameters as Data Feed for JSDataHub
 
 The following small JavaScript code demonstrates how to capture parameters from the URL and deliver them into the JSDataHub. This allows using them directly in forms and components.
@@ -249,7 +248,6 @@ principles.
 6. Less beautiful -- more functional
 
     * Any HTML Javascript and CSS without a **functional** requirement can be avoided.
-
 
 
 ## See also

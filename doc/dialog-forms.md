@@ -174,7 +174,7 @@ There are the following ways of closing a modal dialog that are covered by the u
 * clicking a button with formmethod="dialog"
 * using the close() method
 
-With this extension the dialog also can be closed by using the `close` action int the `u-action` attribute: 
+With this extension the dialog also can be closed by using the `close` action int the `u-action` attribute:
 
 ``` html
 <div class="u-close" u-action="close"></div>
@@ -205,7 +205,7 @@ can be used even when the dialog is used in different situations.
       ...  use data  })
     .catch(() => { 
       ... dialog was cancelled });
-``` 
+```
 
 
 ## See also

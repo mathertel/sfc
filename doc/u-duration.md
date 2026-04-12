@@ -3,7 +3,7 @@
 The `<input is='u-duration'>` extends the functionality of the standard `<input>` element for capturing duration values.
 
 The standard html `<input>` element can be used to capture values from many different data types like numbers, dates,
-times, colors and more. 
+times, colors and more.
 
 What is missing for some use-cases is capturing durations.  This sfc control is using a regular text input for capturing and but converts the input into a duration presentation using the HH:MM:SS format.
 
