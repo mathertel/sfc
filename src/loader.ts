@@ -90,10 +90,15 @@ class UComponent extends HTMLElement {
 
     // create setters and getters for all observedAttributes defined in the class.
     for (const p of ((this.constructor as typeof UComponent).observedAttributes)) {
+      const ov = this[p]; // value of the property before creating the setter and getter.
       Object.defineProperty(this, p, {
         set(value) { this.setAttribute(p, value); },
         get() { return this.getAttribute(p); }
       });
+
+      if ((ov !== undefined) && (ov !== null)) {
+        this[p] = ov; // set the value to trigger the setter and getter.
+      }
     }
 
     // What kind of dom should be used ?
@@ -194,8 +199,8 @@ class UComponent extends HTMLElement {
 } // class UComponent
 
 
-// for ESM modules: const _SFCloaderURL = import.meta.url;
-const _SFCloaderURL = (document.currentScript as HTMLScriptElement).src;
+// for ESM modules: const _SFCLoaderURL = import.meta.url;
+const _SFCLoaderURL = (document.currentScript as HTMLScriptElement).src;
 
 
 // loadComponent is a function to load a SFC from a web server and define it as a web component.
@@ -215,7 +220,7 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
       baseUrl = new URL(folder, document.location.href);
     } else {
       // resolve folder relative to the sfc loader location whe no folder is specified.
-      baseUrl = new URL(_SFCloaderURL);
+      baseUrl = new URL(_SFCLoaderURL);
     }
 
     if (tag.endsWith('.sfc')) tag = tag.replace(/\.sfc$/, '');
@@ -257,7 +262,7 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
 
       // make the class detectable and available globally for other SFCs
       window[def.name] = window.sfc.defined[def.name] = def;
-      
+
     } else {
       console.error('SFC', `No SFC defined in ${url.href}`);
       def = UComponent;
