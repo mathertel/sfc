@@ -11,22 +11,24 @@
   "scripts": {
     "serve": "npx http-server -d -i -c-1. -o test/index.htm",
     "test:src": "tsc -noEmit -p src\\tsconfig.json",
-    "build:hub":          "esbuild src\\data-hub.ts --format=esm --bundle --minify    --drop:console --drop:debugger --outfile=data-hub.js",
-    "build:hub-watch":    "esbuild src\\data-hub.ts --format=esm --bundle --sourcemap --watch                        --outfile=data-hub.js",
-    "build:loader":       "esbuild src\\loader.ts                         --minify    --drop:console --drop:debugger --outfile=loader.js",
+    "build:hub": "esbuild src\\data-hub.ts --format=esm --bundle --minify    --drop:console --drop:debugger --outfile=data-hub.js",
+    "build:hub-watch": "esbuild src\\data-hub.ts --format=esm --bundle --sourcemap --watch                        --outfile=data-hub.js",
+    "build:loader": "esbuild src\\loader.ts                         --minify    --drop:console --drop:debugger --outfile=loader.js",
     "build:loader-watch": "esbuild src\\loader.ts                         --sourcemap --watch                        --outfile=loader.js",
-    "build:watch":        "esbuild src\\*.ts   --format=esm --sourcemap --watch --outdir=./",
+    "build:watch": "esbuild src\\*.ts   --format=esm --sourcemap --watch --outdir=./",
     "build:bundle": "pack-sfc *.sfc -o bundle.sfc",
     "clean": "del *.js.map data-hub.js loader.js json-parse.js",
     "build": "npm run test:src && npm run build:hub && npm run build:loader",
     "pack": "bin\\pack.bat",
+    "publish:site": "copy /Y build\\*.* C:\\Users\\Matthias\\Projects\\mathertel-WebSite\\mathertel9\\wwwroot\\sfc",
+    "linkcheck": "markdown-link-check ./doc",
     "dev": "run-p test:src build:hub-watch build:loader-watch serve"
   },
   "devDependencies": {
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.28.2",
     "html-minifier-terser": "^7.2.0",
-    "npm-run-all2": "^8.0.4",
-    "typescript": "^5.8.2",
+    "npm-run-all2": "^9.0.3",
+    "typescript": "^7.0.2",
     "yargs": "^18.0.0"
   }
 }
