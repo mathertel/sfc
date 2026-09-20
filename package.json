@@ -30,5 +30,8 @@
     "npm-run-all2": "^9.0.3",
     "typescript": "^7.0.2",
     "yargs": "^18.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }
