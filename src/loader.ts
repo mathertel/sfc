@@ -281,7 +281,7 @@ function loadComponent(tags: string | string[], folder: string | undefined = und
       customElements.define(tagName, def);
       console.debug('SFC', `${tagName} defined.`);
     }
-  }
+  } // define()
 
   if (typeof tags === 'string') tags = tags.split(',');
   return (Promise.all(tags.map((tag) => fetchSFC(tag, folder))));
