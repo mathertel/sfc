@@ -1,0 +1,217 @@
+<!--
+
+File: u-charbox.sfc
+
+Defines the `u-charbox` UI component.
+Intended to encapsulate character-box rendering and related behavior within the SFC module structure.
+
+Modes for the animated single-character digit box controlled by host classes:
+- push-top:    incoming from top, outgoing to bottom
+- slide-top:   incoming from top, outgoing stays
+- push-bottom: incoming from bottom, outgoing to top
+- slide-bottom:incoming from bottom, outgoing stays
+
+-->
+
+<template>
+  <span class="digit">0</span>
+</template>
+
+<style scoped>
+:host {
+  width: 98px;
+  height: 128px;
+  border: 1px solid steelblue;
+  padding: 0;
+  position: relative;
+  display: inline-block;
+  background-color: lightsteelblue;
+  overflow: hidden;
+}
+
+.digit {
+  position: absolute;
+  inset: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 120px;
+  line-height: 1;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  transform-origin: center;
+  background-color: palegoldenrod;
+  will-change: transform;
+}
+
+:host(.push-top) .digit.enter,
+:host(.slide-top) .digit.enter,
+:host(.push-bottom) .digit.enter,
+:host(.slide-bottom) .digit.enter {
+  transition: transform 400ms ease-in-out;
+  transform: translateY(0);
+}
+
+:host(.push-top) .digit.enter,
+:host(.slide-top) .digit.enter {
+  @starting-style {
+    transform: translateY(-100%);
+  }
+}
+
+:host(.push-bottom) .digit.enter,
+:host(.slide-bottom) .digit.enter {
+  @starting-style {
+    transform: translateY(100%);
+  }
+}
+
+:host(.push-top) .digit.exit {
+  transition: transform 400ms ease-in-out;
+  transform: translateY(100%);
+  @starting-style {
+    transform: translateY(0);
+  }
+}
+
+:host(.push-bottom) .digit.exit {
+  transition: transform 400ms ease-in-out;
+  transform: translateY(-100%);
+  @starting-style {
+    transform: translateY(0);
+  }
+}
+</style>
+
+<script>
+/**
+ * Represents a reusable character box UI component.
+ *
+ * Extends `UComponent` to provide encapsulated rendering and behavior
+ * for displaying and/or interacting with character-oriented content
+ * within the SFC component system.
+ *
+ * @extends UComponent
+ */
+export default class UCharbox extends UComponent {
+  static observedAttributes = ['value'];
+  #currentValue = '';
+
+  // start the CSS animation by creating the digit.enter and marking digit.exit.
+  #startAnimation(value) {
+    this.#endAnimation(); // cancel any running animation first
+
+    let current = this.uRoot.querySelector('.digit');
+    if (!current) {
+      // create a digit if non exists.
+      current = document.createElement('span');
+      current.className = 'digit';
+      current.textContent = String(value);
+      this.uRoot.appendChild(current);
+      this.#currentValue = String(value);
+      return;
+    }
+
+    if (current.textContent === String(value)) {
+      this.#currentValue = String(value);
+      return;
+    }
+
+    const incoming = document.createElement('span');
+    incoming.classList.add('digit', 'enter');
+    incoming.textContent = String(value);
+    this.uRoot.appendChild(incoming);
+
+    // only push modes move the current digit out
+    if (this.classList.contains('push-top') || this.classList.contains('push-bottom')) {
+      current.classList.add('exit');
+    }
+
+    const onDone = () => {
+      if (current.classList.contains('exit')) {
+        current.remove();
+      }
+      incoming.classList.remove('enter');
+      this.#currentValue = String(value);
+      delete incoming._onDone;
+    };
+
+    incoming._onDone = onDone;
+    incoming.addEventListener('transitionend', onDone, { once: true });
+  }
+
+  // finish and clean a running animation so a new value can start immediately
+  #endAnimation() {
+    const outgoing = this.uRoot.querySelector('.digit.exit');
+    const incoming = this.uRoot.querySelector('.digit.enter');
+
+    if (incoming) {
+      incoming.classList.remove('enter');
+      for (const anim of incoming.getAnimations()) {
+        anim.finish();
+      }
+
+      if (incoming._onDone) {
+        incoming.removeEventListener('transitionend', incoming._onDone);
+        delete incoming._onDone;
+      }
+    }
+
+    if (outgoing) {
+      outgoing.remove();
+    }
+  }
+
+  /**
+   * Initializes the charbox component state, sets up required resources,
+   * and prepares internal bindings for use.
+   * `init()` is called by the SFC framework when the component is connected to the DOM.
+   */
+  init() {
+    const digit = this.uRoot.querySelector('.digit');
+    const initialValue = this.getAttribute('value') ?? digit?.textContent ?? '0';
+
+    if (!digit) {
+      const d = document.createElement('span');
+      d.className = 'digit';
+      d.textContent = String(initialValue);
+      this.uRoot.appendChild(d);
+    }
+
+    this.#currentValue = this.uRoot.querySelector('.digit')?.textContent ?? String(initialValue);
+
+    if (!this.hasAttribute('value')) {
+      this.setAttribute('value', String(initialValue));
+    } else if (String(initialValue) !== this.#currentValue) {
+      this.#startAnimation(String(initialValue));
+    }
+  }
+
+
+  /**
+   * Handles updates to observed attributes on this custom element.
+   *
+   * Invoked automatically by the browser whenever one of the element's
+   * observed attributes changes.
+   *
+   * @param {string} name - The name of the attribute that changed.
+   * @param {string | null} oldValue - The attribute's previous value, or `null` if it was not set.
+   * @param {string | null} newValue - The attribute's new value, or `null` if it was removed.
+   * @returns {void}
+   */
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name !== 'value' || oldValue === newValue || !this.sfcConnected) {
+      return;
+    }
+
+    const nextValue = newValue ?? '';
+    if (nextValue === this.#currentValue) {
+      return;
+    }
+
+    this.#startAnimation(nextValue);
+  } // attributeChangedCallback()
+}
+</script>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>u-charbox SFC Demo</title>
+    <script src="/loader.js"></script>
+    <script>
+        var allSFCLoaded = window.loadComponent('u-charbox');
+    </script>
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            padding: 1rem;
+        }
+
+        .row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>u-charbox transition demo</h1>
+
+    <div class="row">
+        <u-charbox class="push-top" value="1"></u-charbox>
+        <u-charbox class="slide-top" value="2"></u-charbox>
+        <u-charbox value=":"></u-charbox>
+        <u-charbox class="push-bottom" value="8"></u-charbox>
+        <u-charbox class="slide-bottom" value=" "></u-charbox>
+    </div>
+
+    <script type="text/javascript">
+        allSFCLoaded.then(() => {
+            const charboxes = document.querySelectorAll('u-charbox[class]');
+            charboxes.forEach(charbox => {
+                let currentValue = parseInt(charbox.getAttribute('value') ?? '0', 10) || 0;
+
+                setInterval(() => {
+                    currentValue = (currentValue + 1) % 10;
+                    charbox.setAttribute('value', String(currentValue));
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+
+</html>
