@@ -13,6 +13,20 @@
       padding: 0.2rem;
       box-shadow: 0 0 0.1rem 0.2rem lime;
     }
+
+    .duration-unit-nav {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-block: 0.75rem;
+    }
+
+    .duration-unit-nav button[aria-pressed="true"] {
+      font-weight: bold;
+      outline: 2px solid currentColor;
+      outline-offset: 1px;
+    }
   </style>
 
   <script src="/loader.js"></script>
@@ -26,8 +40,15 @@
     <h1>Duration Input Test</h1>
   </header>
   <main>
-    <label>Duration:</label>
-    <input is="u-duration" style="width: 10em" />
+    <label for="durationInput">Duration:</label>
+    <input id="durationInput" is="u-duration" prefUnit="S" style="width: 10em" />
+    <nav class="duration-unit-nav" aria-label="Preferred duration input unit">
+      <span>Interpret input as:</span>
+      <button type="button" data-pref-unit="H" aria-pressed="false">Hours (H)</button>
+      <button type="button" data-pref-unit="M" aria-pressed="false">Minutes (M)</button>
+      <button type="button" data-pref-unit="S" aria-pressed="true">Seconds (S)</button>
+      <output id="prefUnitStatus" aria-live="polite">Current setting: Seconds (S)</output>
+    </nav>
     <hr />
 
     <u-markdown src="../doc/u-duration.md"></u-markdown>
@@ -36,6 +57,18 @@
 
   <script type="module">
     await allSFCLoaded;
+    const durationInput = document.querySelector('#durationInput');
+    const status = document.querySelector('#prefUnitStatus');
+    const buttons = [...document.querySelectorAll('[data-pref-unit]')];
+    const labels = { H: 'Hours', M: 'Minutes', S: 'Seconds' };
+
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      const unit = button.dataset.prefUnit;
+      durationInput.setAttribute('prefUnit', unit);
+      buttons.forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+      status.textContent = `Current setting: ${labels[unit]} (${unit})`;
+    }));
+
     console.log('loaded');
   </script>
 
