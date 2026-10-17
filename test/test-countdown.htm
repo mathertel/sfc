@@ -58,6 +58,7 @@ A custom element that implements ...
 </head>
 
 <body class="sitelayout" style="--main-width: 60em">
+  <u-datahub></u-datahub>
 
   <header>
     <h1>Count Down Timer Test Page</h1>
@@ -93,7 +94,7 @@ A custom element that implements ...
   </main>
 
   <script type="module">
-    import { DataHub } from '/data-hub.js';
+    await window.loadComponent('u-datahub');
     const dh = window.datahub;
     const formElem = document.querySelector('#paramForm form');
     const durElem = document.querySelector('#paramForm form #durInput');

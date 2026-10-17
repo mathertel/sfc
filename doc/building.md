@@ -20,12 +20,11 @@ These npm scripts are defined in package.json.
 
 ## Data-Hub
 
-The [Data Hub](data-hub.md) is implemented in Typescript as a ESM module and can be transpiled and minified to
-JavaScript using the esbuild tool too.
+The [Data Hub](data-hub.md) is implemented as the `u-datahub.sfc` component and is loaded via the SFC loader.
+There is no separate standalone `data-hub.js` build anymore.
 
-To create the bundle file for the data hub use the npm script `npm run build:hub`.
-
-To watch and re-create during development the loader use the npm script `npm run build:hub-watch`.
+Use the component in a page with `window.loadComponent("u-datahub")` and then access the instance via
+`window.datahub`.
 
 
 ## Bundling Controls

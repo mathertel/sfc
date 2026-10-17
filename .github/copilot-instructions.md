@@ -16,9 +16,9 @@ Purpose: Quickly orient an AI coding agent to be productive in this repository.
   
   - **Type check:** `npm run test:src` — runs `tsc -noEmit -p src\\tsconfig.json` (fast
     feedback for TS changes).
-  - **Build:** `npm run build` — runs type check and builds `data-hub.js` and
-    `loader.js` with `esbuild`.
-  - **Dev:** `npm run dev` — runs watchers for hub & loader and serves `test/index.htm`
+  - **Build:** `npm run build` — runs type check and builds the `loader.js`
+    bundle used to load SFC components.
+  - **Dev:** `npm run dev` — runs the loader watch and serves `test/index.htm`
     for live testing.
   - **Serve test pages:** `npm run serve` — runs a simple static server opening
     `test/index.htm`.

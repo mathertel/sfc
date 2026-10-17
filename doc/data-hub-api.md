@@ -2,13 +2,18 @@
 
 ## Installation
 
-Include the `data-hub.js` module in your HTML file and specify the optional storage:
+Include the `u-datahub` component in your HTML file and specify the optional storage:
 
 ```html
+<script src="/loader.js"></script>
+<u-datahub></u-datahub>
+
 <script type="module">
-  import { DataHub } from '/data-hub.js';
+  await window.loadComponent("u-datahub");
+  const hub = window.datahub;
+
   // optional:
-  window.datahub.configurePersistence(sessionStorage, "myDataKey");
+  hub.configurePersistence(sessionStorage, "myDataKey");
 </script>
 ```
 

@@ -21,7 +21,9 @@
         cursor: pointer;
         margin: 4px;
 
-        pre { background-color: whitesmoke;}
+        pre {
+          background-color: whitesmoke;
+        }
       }
 
       /* .ok {background-color: lime; border:1px solid black} */
@@ -30,13 +32,13 @@
     }
   </style>
   <script src="/loader.js"></script>
-  <!-- <script src="/data-hub.js" type="module"></script> -->
   <script>
     // var allSFCLoaded = window.loadComponent('u-code');
   </script>
 </head>
 
 <body class="sitelayout" style="--main-width: 60em">
+  <u-datahub></u-datahub>
   <header>
     <h1>data-hub Test Page</h1>
   </header>
@@ -69,7 +71,7 @@
   </main>
 
   <script type="module">
-    import { DataHub } from '/data-hub.js';
+    await window.loadComponent('u-datahub');
     window.datahub.configurePersistence(sessionStorage, "datahub_store");
 
     const rawObj = document.querySelector('#rawview');
@@ -413,7 +415,8 @@
     function expectPath(path, expected) {
       const log = [];
       expected = JSON.stringify(expected);
-      const p = DataHub.tokenizePath(path);
+
+      const p = window.datahub.tokenizePath(path);
       const ps = JSON.stringify(p);
 
       if (ps === expected) {
@@ -439,36 +442,15 @@
       do_report(logs);
     }
 
-
-    window.addEventListener('DOMContentLoaded', function () {
-      // debugger;
-
-      testP01();
-
-      // test00(window.datahub);
-      test01(window.datahub);
-      test02(window.datahub);
-      test03(window.datahub);
-      test04(window.datahub);
-      test05(window.datahub);
-      test06(window.datahub);
-      test07(window.datahub);
-      test08(window.datahub);
-      test99(window.datahub);
-
-
-    });
-
-
-    document.querySelector('#set1').addEventListener('click', function () {
+    document.querySelector('#set1').addEventListener('click', function() {
       window.datahub.publish("", rawData1);
     });
 
-    document.querySelector('#set2').addEventListener('click', function () {
+    document.querySelector('#set2').addEventListener('click', function() {
       window.datahub.publish("", rawData2);
     });
 
-    document.querySelector('#getJson').addEventListener('click', function () {
+    document.querySelector('#getJson').addEventListener('click', function() {
       let d1 = window.datahub.get('a');
       d1 = window.datahub.get('a[0]');
       d1 = window.datahub.get('a[1]');
@@ -479,13 +461,26 @@
       rawObj.textContent = JSON.stringify(ds, null, 2);
     });
 
-    document.querySelector('#hubReplay').addEventListener('click', function () {
+    document.querySelector('#hubReplay').addEventListener('click', function() {
       window.datahub.replay("");
     });
 
-    document.querySelector('#hubUnsubscribe').addEventListener('click', function () {
+    document.querySelector('#hubUnsubscribe').addEventListener('click', function() {
       window.datahub.unsubscribe(subAge);
     });
+
+    testP01();
+
+    // test00(window.datahub);
+    test01(window.datahub);
+    test02(window.datahub);
+    test03(window.datahub);
+    test04(window.datahub);
+    test05(window.datahub);
+    test06(window.datahub);
+    test07(window.datahub);
+    test08(window.datahub);
+    test99(window.datahub);
 
   </script>
 </body>

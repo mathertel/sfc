@@ -1,0 +1,274 @@
+﻿<!--
+
+File: u-datahub.sfc
+
+A custom element that provides the same publish/subscribe data layer as the legacy
+standalone data-hub.js module, but as a SFC component.
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+-->
+
+<script>
+  export default class UDataHub extends UComponent {
+    registry = new Set();
+    lastId = 0;
+    store = {};
+    storageObject = undefined;
+    storageKey = 'datahub';
+
+    // not private for testing purpose
+    tokenizePath(path) {
+      const keys = [];
+      let match;
+
+      while (path && path.length > 0) {
+        if ((match = path.match(/^[./\\]/))) {
+          // ignore separators
+        } else if ((match = path.match(/^[a-zA-Z_$][a-zA-Z0-9_$-]*/))) {
+          keys.push(match[0]);
+        } else if ((match = path.match(/^\d+/))) {
+          keys.push(Number(match[0]));
+        } else if ((match = path.match(/^\[(?<index>\d+)\]/))) {
+          if (match.groups?.index) keys.push(Number(match.groups.index));
+        } else if ((match = path.match(/^\[['"]?(?<ident>[a-zA-Z_$][a-zA-Z0-9_$-]*)['"]?\]/))) {
+          if (match.groups?.ident) keys.push(match.groups.ident);
+        } else if ((match = path.match(/^[*]{1,2}/))) {
+          keys.push(match[0]);
+        } else {
+          throw new Error(`Invalid path syntax at '${path}'`);
+        }
+
+        if (match) {
+          path = path.substring(match[0].length);
+        }
+      }
+
+      return keys;
+    }
+
+    #findPath(obj, path, create = false) {
+      let keys;
+      const cursor = { pathKeys: [''], pathNodes: [obj] };
+
+      if (!path) {
+        return cursor;
+      }
+
+      keys = typeof path === 'string' ? this.tokenizePath(path) : path;
+
+      for (const key of keys) {
+        if (!obj[key]) {
+          if (create) {
+            obj[key] = {};
+          } else {
+            throw new Error(`Node not found '${path}'`);
+          }
+        }
+        cursor.pathKeys.push(key);
+        cursor.pathNodes.push(obj[key]);
+        obj = obj[key];
+      }
+
+      return cursor;
+    }
+
+    #walkPath(store, path, cbFunc) {
+      const _walk = (cursor) => {
+        const obj = cursor.pathNodes.at(-1);
+
+        if (typeof obj === 'object') {
+          for (const key in obj) {
+            cursor.pathKeys.push(key);
+            cursor.pathNodes.push(obj[key]);
+            _walk(cursor);
+            cursor.pathKeys.pop();
+            cursor.pathNodes.pop();
+          }
+        }
+
+        cbFunc(cursor.pathKeys.join('.').substring(1), obj);
+      };
+
+      _walk(this.#findPath(store, path, true));
+    }
+
+    #inform(path, value) {
+      this.registry.forEach((entry) => {
+        if (path.match(entry.match)) {
+          entry.callback(path, value);
+        }
+      });
+    }
+
+    #mergeData(cursor, obj, cbFunc) {
+      let hasChanged = false;
+      const len = cursor.pathKeys.length;
+
+      if (typeof obj !== 'object') {
+        const node = cursor.pathNodes[len - 2];
+        const key = cursor.pathKeys[len - 1];
+
+        if ((obj === undefined) || (obj === null)) {
+          delete node[key];
+          hasChanged = true;
+        } else if (node[key] !== obj) {
+          cursor.pathNodes[len - 1] = node[key] = obj;
+          hasChanged = true;
+        }
+      } else {
+        for (let key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            let changedThis = false;
+            const newValue = obj[key];
+
+            if (typeof key === 'string') {
+              key = key.toLowerCase();
+            }
+
+            cursor.pathKeys.push(key);
+            cursor.pathNodes.push(cursor.pathNodes[len - 1][key]);
+
+            if (typeof newValue !== 'object') {
+              if (this.#mergeData(cursor, newValue, cbFunc)) {
+                changedThis = true;
+              }
+            } else {
+              const node = cursor.pathNodes[len - 1];
+
+              if (!node[key]) {
+                node[key] = Array.isArray(newValue) ? [] : {};
+                cursor.pathNodes[cursor.pathNodes.length - 1] = node[key];
+                changedThis = true;
+              }
+
+              if (this.#mergeData(cursor, newValue, cbFunc)) {
+                changedThis = true;
+              }
+            }
+
+            if (changedThis) {
+              cbFunc(cursor.pathKeys.join('.').substring(1), cursor.pathNodes.at(-1));
+              hasChanged = true;
+            }
+
+            cursor.pathKeys.pop();
+            cursor.pathNodes.pop();
+          }
+        }
+      }
+
+      return hasChanged;
+    }
+
+    constructor() {
+      super();
+      this.clear();
+    }
+
+    clear() {
+      this.registry.clear();
+      this.lastId = 0;
+      this.store = {};
+    }
+
+    configurePersistence(storageObject, key = 'datahub') {
+      if (!storageObject || typeof storageObject.setItem !== 'function') {
+        throw new Error('Invalid storage object. Must implement the Storage interface.');
+      }
+
+      this.storageObject = storageObject;
+      this.storageKey = key || 'datahub';
+
+      const storedData = this.storageObject.getItem(this.storageKey);
+      if (storedData) {
+        try {
+          this.store = JSON.parse(storedData);
+        } catch (e) {
+          console.error('Failed to load DataHub store from storage:', e);
+        }
+      }
+    }
+
+    get(path) {
+      try {
+        const cursor = this.#findPath(this.store, path, false);
+        return cursor.pathNodes.at(-1);
+      } catch (_e) {
+        return undefined;
+      }
+    }
+
+    subscribe(matchPath, fCallback) {
+      const id = this.lastId++;
+      let pattern = matchPath.toLocaleLowerCase();
+      pattern = pattern.replace('/', '.');
+      if (pattern[0] === '.') pattern = pattern.substring(1);
+
+      const re = '^' + pattern
+        .replace(/\*\*/g, '[A-Za-z0-9._-]{0,}')
+        .replace(/\*/g, '[^.]*') +
+        '$';
+
+      const entry = {
+        id,
+        match: RegExp(re),
+        callback: fCallback
+      };
+
+      this.registry.add(entry);
+      return id;
+    }
+
+    unsubscribe(id) {
+      this.registry.forEach((entry) => {
+        if (entry.id === id) {
+          this.registry.delete(entry);
+        }
+      });
+    }
+
+    replay(path) {
+      this.#walkPath(this.store, path, (path, value) => {
+        this.#inform(path, value);
+      });
+    }
+
+    publish(path, obj) {
+      const cursor = this.#findPath(this.store, path, true);
+      const changed = this.#mergeData(cursor, obj, (path, value) => this.#inform(path, value));
+
+      if ((changed && cursor.pathKeys.length > 0) && (!obj)) {
+        const p = cursor.pathKeys.join('.').substring(1);
+        this.#inform(p, undefined);
+        cursor.pathKeys.pop();
+        cursor.pathNodes.pop();
+      }
+
+      while (changed && cursor.pathKeys.length > 0) {
+        const p = cursor.pathKeys.join('.').substring(1);
+        this.#inform(p, cursor.pathNodes.at(-1));
+        cursor.pathKeys.pop();
+        cursor.pathNodes.pop();
+      }
+
+      if (this.storageObject) {
+        try {
+          const jsonData = JSON.stringify(this.store);
+          this.storageObject.setItem(this.storageKey, jsonData);
+        } catch (e) {
+          console.error('Failed to save DataHub store from storage:', e);
+        }
+      }
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      if (!window.datahub) {
+        window.datahub = this;
+      }
+    }
+  }
+
+</script>
