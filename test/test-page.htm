@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+
+<!-- 
+
+## u-page component
+
+This component supports building Single-Page-Applications that implement multiple
+"pages" that where one of the pages is shown at a specific time.
+This is very much the same as a client side implemented router.
+
+The pages are defined using the `<u-page>` component with some inner html content.
+This content will only be part of the current HTML DOM in case the page is active.
+This results in 
+* script loading
+* html elements
+
+<u-page id="page1" active=1 ></u-page> << invisible
+<div></div>                            << existing and visible when page is active active
+
+<u-page id="page2" active=9 ></u-page> << invisible
+                                       << no div 
+
+<u-page id="page1"></u-page>
+<u-page id="page2"></u-page>
+
+
+<script extends="template">
+
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>u-page Test Page</title>
+
+  <link rel='stylesheet' href='/docstyle.css' media='all' />
+  <script src="/loader.js"></script>
+  <script>
+    // var allSFCLoaded = window.loadComponent(['u-page']);
+  </script>
+
+  <style>
+    u-page {
+      display: block;
+      width: 80vw;
+      height: 60vh;
+      box-shadow: lime 0 0 0.1rem 0.1rem;
+      background-color: white;
+    }
+  </style>
+</head>
+
+<body class="sitelayout" style="width:100%;">
+  <header>
+    <h1>u-page Test Page</h1>
+  </header>
+
+  <nav>
+    <button onclick="uPage.showPage('page1')">page1</button>
+    <button onclick="page1.active = true">active page1</button>
+    <button onclick="page2.active = true">active page2</button>
+  </nav>
+
+  <main>
+    <u-page id="page1">
+      <h3>Page-1</h3>
+    </u-page>
+
+    <u-page id="page2">
+      <h3>Page-2</h3>
+    </u-page>
+
+    <!-- <u-markdown src="../doc/u-splitter.md"></u-markdown> -->
+  </main>
+  <script>
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+
+    function showPage(name) {
+      const pages = document.querySelectorAll('u-page');
+      console.log(`pages`, pages);
+      // debugger;
+      for (p of pages) {
+        console.log(`page`, p);
+        p.style.display = (p.id === name) ? '' : 'none';
+
+      }
+    }
+
+
+    class uPage extends UComponent {
+      static observedAttributes = ["active"];
+
+      // static array with all known page elements
+      static cList = [];
+      // current visible slide
+      static currentSlide = 0;
+
+      isActive = false;
+
+      // static function to enable a specific page.
+      static showPage(name) {
+        console.log(`pages:`, uPage.cList);
+        // debugger;
+
+        for (const p of uPage.cList) {
+          if (p.id === name) {
+            p.isActive = true;
+            p.elem.style.display = '';
+
+          } else {
+            p.isActive = false;
+            p.elem.style.display = 'none';
+
+          }
+        }
+      } // showPage()
+
+      constructor(p) {
+        super();
+        uPage.cList.push({
+          id: this.id,
+          elem: this
+        });
+
+        console.log(uPage.cList);
+      } // constructor()
+
+      attributeChangedCallback(name, oldValue, newValue) {
+        console.debug("attributeChanged", name, oldValue, newValue);
+
+        if (name === 'active') {
+          uPage.showPage(this.id);
+        }
+      }
+
+    } // class uPage
+
+    customElements.define('u-page', uPage, { extends: 'template' }); // , { extends: def.extends }
+
+    uPage.showPage('page1');
+
+    // http://127.0.0.1:8080/test/index.htm#page=page1
+
+  </script>
+</body>
+
+</html>

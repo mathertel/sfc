@@ -1,6 +1,6 @@
 # Web component to display a pie chart
 
-The <u-piechart> component can be used to display a pie with segments corresponding to the fraction of the given values.
+The `<u-piechart>` component can be used to display a pie with segments corresponding to the fraction of the given values.
 
 It is a pure JavaScript based implementation that uses SVG to display the graph and axis wrapped into a SFC control.
 
@@ -84,5 +84,5 @@ api of this web component.
 
 ## See also
 
-* [Line Chart SFC](/doc/u-linechart.md)
+* [Test for Line Chart](/test/test-linechart.htm)
 

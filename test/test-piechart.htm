@@ -15,40 +15,43 @@
 </head>
 
 <body>
-  <h1>test &lt;u-piechart&gt;</h1>
+  <h1>Test &lt;u-piechart&gt;</h1>
 
-  <p>This is a placeholder test page for the <code>&lt;u-piechart&gt;</code> component.</p>
+  <p>This is a test page for the <code>&lt;u-piechart&gt;</code> component displaying a pie chart.</p>
 
-  <section class="demo">
-    <h2>Interactive demo</h2>
-    <div style="display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap;">
-      <div>
-        <u-piechart id="p1" style="width:300px;height:200px"></u-piechart>
-      </div>
-
-      <div style="max-width:30rem">
-        <p>Use the controls to change the pie values. The demo calls `draw()` or `setOptions()`
-          depending on the available API of the component implementation.</p>
-
-        <label>Values (comma separated)</label>
-        <input id="p1-values" style="width:100%" value="20,30,50" />
-
-        <div style="margin-top:.5rem">
-          <button id="p1-update">Update</button>
-          <button id="p1-rand">Randomize</button>
-          <button id="p1-clear">Clear</button>
-        </div>
-
-        <div style="margin-top:.5rem">Current: <span id="p1-cur">20,30,50</span></div>
-      </div>
+  <h2>Interactive demo</h2>
+  <div style="display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap;">
+    <div>
+      <u-piechart id="p1" style="width:300px;height:200px"></u-piechart>
     </div>
-  </section>
+
+    <div style="max-width:30rem">
+      <p>Use the controls to change the pie values. The demo calls `draw()` or `setOptions()`
+        depending on the available API of the component implementation.</p>
+
+      <label for="p1-data">Values (comma separated)</label>
+      <input id="p1-data" style="width:100%" value="20,30,50" />
+      <label for="p1-colors">Colors (comma separated)</label>
+      <input id="p1-colors" style="width:100%" value="red,orange,yellow,green,blue,indigo,violet,cyan" />
+      <label><input id="p1-show-titles" type="checkbox" /> Show titles</label>
+
+      <div style="margin-top:.5rem">
+        <button id="p1-update">Update</button>
+        <button id="p1-rand">Randomize</button>
+        <button id="p1-clear">Clear</button>
+      </div>
+
+      <div style="margin-top:.5rem">Current: <span id="p1-cur">20,30,50</span></div>
+    </div>
+  </div>
 
   <u-markdown src="../doc/u-piechart.md"></u-markdown>
 
   <script>
-    (function () {
-      const inp = document.getElementById('p1-values');
+    (function() {
+      const inp = document.getElementById('p1-data');
+      const colorInp = document.getElementById('p1-colors');
+      const showTitles = document.getElementById('p1-show-titles');
       const upd = document.getElementById('p1-update');
       const rand = document.getElementById('p1-rand');
       const clr = document.getElementById('p1-clear');
@@ -63,18 +66,25 @@
         const p = document.getElementById('p1');
         if (!p) return;
         // try common APIs: draw(...) or setOptions({ data: [...] })
+
         if (typeof p.draw === 'function') {
           // u-piechart expects objects with {value, title?, color?}
-          const data = values.map(v => ({ value: v }));
+          const colors = colorInp.value.split(',').map(s => s.trim()).filter(Boolean);
+          const data = values.map((v, i) => ({ value: v, title: v, color: colors[i % colors.length] }));
+          p.setOptions({ showTitle: showTitles.checked });
           try { p.draw(...data); } catch (e) { try { p.draw(data); } catch (e2) { console.debug('pie draw failed', e2); } }
+
         } else if (typeof p.setOptions === 'function') {
           try { p.setOptions({ data: values }); } catch (e) { console.debug('pie setOptions failed', e); }
+
         } else {
           console.debug('pie: no draw/setOptions API found');
         }
       }
 
       upd.addEventListener('click', () => applyValues(parseValues(inp.value)));
+      showTitles.addEventListener('change', () => applyValues(parseValues(inp.value)));
+
       rand.addEventListener('click', () => {
         const values = Array.from({ length: 3 }, () => Math.floor(Math.random() * 100) + 1);
         inp.value = values.join(',');

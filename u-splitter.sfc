@@ -19,8 +19,9 @@ elements.
 
 -->
 
-<template light>
-</template>
+
+<!-- no template, use existing html and nested elements -->
+<!-- <template light></template> -->
 
 <style>
   u-splitter {
