@@ -130,6 +130,7 @@ javascript esm module.
 * [Components](doc/index.md)
 * [Data Hub](doc/data-hub.md)
 * [Test Pages](test/index.htm)
+* [Automated Testing](/doc/testing.md)
 
 * <https://github.com/web-padawan/awesome-web-components/tree/main>
 

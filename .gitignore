@@ -11,3 +11,4 @@ bundle.sfc
 loader.min.js
 .gitignore
 *.js.map
+test-results/.last-run.json
