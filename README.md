@@ -128,7 +128,7 @@ javascript esm module.
 
 * [Building and Bundling in the SFC library](doc/building.md)
 * [Components](doc/index.md)
-* [Data Hub](doc/data-hub.md)
+* [Data Hub](doc/u-datahub.md)
 * [Test Pages](test/index.htm)
 * [Automated Testing](/doc/testing.md)
 

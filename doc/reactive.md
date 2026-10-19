@@ -5,29 +5,34 @@ the interface. Ordinary JavaScript data objects, however, do not emit events whe
 change. A reactive data layer bridges this mismatch by notifying subscribers of data changes, so
 UI elements can stay synchronized with the application model.**
 
-The browser-side [JSDataHub](data-hub.md) provides this kind of shared data model that
-is brought into the page using the <u-datahub> element. It stores structured multi-level
-JavaScript data internally.
+Within the software stack the [DataHub Element](u-datahub.md) implements the layer for a
+centralized multi-level data management that can keep the web application wide data and
+state and provides the mechanisms for binding parts and components of the application.
 
-By using paths like `counter.value` the data can selectively be changed and when
-subscribing using such a path elements will be informed about the data change using an
-event.
+> The concept of **reactive programming** is centered around data flows within
+> your application and the propagation of changes. When data changes, the parts
+> of the application that depend on this property will be automatically updated.
+> This is the core idea used in many frontend libraries like React, Angular,
+> Vue.js, MobX...
+
+This statement on defining **reactive programming** is true for the
+[DataHub Element](u-datahub.md).
+
+Using paths like `counter.value` the data can selectively be changed with
+`datahub.publish("counter.value", 55)` and when subscribing using
+`datahub.subscribe("counter.value", fCallback)` the callback function will be informed
+about every data change.
 
 Components can therefore stay loosely coupled: one component publishes a change, and any
-component subscribed to the affected path can respond.
+component subscribed to the affected path can respond. The components need not even know
+each other.
 
-The subscription callback function receives the event with the changed path and value. In addition:
-
-* `replay()` sends the current stored value to a subscriber that registered after the
-  initial publish.
-* `subscribe()` returns a subscription ID; a custom element can retain it and call
-  `hub.unsubscribe(id)` when it disconnects.
   
 ## Build for small download size
 
-In contrast RxJS (Reactive Extensions for JavaScript) is a well known, often used and
-powerful library implementing Observables, Subjects, and operators that requires about
-(unpacked) 700 kByte.
+In contrast the RxJS (Reactive Extensions for JavaScript) library is a well known, often
+used and powerful library implementing Observables, Subjects, and operators that
+requires about (unpacked) 700 kByte. It is used in some of the  
 
 In contrast, the publish+subscribe approach implemented in the <u-datahub> component
 needs about (unpacked) 9 kByte only and fits especially into implementations where
@@ -70,7 +75,18 @@ do not directly link to each other:
 </script>
 ```
 
+## Future of Observerables
+
+There is a [Observable API proposal](https://github.com/WICG/observable) to create a
+more feature rich event handling in the browser that can also be used for data objects.
+
+We will see ... or not.
+
 
 ## See also
 
 * [Why web application size matters](https://dev.to/relative-ci/why-web-application-size-matters-51bc)
+* [RxJS Streams Explained](https://medium.com/@venurawarnasooriya/rxjs-streams-explained-like-youre-five-but-with-code-6682be0dd5fe)
+* [Reactive Programming with RxJS](https://medium.com/@rahul.a1739/reactive-programming-with-rxjs-f3e52d0ca1eb)
+* [Data binding in Web components](https://www.mathertel.de/blog/2025/0417-sfc-data.htm)
+

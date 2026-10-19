@@ -20,7 +20,7 @@ These npm scripts are defined in package.json.
 
 ## Data-Hub
 
-The [Data Hub](data-hub.md) is implemented as the `u-datahub.sfc` component and is loaded via the SFC loader.
+The [Data Hub](u-datahub.md) is implemented as the `u-datahub.sfc` component and is loaded via the SFC loader.
 There is no separate standalone `data-hub.js` build anymore.
 
 Use the component in a page with `window.loadComponent("u-datahub")` and then access the instance via
