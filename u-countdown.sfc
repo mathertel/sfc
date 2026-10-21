@@ -2,6 +2,19 @@
 
 File: u-countdown.sfc
 
+# Web component for displaying a Count-Down
+
+The `<u-countdown>` custom element displays a duration value and automatically adjusts the shown value by counting the
+seconds down to 0.
+
+The duration parameter must be given as a number of seconds, by using the hh:mm:ss notation or by using the ISO 8601
+notation like "2H5M22S"
+
+When the counter reaches 0 the elements emits the "start" event.
+
+  const event = new Event("start", { detail: elem.dataset.time });
+  elem.dispatchEvent(event);
+
 -->
 
 <template light>
@@ -56,6 +69,7 @@ File: u-countdown.sfc
       console.debug("attributeChanged", name, oldValue, newValue);
 
       if (name === 'value') {
+          this._inputObj.value = this.value;
       }
     } // attributeChangedCallback()
 
