@@ -77,6 +77,7 @@ See Also
 
     _input;
     _value = "0";
+    _inputChangedOnPointer = false;
 
     // _languages = navigator.languages;
     // _dateStyle = "medium";
@@ -97,25 +98,40 @@ See Also
       this._internals.setFormValue(this._value);
     }
 
+    #setUserValue(newValue) {
+      if (newValue === this._value) return;
+
+      this.draw(newValue);
+      this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    }
+
     constructor() {
       super();
 
       this._input = this.shadowRoot.querySelector('input');
 
       this.shadowRoot.querySelector('button.on').addEventListener('click', (evt) => {
-        this.draw('1');
+        this.#setUserValue('1');
       });
 
       this.shadowRoot.querySelector('button.off').addEventListener('click', (evt) => {
-        this.draw('0');
+        this.#setUserValue('0');
       });
 
-      this._input.addEventListener('click', (evt) => {
-        this.draw((this._value === "0") ? "1" : "0");
+      this._input.addEventListener('pointerdown', () => {
+        this._inputChangedOnPointer = false;
+      });
+
+      this._input.addEventListener('click', () => {
+        if (!this._inputChangedOnPointer) {
+          this.#setUserValue((this._value === "0") ? "1" : "0");
+        }
+        this._inputChangedOnPointer = false;
       });
 
       // Sync native value changes
       this._input.addEventListener('input', (evt) => {
+        this._inputChangedOnPointer = true;
         this.draw(this._input.value);
       });
 
@@ -124,7 +140,7 @@ See Also
       this._input.addEventListener('keydown', (evt) => {
         if (evt.code === 'Space') {
           evt.preventDefault(); // Prevent page scrolling
-          this.draw((this._value === "0") ? "1" : "0");
+          this.#setUserValue((this._value === "0") ? "1" : "0");
         }
       });
 

@@ -10,7 +10,7 @@ By extending a form element with u-form-json, the form data can be retrieved as 
 boolean values.
 
 ``` html
-<form is="u-form-json" method="dialog">
+<form is="u-form-json" method="dialog" dh-path="path" dh-mode="submit">
 ...
 </form>
 ```
@@ -33,7 +33,87 @@ boolean values.
     #emptyRecord = {};
     #booleanAttributes = new Set();
 
-    // enable or disable all submit buttons
+    #dataHubSyncPath = '';
+    #dataHubMode = 'sync';
+    #dataHubSyncGuard = false; // prevent recursive updates between form and datahub
+    #dataHubSubscriptionId = null; // subscription id for datahub updates
+    #listenersReady = false; // prevent multiple event listener registrations
+
+    static get observedAttributes() {
+      return ['dh-path', 'dh-mode'];
+    }
+
+    attributeChangedCallback(name, _oldValue, newValue) {
+      if (name === 'dh-path') {
+        this.#dataHubSyncPath = (newValue ?? '').trim();
+        this.#setupDataHubSync();
+      } else if (name === 'dh-mode') {
+        this.#dataHubMode = (newValue ?? '').trim().toLowerCase() === 'submit' ? 'submit' : 'sync';
+      }
+    }
+
+    #setupDataHubSync() {
+      const dh = window.datahub;
+
+      if (this.#dataHubSubscriptionId !== null && dh && typeof dh.unsubscribe === 'function') {
+        dh.unsubscribe(this.#dataHubSubscriptionId);
+        this.#dataHubSubscriptionId = null;
+      }
+
+      if (!this.#dataHubSyncPath) return;
+
+      if (!dh || typeof dh.subscribe !== 'function' || typeof dh.publish !== 'function') {
+        return;
+      }
+
+      this.#dataHubSubscriptionId = dh.subscribe(this.#dataHubSyncPath, (_path, value) => {
+        if (this.#dataHubSyncGuard) return;
+
+        if (value === undefined) {
+          this.#dataHubSyncGuard = true;
+          try {
+            this.setJsonData(Object.assign({}, this.#emptyRecord));
+          } finally {
+            this.#dataHubSyncGuard = false;
+          }
+          return;
+        }
+
+        this.#dataHubSyncGuard = true;
+        try {
+          this.setJsonData(value);
+        } finally {
+          this.#dataHubSyncGuard = false;
+        }
+      });
+
+      const current = dh.get(this.#dataHubSyncPath);
+      if (current !== undefined) {
+        this.#dataHubSyncGuard = true;
+        try {
+          this.setJsonData(current);
+        } finally {
+          this.#dataHubSyncGuard = false;
+        }
+      }
+    }
+
+    /// @brief Synchronize the form data to the DataHub if a sync path is defined.
+    /// @param {boolean} [force=false] - If true, forces synchronization even in 'submit' mode.
+    #syncToDataHub(force = false) {
+      const dh = window.datahub;
+      if (!this.#dataHubSyncPath || !dh || typeof dh.publish !== 'function') return;
+      if (this.#dataHubMode === 'submit' && !force) return;
+      if (this.#dataHubSyncGuard) return;
+
+      this.#dataHubSyncGuard = true;
+      try {
+        dh.publish(this.#dataHubSyncPath, this.getJsonData());
+      } finally {
+        this.#dataHubSyncGuard = false;
+      }
+    }
+
     _validateForm() {
       const v = this.checkValidity();
       this.querySelectorAll("button[type=Submit]").forEach(btn => {
@@ -43,10 +123,26 @@ boolean values.
 
     connectedCallback() {
       console.debug('u-form-json', 'connected()');
-      // //   ... is called when the html element is ready, but form elements may not be there at this time.
-      this.addEventListener("change", this._validateForm);
-      this.addEventListener("keyup", this._validateForm);
-      // //   document.addEventListener('DOMContentLoaded', this.analyze.bind(this));
+
+      if (!this.#listenersReady) {
+        this.addEventListener("change", this._validateForm);
+        this.addEventListener("keyup", this._validateForm);
+
+        this.addEventListener("change", () => this.#syncToDataHub());
+        this.addEventListener("input", () => this.#syncToDataHub());
+        this.addEventListener("submit", () => this.#syncToDataHub(true));
+        this.#listenersReady = true;
+      }
+
+      this.#setupDataHubSync();
+    }
+
+    disconnectedCallback() {
+      const dh = window.datahub;
+      if (this.#dataHubSubscriptionId !== null && dh && typeof dh.unsubscribe === 'function') {
+        dh.unsubscribe(this.#dataHubSubscriptionId);
+      }
+      this.#dataHubSubscriptionId = null;
     }
 
     // analyse all form element types that can be used as input to create an empty record
@@ -88,7 +184,7 @@ boolean values.
     setJsonData(jData) {
       let hasChanged = false;
       if (!this.#analyzed) this._analyze();
-      Object.entries(jData).forEach(([name, value]) => {
+      Object.entries(jData).forEach(([name, value] = entry) => {
         this.querySelectorAll(`*[name=${name}]`).forEach(el => {
           if (el.type === 'radio') {
             if (el.checked !== (el.value === value)) {

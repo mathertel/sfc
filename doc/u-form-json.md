@@ -23,7 +23,7 @@ The loader script and the custom element definition must be included in the page
 ```html
 <script src="/loader.js"></script>
 <script>
-window.loadComponent('u-form-json');
+window.loadComponent('u-datahub,u-form-json');
 </script>
 ```
 
@@ -35,7 +35,23 @@ Any form element then can be extended by this functionality using the HTML `is` 
 </form>
 ```
 
-The attribute method="dialog" is used here to disable the standard "submit" behavior of the form.
+The attribute `method="dialog"` is used here to disable the standard "submit" behavior of the form.
+
+To synchronize the form with a DataHub path, add the `dh-path` and `dh-mode` attributes and include a `<u-datahub>` element:
+
+```html
+<u-datahub></u-datahub>
+<form is="u-form-json" dh-path="contact" dh-mode="sync" method="dialog">
+  <input name="name">
+  <input name="email" type="email">
+</form>
+```
+
+Load `u-datahub` before `u-form-json` when initializing the components from JavaScript. The form reads the existing
+value at the `dh-path` path when it connects and applies later DataHub updates to its controls. The `dh-mode` attribute
+controls when form edits are published back to that path: `sync` publishes on `input` and `change` events, while
+`submit` publishes when the form is submitted. The default is `sync`. If the path is removed, the form is reset to its
+empty values.
 
 
 ## Read the Data in the form elements
@@ -96,6 +112,8 @@ All elements that are not mentioned in the given data JavaScript Object will not
 On every `key` ir `change` event on the form the form is validated by calling the `checkValidity` function. When false is returned
 all button with type=Submit are disabled.
 
+When `dh-mode="submit"` is set, submitting the form publishes its current JSON data to the configured DataHub path.
+
 
 ## Implementation details
 
@@ -106,6 +124,23 @@ with the default values.
 
 The work was published by my blogging in [Advent 2022](https://mathertel.github.io/advent2022/15formjson.htm).  This is
 a slightly enriched sfc version.
+
+
+## Instance Properties
+
+* `dh-path` -— optional DataHub path to synchronize with the form. The value must be a path understood by DataHub, such
+  as `contact` or `user.profile`.
+
+* `dh-mode` -- controls when form values are published to the `dh-path` path. Use `sync` to publish on every input or
+  change (the default), or `submit` to publish only when the form is submitted.
+
+
+## Instance Methods
+
+* `getJsonData()` -— returns the current form values as a JavaScript object, including empty values and checkbox
+  booleans.
+* `setJsonData(data)` -— sets the values of matching named form controls from a JavaScript object. Controls not
+  represented in the object are left unchanged.
 
 
 ## See also

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Form and DataHub Sync Test</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <link Content-Type="text/css" href="utils.css" rel="stylesheet" />
+  <script src="/loader.js"></script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <u-datahub></u-datahub>
+  <header>
+    <h1>Form and DataHub Sync Test</h1>
+  </header>
+
+  <main>
+    <nav aria-label="DataHub updates">
+      <button id="toggleMode" type="button">Switch to submit mode</button>
+      <button id="changeName" type="button">Change name in DataHub</button>
+      <button id="increaseAge" type="button">Increase age in DataHub</button>
+      <button id="deleteProfile" type="button">Delete profile in DataHub</button>
+    </nav>
+
+    <h2>Contact Form</h2>
+    <form id="contactForm" is="u-form-json" dh-path="profile" dh-mode="sync" method="dialog">
+      <div class="form-grid">
+        <label for="name">Name:</label>
+        <input id="name" name="name" autocomplete="name">
+
+        <label for="age">Age:</label>
+        <input id="age" name="age" type="number" min="0">
+
+        <label for="email">Email:</label>
+        <input id="email" name="email" type="email" autocomplete="email">
+
+        <label for="active">Active:</label>
+        <input id="active" name="active" type="checkbox">
+      </div>
+      <button type="submit">Submit form</button>
+    </form>
+
+    <hr>
+    <h2>Current Data</h2>
+    <div class="data-views">
+      <section>
+        <h3>Form JSON</h3>
+        <pre id="formData" aria-live="polite"></pre>
+      </section>
+      <section>
+        <h3>DataHub</h3>
+        <pre id="hubData" aria-live="polite"></pre>
+      </section>
+    </div>
+
+    <p><a href="../doc/u-form-json.md">u-form-json documentation</a></p>
+  </main>
+
+  <script type="module">
+    await window.loadComponent('u-datahub');
+    window.datahub.publish('profile', {
+      name: 'Ada Lovelace',
+      age: 36,
+      email: 'ada@example.com',
+      active: true
+    });
+    await window.loadComponent('u-form-json');
+
+    const form = document.getElementById('contactForm');
+    const formData = document.getElementById('formData');
+    const hubData = document.getElementById('hubData');
+    const modeButton = document.getElementById('toggleMode');
+
+    // update the data views whenever the data in the form or datahub changes
+    function renderData() {
+      formData.textContent = JSON.stringify(form.getJsonData(), null, 2);
+      hubData.textContent = JSON.stringify(window.datahub.get(''), null, 2);
+    }
+
+    form.addEventListener('input', renderData);
+    form.addEventListener('change', renderData);
+    form.addEventListener('submit', event => event.preventDefault());
+    window.datahub.subscribe('profile', renderData);
+
+    modeButton.addEventListener('click', () => {
+      const mode = form.getAttribute('dh-mode') === 'sync' ? 'submit' : 'sync';
+      form.setAttribute('dh-mode', mode);
+      modeButton.textContent = `Switch to ${mode === 'sync' ? 'submit' : 'sync'} mode`;
+    });
+
+    document.getElementById('changeName').addEventListener('click', () => {
+      const names = ["Ada Lovelace", "Bill Gates", "Charles Babbage", "Dennis Ritchie", "Edsger W. Dijkstra", "Frances Allen", "Guido van Rossum"]
+      let name = window.datahub.get('profile.name');
+      window.datahub.publish('profile.name', names[(names.indexOf(name) + 1) % 7]);
+    });
+
+    document.getElementById('increaseAge').addEventListener('click', () => {
+      const age = Number(window.datahub.get('profile.age') || 0);
+      window.datahub.publish('profile.age', age + 1);
+    });
+
+    document.getElementById('deleteProfile').addEventListener('click', () => {
+      window.datahub.publish('profile', undefined);
+    });
+
+    renderData();
+  </script>
+</body>
+
+</html>

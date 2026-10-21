@@ -83,7 +83,6 @@
     let subAge;
 
     function rawCallback(path, value) {
-      // debugger;
       if (typeof value === 'object') {
         logObj.textContent += `\n ${path}=${JSON.stringify(value)}`;
       } else {

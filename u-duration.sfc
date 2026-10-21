@@ -13,7 +13,7 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
 <script extends="input">
   export default class UDuration extends HTMLInputElement {
 
-    static observedAttributes = ["prefunit"]; // "name"];
+    static observedAttributes = ["prefunit"];
 
     // #pref can be set using the attribute 'prefUnit' with the value "H", "M" or "S" (default)
     // When entering data using the iso format NN:NN or just NN the input can be interpreted differently:
@@ -33,6 +33,7 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
       }
     }
 
+    // connectedCallback is called when the element is added to the DOM
     connectedCallback() {
       console.log('u-duration', 'connected', this);
       this.addEventListener('change', this._onChange);
@@ -45,6 +46,7 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
       }
     }
 
+    // format a number to 2 digits with leading zero if necessary
     _f2(d) {
       d = String(Math.floor(d));
       if (d.length < 2) d = '0' + d;
