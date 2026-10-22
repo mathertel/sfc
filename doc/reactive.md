@@ -42,7 +42,7 @@ When the element is connected to the page, it makes itself available as `window.
 This lets other scripts access the data hub without querying the element each time.
 
 
-## Example
+## DataHub Simple Example
 
 A button can update a data model value while an output element renders it. Both elements
 do not directly link to each other:
@@ -74,6 +74,14 @@ do not directly link to each other:
   // hub.unsubscribe(subscription);
 </script>
 ```
+
+
+## Data handling components
+
+The following components share their state with the DataHub; see their documentation for details.
+
+* [u-form-json](u-form-json.md) -- connect the form data to a datahub path in both directions.
+* [u-countdown](u-countdown.md) -- a non visible component adding a countdown effect to a  duration value in the datahub.
 
 ## Future of Observerables
 

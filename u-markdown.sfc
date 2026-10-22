@@ -118,7 +118,6 @@ export default class MyMarkdown extends UComponent {
 
   // process markdown
   process() {
-    console.log(this.tagName, "process...");
     if (window.markdownit) {
       if (this.srcText) {
         this.renderMarkdown();

@@ -2,79 +2,126 @@
 
 File: u-countdown.sfc
 
-# Web component for displaying a Count-Down
-
-The `<u-countdown>` custom element displays a duration value and automatically adjusts the shown value by counting the
-seconds down to 0.
-
-The duration parameter must be given as a number of seconds, by using the hh:mm:ss notation or by using the ISO 8601
-notation like "2H5M22S"
-
-When the counter reaches 0 the elements emits the "start" event.
-
-  const event = new Event("start", { detail: elem.dataset.time });
-  elem.dispatchEvent(event);
+Copyright (c) 2026 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
 
 -->
 
-<template light>
-  <span>hoo</span>
-</template>
-
-<style>
-  u-countdown:hover {
-    box-shadow: var(--dropshadow);
-  }
-</style>
-
 <script>
-  export default class UCountDown extends UComponent {
-    static observedAttributes = ["value"];
-    value = 'black';
-    cssvar = '';
+  export default class UCountdown extends UComponent {
+    static observedAttributes = ["dh-path", "autostart"];
 
-    constructor(p) {
-      super();
-      // UComponent has at this stage already copied the template to the shadow root 
+    #timer;
+    #dhPath = "";
+    #autostart = false;
+    #initialized = false;
 
-      // move all nodes not from the template into right slot
-      const childNodes = Array.from(this.childNodes);
-      for (const n of childNodes) {
-        if (n.nodeType === Node.TEXT_NODE && n.nodeValue.trim() === '') {
-          n.remove(); // remove empty text nodes
-        } else {
-          if (n.classList?.contains('header')) break;
-          // header is first element of template -> stop the loop
-          const sl = this.querySelector((n.tagName === 'BUTTON') ? '.footer>slot' : '.main>slot');
-          sl.appendChild(n);
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (name === "dh-path") {
+        this.#dhPath = newValue || "";
+      } else if (name === "autostart") {
+        this.#autostart = newValue !== null;
+        if (this.#autostart && this.#initialized) {
+          this.start();
         }
       }
     }
 
-    onclick(evt) {
-      console.debug("click", evt);
-    }
-
-    onchange(evt) {
-      console.debug("change", evt);
-    }
-
     init() {
-      console.debug('init()');
-      document.querySelector('u-card').classList.add('card');
-      this.classList.add('card');
-    } // init()
-
-    attributeChangedCallback(name, oldValue, newValue) {
-      console.debug("attributeChanged", name, oldValue, newValue);
-
-      if (name === 'value') {
-          this._inputObj.value = this.value;
+      this.#initialized = true;
+      if (this.#autostart) {
+        this.start();
       }
-    } // attributeChangedCallback()
+    }
 
-    adoptedCallback() {
-      console.debug("adopted", evt);
+    disconnectedCallback() {
+      this.stop();
+    }
+
+    start(initialValue) {
+      const path = this.#dhPath;
+      if (!path || !window.datahub) {
+        return;
+      }
+
+      if (initialValue !== undefined) {
+        const initialSeconds = this.#durationSeconds(initialValue);
+        if (initialSeconds === undefined) {
+          return;
+        }
+
+        this.stop();
+        window.datahub.publish(path, this.#formatDuration(initialSeconds));
+      } else if (this.#timer !== undefined) {
+        return;
+      }
+
+      if (this.#durationSeconds(window.datahub.get(path)) === undefined) {
+        return;
+      }
+
+      this.#timer = window.setInterval(() => this.#tick(), 1000);
+    }
+
+    startFor(timestamp) {
+      const timestampMs = new Date(timestamp).getTime();
+      if (!Number.isFinite(timestampMs)) {
+        return;
+      }
+
+      const initialSeconds = Math.max(0, Math.ceil((timestampMs - Date.now()) / 1000));
+      this.start(this.#formatDuration(initialSeconds));
+    }
+
+    stop() {
+      if (this.#timer !== undefined) {
+        window.clearInterval(this.#timer);
+        this.#timer = undefined;
+      }
+    }
+
+    #tick() {
+      const path = this.#dhPath;
+      const totalSeconds = this.#durationSeconds(window.datahub?.get(path));
+
+      if (totalSeconds === undefined) {
+        this.stop();
+        return;
+      }
+
+      const remaining = Math.max(0, totalSeconds - 1);
+
+      window.datahub.publish(path, this.#formatDuration(remaining));
+
+      if (remaining === 0) {
+        this.stop();
+        this.dispatchEvent(new Event("done", { bubbles: true }));
+      }
+    }
+
+    #durationSeconds(value) {
+      if (typeof value === "number") {
+        return Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+      }
+
+      if (typeof value !== "string") return undefined;
+
+      let match = value.match(/^(\d+):([0-5]\d):([0-5]\d)$/);
+      if (match) {
+        return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]);
+      }
+
+      match = value.match(/^(\d+):([0-5]\d)$/);
+      if (!match) return undefined;
+
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+
+    #formatDuration(totalSeconds) {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor(totalSeconds % 3600 / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
   }
 </script>

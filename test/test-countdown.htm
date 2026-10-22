@@ -1,252 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- 
-
-u-coutdown.htm
-
-A custom element that implements ...
-
--->
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Countdown Test</title>
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <link Content-Type="text/css" href="/test/utils.css" rel="stylesheet" />
 
-  <title>Count Down Timer Test Page</title>
-
-  <link Content-Type="text/css" href="../docstyle.css" rel="stylesheet" />
-  <style>
-    /* :root {
-      --back: #17458f;
-      --color: white;
-    } */
-
-    html,
-    body,
-    h1,
-    h2,
-    h3 {
-      font-family: Arial, ui-sans-serif, sans-serif;
-    }
-
-    #timer {
-      padding: 1rem;
-
-      #countdown {
-        font-family: Arial, ui-sans-serif, sans-serif;
-        font-size: 320%;
-        font-weight: 600;
-      }
-    }
-
-    #paramForm {
-      border: 2px solid violet;
-
-    }
-  </style>
-
-  <script src="../loader.js"></script>
+  <script src="/loader.js"></script>
   <script>
-    var allSFCLoaded = window.loadComponent(['u-duration', 'u-form-json']);
+    window.allSFCLoaded = window.loadComponent(["u-datahub", "u-countdown", "u-markdown"]);
   </script>
 </head>
 
 <body class="sitelayout" style="--main-width: 60em">
   <u-datahub></u-datahub>
-
   <header>
-    <h1>Count Down Timer Test Page</h1>
+    <h1>Countdown Test</h1>
   </header>
 
-  <!-- <div>
-    <img src="/font/dark.svg" alt="dark mode" style="height: 12em; aspect-ratio: initial;" />
-  </div> -->
-
-
   <main>
-    <div id="timerForm" style="display:none">
-      <h3>Count Down Timer</h3>
+    <u-countdown id="counter" dh-path="timer" autostart="1"></u-countdown>
+    <p>Time remaining: <output id="countdownValue" aria-live="polite">Loading</output></p>
+    <button id="startCountdown" type="button">Start</button>
+    <button id="startCountdown12" type="button">Start 00:00:12</button>
+    <button id="startFor" type="button">StartFor</button>
+    <button id="stopCountdown" type="button">Stop</button>
 
-      <div id="timer">
-        <span id="countdown">&nbsp;</span>
-      </div>
-    </div>
     <hr>
-    <div id="paramForm" style="display:none">
-      <h3>Count Down Page parameters:</h3>
-      <form is="u-form-json" method="dialog" class="form-grid"> <!-- method="get" -->
-        <label>title:</label> <input name="title" title="The title displayed upon the count-down timer." />
-        <label>Sub-Text:</label> <input name="txt" title="Text based message." />
-        <label>Duration:</label> <input is="u-duration" id="durInput" title="use format 00:00:00 or number of seconds." style="width: 10em" />
-        <label>Start:</label> <input id="ts" name="ts" type="datetime-local" />
-        <div><input type="submit"></div>
-      </form>
+    <h2>Current Data</h2>
+    <div class="data-views">
+      <section>
+        <h3>DataHub</h3>
+        <pre id="hubData" aria-live="polite"></pre>
+      </section>
     </div>
 
-
-    <hr />
+    <u-markdown src="../doc/u-countdown.md"></u-markdown>
   </main>
 
   <script type="module">
-    await window.loadComponent('u-datahub');
-    const dh = window.datahub;
-    const formElem = document.querySelector('#paramForm form');
-    const durElem = document.querySelector('#paramForm form #durInput');
-    const tsElem = document.querySelector('#paramForm form #ts');
-    // debugger;
-    const ret = {};
+    await window.allSFCLoaded;
 
-    await allSFCLoaded;
-    dh.configurePersistence(sessionStorage, "datahub_store");
+    const counter = document.querySelector("#counter");
+    const output = document.querySelector("#countdownValue");
+    const hubData = document.querySelector("#hubData");
 
-    // transfer parameters from QueryString into data-hub
-    let n = 0;
-    let params = new URLSearchParams(window.location.search);
-    for (const [key, value] of params) {
-      if (value !== '')
-        ret[key] = value;
-      n++;
-    } // for
-    dh.publish("param", n ? ret : undefined);
-    formElem.setJsonData(ret);
+    counter.addEventListener("done", () => alert("DONE"));
 
-    // handle form submission and update the URL querystring causing a page reload
-    formElem.addEventListener('submit', evt => {
-      let paramsObj = formElem.getJsonData();
-      const paramsQS = new URLSearchParams(paramsObj);
-
-      // dh.publish("param", paramsObj);
-      // use effect to update the URL querystring
-      // console.log(paramsObj, paramsQS.toString());
-
-      // navigate to the same page with new parameters
-      window.location.search = paramsQS.toString();
-    });
-
-    // when duration changes, update the timestamp field
-    durElem.addEventListener('change', evt => {
-      console.log('Duration changed: ', evt.currentTarget.value);
-      tsElem.value = new Date(Date.now() + parseDuration(evt.currentTarget.value) * 1000).toISOString().slice(0, 16);
-    });
-
-    let startTime;
-    let defaults = {
-      title: "Meeting", txt: "Please wait for the meeting to start", d: "12:00",
-      message: "The meeting has started"
+    window.datahub.publish("timer", "00:01:03");
+    output.textContent = window.datahub.get("timer");
+    const renderHubData = () => {
+      hubData.textContent = JSON.stringify(window.datahub.get(""), null, 2);
     };
-    var style = "digital";
-    var link = "...";
-
-
-    document.querySelector('#paramForm').style.display = 'block';
-    document.querySelector('#timerForm').style.display = 'block';
-
-    // parse ISO 8601 duration or HH:MM:SS format and return value as Seconds
-    function parseDuration(v) {
-      function _num(s) {
-        let ret = 0;
-        if (s) {
-          const r = s.match(/^(\d+)/);
-          if (r) ret = Number(r[1]);
-        }
-        return (ret);
-      }
-
-      v = v.trim().toUpperCase().replaceAll(/[^0-9DHMS]+/g, ':');
-
-      let r = undefined;
-      let d = 0;
-
-      if (r = v.match(/^(\d*):(\d*):(\d*)$/)) {
-        d = Number(r[1]) * 60 * 60 + Number(r[2]) * 60 + Number(r[3]);
-      } else if (r = v.match(/^(\d+):(\d+)$/)) {
-        d = Number(r[1]) * 60 + Number(r[2]);
-      } else if (r = v.match(/^(\d+)$/)) {
-        d = Number(r[1]);
-
-      } else if (r = v.match(/^(\d+D)?(\d+H)?(\d+M)?(\d+S)?$/)) {
-        d = _num(r[1]) * 24 * 60 * 60 + _num(r[2]) * 60 * 60 + _num(r[3]) * 60 + _num(r[4]);
-      }
-      return (d);
-    } // parseDuration()
-
-
-    // get parameters from QueryString
-    function getParams() {
-      const ret = {};
-      let n = 0;
-      let params = new URLSearchParams(window.location.search);
-      for (const [key, value] of params) {
-        if (value !== '')
-          ret[key] = value;
-        n++;
-      }
-      return (n ? ret : undefined);
-    } // getParams()
-
-    function fillPage(p) {
-      // the ts : timestamp parameter is not in the defaults to give priority to ts when given in the querystring.
-      let defaults = { title: "Meeting", txt: "Please wait for the meeting to start", d: "12:00" };
-
-      let p2 = Object.assign({}, defaults, p);
-      console.log(p2);
-
-      document.title = document.querySelector('h1').textContent = p2.title;
-      document.querySelector('h3').textContent = p2.txt;
-    }
-
-    const p = getParams();
-    // debugger;
-
-    if (!p) {
-      document.querySelector('#paramForm').style.display = 'block';
-
-    } else {
-      document.querySelector('#timerForm').style.display = 'block';
-      if (p.ts) {
-        startTime = new Date(p.ts);
-      } else {
-        startTime = Date.now() + parseDuration(p.d) * 1000;
-      }
-
-      // fill all static 
-      fillPage(p);
-    }
-
-    document.addEventListener('DOMContentLoaded', (evt) => {
-      var oCD = document.querySelector('#countdown');
-      const durFmt = new Intl.DurationFormat(navigator.languages, { style: style });
-
-      if (false && (new Date() > startTime)) {
-        oCD.textContent = p.message;
-
-      } else {
-        let wt = window.setInterval(() => {
-          // var now = new Date();
-          const dur = Math.floor((startTime - new Date()) / 1000);
-          // console.log(diffInMs);
-
-          if (dur < 0) {
-            window.clearInterval(wt);
-            oCD.textContent = p.message;
-          } else {
-
-            // const d = new Date(startTime - new Date());
-            const d = {
-              seconds: dur % 60,
-              minutes: Math.floor(dur / 60) % 60,
-              hours: Math.floor(dur / (60 * 60) % 24),
-              days: Math.floor(dur / (24 * 60 * 60))
-            };
-
-            oCD.textContent = durFmt.format(d);
-          }
-        }, 1000);
-      }
-
-
+    window.datahub.subscribe("**", renderHubData);
+    renderHubData();
+    window.datahub.subscribe("timer", (_path, value) => {
+      output.textContent = value;
     });
+
+    document.querySelector("#startCountdown").addEventListener("click", () => counter.start());
+    document.querySelector("#startCountdown12").addEventListener("click", () => counter.start("00:00:12"));
+    document.querySelector("#startFor").addEventListener("click", () => counter.startFor("2027-01-01T00:00:00Z"));
+    document.querySelector("#stopCountdown").addEventListener("click", () => counter.stop());
   </script>
 </body>
 

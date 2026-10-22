@@ -3,10 +3,10 @@
 | Component                         | Extends    | Brief description                         |
 | --------------------------------- | ---------- | ----------------------------------------- |
 | [Card](u-card.md)                 |            | Provides a flexible content card.         |
-| [Charbox](u-charbox.md)           |            | Displays an animated single digit.        |
+| [Charbox](u-charbox.md)           |            | Displays an animated character.           |
 | [Code](u-code.md)                 | `<code>`   | Displays formatted code.                  |
 | [Color](u-color.md)               |            | Displays a CSS variable's color value.    |
-| [Countdown](u-countdown.md)       |            | Displays a countdown timer.               |
+| [Countdown](u-countdown.md)       |            | Counts down a DataHub duration value.     |
 | [DataHub](u-datahub.md)           |            | Provides shared client-side data access.  |
 | [Duration](u-duration.md)         | `<input>`  | Captures duration values in a text input. |
 | [Form Dialog](u-form-dialog.md)   | `<dialog>` | Opens a dialog containing a form.         |

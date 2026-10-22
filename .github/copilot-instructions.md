@@ -29,6 +29,8 @@ Purpose: Quickly orient an AI coding agent to be productive in this repository.
   
   - SFC syntax: an SFC is an HTML file with `<template>`, `<style>`, and `<script>`
     blocks. The `<script>` **must** `export default` the component class.
+  - Declare component attributes in `static observedAttributes` and synchronize
+    internal state in `attributeChangedCallback`; avoid reading them with `getAttribute()`.
   - Event handler methods must be named in all-lowercase after the `on` prefix. Example:
     use `onclick(evt) { ... }` **not** `onClick` — the loader checks `key.toLowerCase()`
     and logs an error if not lower-case.
@@ -106,3 +108,8 @@ filename.
 - Include a Level 2 Header titled "Instance Methods"
   - include a list of all methods of the class with a short description that are
     available externally.
+
+## Test pages
+
+- Do not link directly to component `.md` documentation from `test-*.htm` pages. Load
+  `u-markdown` and embed the documentation with `<u-markdown src="../doc/u-....md"></u-markdown>`.

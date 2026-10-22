@@ -1,30 +1,57 @@
-# Countdown
+# DataHub Countdown
 
-`<u-countdown>` is currently a placeholder component. Although its name and the demo page suggest a countdown timer, the registered component does not yet calculate or display a countdown.
+`<u-countdown>` is a headless component that reduces a duration stored in the DataHub.
+It expects the value at `dh-path` to use the `HH:MM:SS` format and updates that value
+once per second while running. The countdown stops automatically at `00:00:00`.
 
 ## Setup
 
-Load the SFC loader and register the component:
+Load the DataHub and countdown components:
 
 ```html
 <script src="/loader.js"></script>
 <script>
-  const countdownLoaded = window.loadComponent('u-countdown');
+  window.loadComponent(["u-datahub", "u-countdown"]);
 </script>
 ```
 
-After registration, the element can be included in the page:
+Add a DataHub and point the countdown at a value in its store:
 
-```html
-<u-countdown value="60"></u-countdown>
+``` html
+<u-datahub></u-datahub>
+<u-countdown id="counter" dh-path="timer"></u-countdown>
+
+<script type="module">
+  await window.loadComponent(["u-datahub", "u-countdown"]);
+  window.datahub.publish("timer", "00:03:00");
+  document.querySelector("#counter").start();
+</script>
 ```
 
-The current template displays the static text `hoo`; changing `value` does not update it.
+The component does not render UI. Read or subscribe to the DataHub path to display the
+current value.
 
 ## Instance Properties
 
-* **`value`** -- the only observed attribute. The current component does not use changes to this attribute to run or display a countdown.
+* `dh-path` -- DataHub path containing the countdown duration in `HH:MM:SS` format.
+
+* `autostart` -- Boolean attribute that starts the countdown during component
+  initialization, using the current value at `dh-path`.
 
 ## Instance Methods
 
-There are no public instance methods for page code to call. The component does not currently expose countdown controls or dispatch countdown events.
+* `start(initialValue?)` -- Starts reducing the DataHub duration once per second. When
+  provided, `initialValue` may be seconds, `MM:SS`, or `HH:MM:SS`; it is normalized to
+  `HH:MM:SS`, published to `dh-path`, and replaces any running countdown. Calling it
+  without a value while already running has no effect.
+
+* `stop()` -- Stops the countdown. It also stops when the element is removed or the
+  value is invalid.
+
+* `startFor(timestamp)` -- Calculates the duration until `timestamp` once, then passes
+  it to `start(initialValue)`. Accepts a value supported by `Date`; timezone-less
+  date-time strings use the browser's local timezone.
+
+## Instance Events
+
+* `done` -- Bubbles when the countdown reaches `00:00:00`.
