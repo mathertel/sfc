@@ -59,14 +59,13 @@
   </main>
 
   <script type="module">
-    await window.loadComponent('u-datahub');
+      await window.loadComponent(['u-datahub', 'u-form-json']);
     window.datahub.publish('profile', {
       name: 'Ada Lovelace',
       age: 36,
       email: 'ada@example.com',
       active: true
     });
-    await window.loadComponent('u-form-json');
 
     const form = document.getElementById('contactForm');
     const formData = document.getElementById('formData');

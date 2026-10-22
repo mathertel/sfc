@@ -10,18 +10,19 @@
 
   <script src="/loader.js"></script>
   <script>
-    window.allSFCLoaded = window.loadComponent(["u-datahub", "u-countdown", "u-markdown"]);
+    window.allSFCLoaded = window.loadComponent(["u-datahub", "u-duration", "u-countdown", "u-form-json", "u-markdown"]);
   </script>
 </head>
 
 <body class="sitelayout" style="--main-width: 60em">
   <u-datahub></u-datahub>
+  <u-countdown id="counter" dh-path="timer" autostart="1"></u-countdown>
+
   <header>
     <h1>Countdown Test</h1>
   </header>
 
   <main>
-    <u-countdown id="counter" dh-path="timer" autostart="1"></u-countdown>
     <p>Time remaining: <output id="countdownValue" aria-live="polite">Loading</output></p>
     <button id="startCountdown" type="button">Start</button>
     <button id="startCountdown12" type="button">Start 00:00:12</button>
@@ -30,6 +31,13 @@
 
     <hr>
     <h2>Current Data</h2>
+    <form is="u-form-json" dh-path="/" method="dialog">
+      <fieldset class="form-grid" style="width:380px">
+        <legend>data from datahub:</legend>
+        <label>Timer:</label><output name="timer" aria-live="polite"></output>
+        <label>Timer:</label><input is="u-duration" name="timer" aria-live="polite"></input>
+      </fieldset>
+    </form>
     <div class="data-views">
       <section>
         <h3>DataHub</h3>
@@ -50,6 +58,7 @@
     counter.addEventListener("done", () => alert("DONE"));
 
     window.datahub.publish("timer", "00:01:03");
+
     output.textContent = window.datahub.get("timer");
     const renderHubData = () => {
       hubData.textContent = JSON.stringify(window.datahub.get(""), null, 2);

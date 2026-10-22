@@ -32,7 +32,19 @@ This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/
       if (this.#autostart) {
         this.start();
       }
-    }
+
+      window.datahub.subscribe(this.#dhPath, (_path, value) => {
+        let d = this.#durationSeconds(value);
+        if (d === undefined) {
+          this.stop();
+
+        } else {
+          if (this.autostart && this.#timer === undefined) {
+            this.start();
+          }
+        }
+      });
+    } // init()
 
     disconnectedCallback() {
       this.stop();
