@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// packsfc.js
+// pack-sfc.js
 // copy all files for the full featured web server into the dist folder
 // ready to be published on http://homeding.github.io/vxx 
 
@@ -12,6 +12,7 @@ import console from 'node:console';
 import yargs from 'yargs';
 
 import * as HTMLMinifier from 'html-minifier-terser';
+import { existsSync } from 'node:fs';
 
 const sfcFolder = ".";
 const sfcExt = ".sfc";
@@ -21,13 +22,18 @@ const sfcExt = ".sfc";
 const options = yargs(process.argv.slice(2))
   .usage('Usage: npx pack-sfc [options] <sfc-names> ... -o <outfile>')
   .example('npx pack-sfc u-code u-toast -o all', 'pack into all.sfc')
-  .example('npx pack-sfc -p=0 u-code u-toast', 'pack without minifying')
+  .example('npx pack-sfc -p 0 u-code u-toast', 'pack without minifying')
   .option('v', { alias: 'verbose', describe: 'Verbose logging', type: 'boolean', demandOption: false, default: false })
   .option('p', { alias: 'pack', describe: 'pack resulting file', type: 'boolean', demandOption: false, default: true })
   .option('o', { alias: 'outfile', describe: 'name of the output file', type: 'string', demandOption: false, default: "bundle" + sfcExt })
   .alias('help', 'h')
   .demandCommand(1)
   .argv;
+
+if (options.verbose) {
+  console.log("argv:", process.argv.join(' '))
+  console.log("parsed options:", options)
+}
 
 // ===== initializing modules =====
 
@@ -40,13 +46,19 @@ async function wrapSFC(sfcName, pack = false) {
   tagName = tagName.substring(tagName.lastIndexOf('\\') + 1);
   tagName = tagName.substring(tagName.lastIndexOf('/') + 1);
 
-  console.log(`defining ${tagName} from file ${sfcName} ...`);
-
   if (!sfcName.endsWith(sfcExt)) {
     sfcName += sfcExt;
   }
 
-  txt = await readFile(sfcFolder + '/' + sfcName, 'utf8');
+  const filePath = sfcFolder + '/' + sfcName;
+  if (! existsSync(filePath)) {
+    console.error(`File not found: ${filePath}`);
+    process.exit(1);
+  }
+
+  console.log(`defining ${tagName} from file ${filePath} ...`);
+
+  txt = await readFile(filePath, 'utf8');
   // console.log(txt);
 
   if (pack) {
@@ -74,9 +86,35 @@ console.log(`Start bundling SFCs...`);
 
 let txt = '';
 
-for await (const f of glob(options._)) {
-  txt += await wrapSFC(f, options.pack);
-}
+for (const p of options._) {
+  if (options.verbose) console.log(`processing ${p} ...`);
+  if (!p.startsWith('@')) {
+    const matches = [];
+    if (p.includes('*') || p.includes('?') || p.includes('[')) {
+      for await (const match of glob(p)) matches.push(match);
+    }
+    for (const name of matches.length ? matches : [p]) {
+      txt += await wrapSFC(name, options.pack);
+    }
+
+  } else {
+    // read file p[1...] and treat every line as a SFC name, use '//' to comment out empty lines
+    const filePath = p.substring(1);
+    if (! existsSync(filePath)) {
+      console.error(`File not found: ${filePath}`);
+      process.exit(1);
+    }
+    console.group(`reading file ${filePath} ...`);
+    const lines = (await readFile(filePath, 'utf8')).split('\n');
+    for (const line of lines) {
+      if (line.startsWith('//')) continue;
+      if (line.trim()) {
+        txt += await wrapSFC(line.trim(), options.pack);
+      }
+    }
+    console.groupEnd();
+  }
+} // for
 
 console.log(`writing ${options.outfile} ...`);
 await writeFile(options.outfile, txt, 'utf-8');

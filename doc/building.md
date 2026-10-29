@@ -18,7 +18,7 @@ To watch and re-create during development the loader use `npm run build:loader-w
 These npm scripts are defined in package.json.
 
 
-## Data-Hub
+## [Data Hub](u-datahub.md)
 
 The [Data Hub](u-datahub.md) is implemented as the `u-datahub.sfc` component and is loaded via the SFC loader.
 There is no separate standalone `data-hub.js` build anymore.
@@ -29,12 +29,42 @@ Use the component in a page with `window.loadComponent("u-datahub")` and then ac
 
 ## Bundling Controls
 
-Bundling multiple controls into a single bundle file is supported by a simple javascript bundler that can be started as
-command line. This will also remove and debugger and console statements not required for production but helpful while developping.
+Use a bundle for production only to reduce download size and avoiding console logging and debugger
+breakpoints.
 
-```bash
-npx packsfc <components> -o bundle.htm
+During bundling the following is removed to minimize download:
+
+* all not relevant whitespace for html, script and css
+* all comments
+* all `console` output
+* all `debugger` statements
+* variable names are shortend when used internally only
+
+Bundling is implemented by a simple javascript command line tool.
+
+### Examples
+
+To create a complete packed bundle containing all controls:
+
+``` cmd
+node bin\pack-sfc.js -o bundle.sfc --pack u-*.sfc
 ```
 
-The packing should be configured to include all required components into one file.  This can reduce the required
-download size.
+To create a complete unpacked bundle:  
+
+``` cmd
+node bin\pack-sfc.js -o bundle.sfc --no-pack u-*.sfc`
+```
+
+To create a bundle of selected components:
+
+``` cmd
+node bin\pack-sfc.js -o cc-bundle.sfc --no-pack u-card u-code
+```
+
+It is supported to maintain a text file with the list of components to be bundeled using a textfile
+with file names on each line:
+`node bin\pack-sfc.js -o cc-bundle.sfc --no-pack @select`
+
+The extension .sfc is used when not specified in the filenames. Parameters with wildcards are supported.
+

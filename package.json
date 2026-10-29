@@ -16,7 +16,7 @@
     "build:loader": "esbuild src\\loader.ts                         --minify    --drop:console --drop:debugger --outfile=loader.js",
     "build:loader-watch": "esbuild src\\loader.ts                         --sourcemap --watch                        --outfile=loader.js",
     "build:watch": "esbuild src\\*.ts   --format=esm --sourcemap --watch --outdir=./",
-    "build:bundle": "pack-sfc *.sfc -o bundle.sfc",
+    "build:bundle": "node bin\\pack-sfc.js u-*.sfc -o bundle.sfc --pack",
     "clean": "del *.js.map loader.js json-parse.js",
     "build": "npm run test:src && npm run build:loader",
     "pack": "bin\\pack.bat",

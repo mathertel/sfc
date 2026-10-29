@@ -47,7 +47,13 @@ Purpose: Quickly orient an AI coding agent to be productive in this repository.
     loader. For script dependencies inside component code, use `importScript()` which
     resolves URLs against `this.constructor.url`.
 
-- **DataHub specifics (from `src/data-hub.ts`):**
+- **Coding style**
+
+  - In the sources (*.sfc) use console.debug(...) only for any interesting tracing that
+    may help during debugging and further development. console output and remaining
+    debugger statements will be removed when packing the controls into a bundle.
+
+- **DataHub specifics (from `u-datahub.sfc`):**
 
   - Access via `window.datahub` (global singleton created at end of file).
   - Paths use dot `.` as delimiter internally for callbacks and matching. `subscribe()`
@@ -69,7 +75,7 @@ Purpose: Quickly orient an AI coding agent to be productive in this repository.
     composed).
   - Loader implementation: `src/loader.ts` (how components are parsed, defined and how
     `UComponent` initializes shadow/template/style).
-  - Data layer: `src/data-hub.ts` and `src/json-parse.ts` (tokenize/find/merge helpers).
+  - Data layer: `u-datahub.sfc` and `/doc/u-datahub.md`
 
 - **Tests / quick local verification:**
 
