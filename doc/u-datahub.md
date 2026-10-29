@@ -146,7 +146,16 @@ is always the dot notation as string.
 
 <!-- ### Guaranteed callback order -->
 
-## Examples
+
+## Examples and Snippets
+
+### Link Data from a form to a node in the DataHub
+
+HTML forms extended using `<form is="u-form-json" ...>` can directly be linked to a data
+node in the datahub.
+
+See [u-form-json documentation](u-form-json.md) for a full example.
+
 
 ### URL Parameters as Data Feed for DataHub
 
@@ -163,8 +172,29 @@ components.
   } // for
 
   // add at once to the local reactive data
- window.datahub.publish("hash", node);
+ window.datahub.publish("params", node);
 ```
+
+### URL Hash Parameters as Data Feed for DataHub
+
+The following code reads parameters from a URL hash such as `#name=Ada&mode=edit`
+and publishes them under the `hash` path in the DataHub. Components can access them
+as `hash.name` and `hash.mode`.
+
+Hash parameters can change without reloading the page and the EventListener will
+re-publish in this case.
+
+```javascript
+function publishHash() {
+  const hash = new URLSearchParams(window.location.hash.slice(1));
+  const values = Object.fromEntries(hash.entries());
+  window.datahub.publish("hash", values);
+}
+
+window.addEventListener("hashchange", publishHash);
+publishHash();
+```
+
 
 <!--
 

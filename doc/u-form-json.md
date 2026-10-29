@@ -37,7 +37,10 @@ Any form element then can be extended by this functionality using the HTML `is` 
 
 The attribute `method="dialog"` is used here to disable the standard "submit" behavior of the form.
 
-To synchronize the form with a DataHub path, add the `dh-path` and `dh-mode` attributes and include a `<u-datahub>` element:
+### Link Form Data to a DataHub Node
+
+Add a `<u-datahub>` element and set `dh-path` on the form to the node that should stay
+in sync with its controls:
 
 ```html
 <u-datahub></u-datahub>
@@ -51,7 +54,7 @@ Load `u-datahub` before `u-form-json` when initializing the components from Java
 value at the `dh-path` path when it connects and applies later DataHub updates to its controls. The `dh-mode` attribute
 controls when form edits are published back to that path: `sync` publishes on `input` and `change` events, while
 `submit` publishes when the form is submitted. The default is `sync`. If the path is removed, the form is reset to its
-empty values.
+empty values. See the [interactive form and DataHub example](../test/test-formdata.htm) for a complete demonstration.
 
 
 ## Read the Data in the form elements
