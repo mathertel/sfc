@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>u-format Test Page</title>
+  <link href="/docstyle.css" rel="stylesheet" />
+  <script src="/loader.js"></script>
+  <script>
+    window.language = "de-DE";
+    var allSFCLoaded = window.loadComponent(['u-format', 'u-markdown']);
+  </script>
+</head>
+<body class="sitelayout" style="--main-width: 60em">
+  <header><h1>u-format Test Page</h1></header>
+  <main>
+    <dl>
+      <dt>Inner text</dt>
+      <dd><u-format id="text">1234.56</u-format></dd>
+      <dt>Value attribute</dt>
+      <dd><u-format id="attribute" value="9876.54">1234.56</u-format></dd>
+      <dt>Zero</dt>
+      <dd><u-format id="zero" value="0">1234.56</u-format></dd>
+      <dt>Negative</dt>
+      <dd><u-format id="negative">-1234.56</u-format></dd>
+      <dt>Explicit text mode</dt>
+      <dd><u-format id="explicit-text" mode="text">001234.5600</u-format></dd>
+      <dt>Text value attribute</dt>
+      <dd><u-format id="text-value" mode="text" value="Amount pending">Fallback text</u-format></dd>
+      <dt>Text mode with currency configured</dt>
+      <dd><u-format id="text-currency" currency="EUR" mode="text">1234.56</u-format></dd>
+      <dt>Currency</dt>
+      <dd><u-format id="currency" currency="EUR" locale="de-DE">1234.56</u-format></dd>
+    </dl>
+    <u-markdown src="../doc/u-format.md"></u-markdown>
+  </main>
+</body>
+</html>
+

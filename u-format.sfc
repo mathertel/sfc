@@ -1,0 +1,71 @@
+<!--
+Implementation of a web component for .
+
+The component displays ...
+
+<u-format></u-format>
+
+## Attributes
+
+## JavaScript accessible methods
+
+## Options
+
+-->
+
+<script>
+    export default class UFormat extends UComponent {
+        static observedAttributes = ["value", "currency", "mode", "locale"];
+
+        #mode = "text"; // later also "date"
+        #value = undefined;
+        #fmtOptions = {};
+        #locale = navigator.language;
+
+        attributeChangedCallback(name, oldValue, newValue) {
+            if (oldValue !== newValue) {
+                switch (name) {
+                    case "value":
+                        this.#value = newValue;
+                        break;
+                    case "mode":
+                        this.#mode = newValue;
+                        break;
+                    case "currency":
+                        this.#mode = "currency";
+                        this.#fmtOptions = { style: "currency", currency: newValue };
+                        break;
+                    case "locale":
+                        this.#locale = newValue;
+                        break;
+                    default:
+                        break;
+                }
+                this.#showValue();
+            }
+        }
+
+        init() {
+            if (this.#value === undefined) {
+                this.#value = this.textContent.trim();
+            }
+            this.#showValue();
+        }
+
+        #showValue() {
+            let txt = "";
+            if (this.#value === undefined) return;
+
+            if (this.#mode === "text") {
+                txt = this.#value;
+
+            } else if (this.#mode === "currency") {
+                const number = Number(this.#value.trim());
+                txt = Number.isFinite(number)
+                    ? new Intl.NumberFormat(this.#locale, this.#fmtOptions).format(number)
+                    : "";
+            }
+            this.textContent = txt;
+        }
+    }
+</script>
