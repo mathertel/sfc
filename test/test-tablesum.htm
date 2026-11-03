@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Table Sum Test</title>
+  <link href="/docstyle.css" rel="stylesheet" />
+  <style>
+    .dataTab {
+      border-collapse: collapse;
+      background-color: white;
+      border: solid 1px #203050;
+      color: #203050;
+    }
+
+    .dataTab td {
+      border: solid 1px #203050;
+      padding: 0.25em 0.8em;
+      text-align: right;
+    }
+
+    .dataTab tfoot {
+      font-weight: bold;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    window.allSFCLoaded = window.loadComponent(['u-tablesort', 'u-tablesum', 'u-format', 'u-markdown']);
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>Table Sum Test</h1>
+  </header>
+  <main>
+    <table is="u-tablesort" class="dataTab" lang="de-DE">
+      <thead>
+        <tr><th sort="num">Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><u-format currency="EUR" locale="de-DE">188.56</u-format></td></tr>
+        <tr><td><u-format currency="EUR" locale="de-DE">12.00</u-format></td></tr>
+        <tr><td><u-format currency="EUR" locale="de-DE">3000.11</u-format></td></tr>
+      </tbody>
+      <tbody>
+        <tr><td><u-format currency="EUR" locale="de-DE">5</u-format></td></tr>
+        <tr><td><u-format currency="EUR" locale="de-DE">100</u-format></td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td><u-tablesum currency="EUR"></u-tablesum></td></tr>
+      </tfoot>
+    </table>
+
+    <hr />
+
+    <u-markdown src="../doc/u-tablesum.md"></u-markdown>
+  </main>
+</body>
+
+</html>

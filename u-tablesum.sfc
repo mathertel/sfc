@@ -1,0 +1,54 @@
+<!--
+
+File: u-tablesum.sfc
+
+The `u-tablesum` custom element calculates the sum of its table column.
+
+Example: <tfoot><tr><td><u-tablesum></u-tablesum></td></tr></tfoot>
+
+-->
+
+<script>
+  export default class UTableSum extends UComponent {
+    static observedAttributes = ["locale"];
+
+    // init() {
+    //   this.sum();
+    //   window.requestAnimationFrame(() => this.sum());
+    // }
+
+    connectedCallback() {
+      super.connectedCallback();
+      this.sum();
+    }
+
+    sum() {
+      // debugger; console.log(this.parentElement);
+      const cell = this.closest('td, th');
+      const table = this.closest('table');
+      if (!cell || !table) return;
+
+      const locale = this.getAttribute('locale') || cell.getAttribute('lang') || table.getAttribute('lang') || navigator.language;
+      const numberFormat = new Intl.NumberFormat(locale);
+      const parts = numberFormat.formatToParts(12345.6);
+      const group = parts.find((part) => part.type === 'group')?.value;
+      const decimal = parts.find((part) => part.type === 'decimal')?.value;
+      let total = 0;
+
+      Array.from(table.tBodies).forEach((tbody) => {
+        Array.from(tbody.rows).forEach((row) => {
+          const value = row.cells[cell.cellIndex]?.textContent || '';
+          let normalized = value.trim();
+          if (group) normalized = normalized.replaceAll(group, '');
+          if (decimal && decimal !== '.') normalized = normalized.replaceAll(decimal, '.');
+          normalized = normalized.replace(/[^\d.+-]/g, '');
+
+          const number = Number(normalized);
+          if (Number.isFinite(number)) total += number;
+        });
+      });
+
+      this.textContent = String(total);
+    }
+  }
+</script>

@@ -21,6 +21,7 @@
 | [Splitter](u-splitter.md)         |            | Resizes horizontal or vertical regions.   |
 | [Switch](u-switch.md)             |            | Provides a form-associated toggle switch. |
 | [Table Sort](u-tablesort.md)      | `<table>`  | Adds sorting to HTML tables.              |
+| [Table Sum](u-tablesum.md)        |            | Calculates column sums in HTML tables.          |
 | [Tabs](u-tabs.md)                 |            | Organizes content into accessible tabs.   |
 | [Time](u-time.md)                 | `<time>`   | Extends the native time element.          |
 | [Toast](u-toast.md)               |            | Displays fly-in toast messages.           |

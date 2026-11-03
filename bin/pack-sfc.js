@@ -107,6 +107,7 @@ for (const p of options._) {
     console.group(`reading file ${filePath} ...`);
     const lines = (await readFile(filePath, 'utf8')).split('\n');
     for (const line of lines) {
+      if (line.startsWith('#')) continue;
       if (line.startsWith('//')) continue;
       if (line.trim()) {
         txt += await wrapSFC(line.trim(), options.pack);
@@ -116,7 +117,7 @@ for (const p of options._) {
   }
 } // for
 
-console.log(`writing ${options.outfile} ...`);
+console.log(`writing ${options.outfile} (${txt.length} bytes)...`);
 await writeFile(options.outfile, txt, 'utf-8');
 
 if (options.verbose) {
