@@ -31,7 +31,7 @@ to define all component code in one file, eliminating the need to:
 
 ## Benefits of Single-File Components
 
-Why would you want to use Single-File Components instead of traditional separated files? Here's why:
+Why would you want to use Single-File Components instead of traditional sepa  rated files? Here's why:
 
 * **Cohesive Organization** -- Instead of spreading component code across multiple files (HTML, CSS, and JavaScript),
   everything related to the component lives in one place.
@@ -126,11 +126,14 @@ javascript esm module.
 
 ## See Also
 
+* [SFC Syntax Cheat-Sheet](sfc-cheats.md)
 * [Building and Bundling in the SFC library](doc/building.md)
 * [Components](doc/index.md)
 * [Data Hub](doc/u-datahub.md)
 * [Test Pages](test/index.htm)
 * [Automated Testing](/doc/testing.md)
+
+
 
 * <https://github.com/web-padawan/awesome-web-components/tree/main>
 
