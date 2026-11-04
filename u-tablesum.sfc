@@ -12,14 +12,32 @@ Example: <tfoot><tr><td><u-tablesum></u-tablesum></td></tr></tfoot>
   export default class UTableSum extends UComponent {
     static observedAttributes = ["locale"];
 
-    // init() {
-    //   this.sum();
-    //   window.requestAnimationFrame(() => this.sum());
-    // }
+    #observer;
+    #sumTimeout;
 
     connectedCallback() {
       super.connectedCallback();
+      const table = this.closest('table');
+      if (this.#observer) this.#observer.disconnect();
+      if (table) {
+        this.#observer = new MutationObserver(() => {
+          clearTimeout(this.#sumTimeout);
+          this.#sumTimeout = window.setTimeout(() => this.sum(), 50);
+        });
+        this.#observer.observe(table, {
+          attributes: true,
+          childList: true,
+          characterData: true,
+          subtree: true,
+        });
+      }
+
       this.sum();
+    }
+
+    disconnectedCallback() {
+      this.#observer?.disconnect();
+      clearTimeout(this.#sumTimeout);
     }
 
     sum() {
@@ -48,7 +66,8 @@ Example: <tfoot><tr><td><u-tablesum></u-tablesum></td></tr></tfoot>
         });
       });
 
-      this.textContent = String(total);
+      const result = String(total);
+      if (this.textContent !== result) this.textContent = result;
     }
   }
 </script>

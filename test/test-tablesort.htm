@@ -47,7 +47,9 @@
     <h1>Table Sort Test</h1>
   </header>
   <main>
-    <table is="u-tablesort" class="dataTab">
+    <button id="add-ten" type="button">Add 10 to amount</button>
+
+    <table is="u-tablesort" class="dataTab" lang="de-DE">
       <thead>
         <tr>
           <th sort="num">id</th>
@@ -62,35 +64,35 @@
           <td>1</td>
           <td>amazon</td>
           <td>shopping</td>
-          <td style="text-align: right;"><u-format currency="EUR">188.56</u-format></td>
+          <td style="text-align: right;"><u-format id="increment-amount" currency="EUR" locale="de-DE" value="188.56">188.56</u-format></td>
           <td>2023-10-01</td>
         </tr>
         <tr>
           <td>2</td>
           <td>google</td>
           <td>searching</td>
-          <td style="text-align: right;"><u-format currency="EUR">12.00</u-format></td>
+          <td style="text-align: right;"><u-format currency="EUR" locale="de-DE">12.00</u-format></td>
           <td>2023-10-02</td>
         </tr>
         <tr>
           <td>13</td>
           <td>outlook</td>
           <td>E-Mail</td>
-          <td style="text-align: right;"><u-format currency="EUR">3000.11</u-format></td>
+          <td style="text-align: right;"><u-format currency="EUR" locale="de-DE">3000.11</u-format></td>
           <td>2023-10-03</td>
         </tr>
         <tr>
           <td>4</td>
           <td>eBay</td>
           <td>commerce</td>
-          <td style="text-align: right;"><u-format currency="EUR">5</u-format></td>
+          <td style="text-align: right;"><u-format currency="EUR" locale="de-DE">5</u-format></td>
           <td>2023-10-01</td>
         </tr>
         <tr>
           <td>5</td>
           <td>example</td>
           <td>dummy</td>
-          <td style="text-align: right;"><u-format currency="EUR">100</u-format></td>
+          <td style="text-align: right;"><u-format currency="EUR" locale="de-DE">100</u-format></td>
           <td>2022-10-01</td>
         </tr>
       </tbody>
@@ -99,7 +101,7 @@
           <td> </td>
           <td></td>
           <td></td>
-          <td style="text-align: right;"><u-format currency="EUR"><u-tablesum></u-tablesum></u-format></td>
+          <td style="text-align: right;"><u-tablesum></u-tablesum></td>
           <td></td>
         </tr>
       </tfoot>
@@ -107,66 +109,18 @@
 
     <hr />
 
+    <script>
+      document.getElementById('add-ten').addEventListener('click', () => {
+        const amount = document.getElementById('increment-amount');
+        amount.value = String(Number(amount.value) + 10);
+      });
+    </script>
+
     <u-markdown src="../doc/u-tablesort.md"></u-markdown>
 
   </main>
 
 
-  <!-- <script>
-    // locale formatted numbers: in javascript i have a list of amounts formatted in a locale. How can I add them
-    // Example script to calculate the sum of the "amount" column
-
-
-    // get locale specific group and decimal separators
-    let cFmt = (1111.22).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/\d/g, '');
-    const cDigit = cFmt.at(-1)
-    const cReg = new RegExp(`[^\\d\\${cDigit}]`, 'g');
-
-    // console.log('cFmt:', cFmt, 'cDigit:', cDigit);
-
-    function parseLocaleNumber(stringNumber) {
-      const ret = parseFloat(stringNumber.replace(cReg, '')) || 0;
-      // fix: use '.' as digit separator in ret
-      console.log('parseLocaleNumber input:', stringNumber, 'parsed:', ret);
-      return ret;
-    }
-
-    // function parseLocaleNumber(text, locale) {
-    //   const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
-    //   const group = parts.find(part => part.type === "group")?.value;
-    //   const decimal = parts.find(part => part.type === "decimal")?.value;
-
-    //   let normalized = text.trim();
-    //   if (group) normalized = normalized.replaceAll(group, "");
-    //   if (decimal) normalized = normalized.replaceAll(decimal, ".");
-
-    //   const value = Number(normalized);
-    //   if (!normalized || !Number.isFinite(value)) {
-    //     throw new Error(`Invalid amount: ${text}`);
-    //   }
-    //   return value;
-    // }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const fmt = Intl.NumberFormat(navigator.language);
-      console.log('fmt:', fmt);
-      const sumElement = document.getElementById('sum');
-      const cellObj = sumElement.closest('td');
-      const table = sumElement.closest('table');
-
-      const idx = cellObj.cellIndex;
-
-      let sum = 0;
-      console.log('Column index for sum:', idx);
-      console.log('rows:', table.rows.length, table.tBodies[0].rows.length);
-      for (r of table.tBodies[0].rows) {
-        var value = r.cells[idx].textContent;
-        sum += parseLocaleNumber(value);
-      }
-
-      sumElement.textContent = sum; 
-    });
-  </script> -->
 </body>
 
 </html>

@@ -4,6 +4,7 @@ The `u-tablesum` custom element calculates the sum of the table column containin
 Place it in a footer cell; it reads that column from every `<tbody>` and displays the
 total in place. It can be used together with `u-tablesort` because it is a child
 element, not a customized table element.
+Changes anywhere in the table trigger a recalculation after a short debounce.
 
 ## Setup
 
@@ -40,4 +41,4 @@ attribute selects the number format; otherwise the browser language is used.
 
 ## Instance Methods
 
-- `sum()` recalculates the total. Call it after changing table data.
+- `sum()` recalculates the total immediately. Table changes are also observed and recalculated automatically.

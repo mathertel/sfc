@@ -35,12 +35,14 @@
     <h1>Table Sum Test</h1>
   </header>
   <main>
+    <button id="add-ten" type="button">Add 10 to amount</button>
+
     <table is="u-tablesort" class="dataTab" lang="de-DE">
       <thead>
         <tr><th sort="num">Amount</th></tr>
       </thead>
       <tbody>
-        <tr><td><u-format currency="EUR" locale="de-DE">188.56</u-format></td></tr>
+        <tr><td><u-format id="increment-amount" currency="EUR" locale="de-DE" value="188.56">188.56</u-format></td></tr>
         <tr><td><u-format currency="EUR" locale="de-DE">12.00</u-format></td></tr>
         <tr><td><u-format currency="EUR" locale="de-DE">3000.11</u-format></td></tr>
       </tbody>
@@ -52,6 +54,13 @@
         <tr><td><u-tablesum currency="EUR"></u-tablesum></td></tr>
       </tfoot>
     </table>
+
+    <script>
+      document.getElementById('add-ten').addEventListener('click', () => {
+        const amount = document.getElementById('increment-amount');
+        amount.value = String(Number(amount.value) + 10);
+      });
+    </script>
 
     <hr />
 
