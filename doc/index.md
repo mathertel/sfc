@@ -1,5 +1,7 @@
 # Components in the SFC library
 
+## [SFC Syntax Cheat-Sheet](/sfc-cheats.md)
+
 | Component                         | Extends    | Brief description                         |
 | --------------------------------- | ---------- | ----------------------------------------- |
 | [Card](u-card.md)                 |            | Provides a flexible content card.         |
@@ -11,6 +13,7 @@
 | [Duration](u-duration.md)         | `<input>`  | Captures duration values in a text input. |
 | [Form Dialog](u-form-dialog.md)   | `<dialog>` | Opens a dialog containing a form.         |
 | [Form JSON](u-form-json.md)       | `<form>`   | Adds JSON support to HTML forms.          |
+| [Format](u-format.md)             |            | Formats text and currency by locale.      |
 | [Gauge Chart](u-gaugechart.md)    |            | Displays data as a gauge chart.           |
 | [Include](u-include.md)           |            | Loads HTML from a local template.         |
 | [Keyshortcuts](u-keyshortcuts.md) |            | Adds accessible keyboard shortcuts.       |
@@ -21,7 +24,7 @@
 | [Splitter](u-splitter.md)         |            | Resizes horizontal or vertical regions.   |
 | [Switch](u-switch.md)             |            | Provides a form-associated toggle switch. |
 | [Table Sort](u-tablesort.md)      | `<table>`  | Adds sorting to HTML tables.              |
-| [Table Sum](u-tablesum.md)        |            | Calculates column sums in HTML tables.          |
+| [Table Sum](u-tablesum.md)        |            | Calculates column sums in HTML tables.    |
 | [Tabs](u-tabs.md)                 |            | Organizes content into accessible tabs.   |
 | [Time](u-time.md)                 | `<time>`   | Extends the native time element.          |
 | [Toast](u-toast.md)               |            | Displays fly-in toast messages.           |
