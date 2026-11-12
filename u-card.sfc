@@ -14,7 +14,7 @@ Example: <u-card icon="button" title="Clickable"> ...  </u-card>
 <template light>
   <div class="header">
     <svg style="display:none">
-      <use href="./icons.svg#no"></use>
+      <use href="/icons.svg#no"></use>
     </svg>
     <h3></h3>
   </div>
@@ -78,7 +78,7 @@ Example: <u-card icon="button" title="Clickable"> ...  </u-card>
       } else if (name === 'icon') {
         const svg = this.querySelector('.header>svg');
         svg.style.display = "";
-        svg.firstElementChild.href.baseVal = "./icons.svg#" + newValue;
+        svg.firstElementChild.href.baseVal = "/icons.svg#" + newValue;
       }
     } // attributeChangedCallback()
 

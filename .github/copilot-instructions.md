@@ -20,8 +20,10 @@ Purpose: Quickly orient an AI coding agent to be productive in this repository.
     bundle used to load SFC components.
   - **Dev:** `npm run dev` — runs the loader watch and serves `test/index.htm`
     for live testing.
-  - **Serve test pages:** `npm run serve` — runs a simple static server opening
-    `test/index.htm`.
+  - **Serve test pages:** `npm run serve` — runs a simple static server. Use this
+    command also to run the test pages in a browser. In general opening `test/index.htm`
+    can be used as a starting point.
+
   - **Bundle SFCs:** `npm run build:bundle` — uses the `pack-sfc` CLI
     (`bin/pack-sfc.js`) to create `bundle.sfc`.
 

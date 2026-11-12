@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>u-icon Test Page</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    .icon-samples {
+      font-size: 2rem;
+    }
+
+    .icon-samples u-icon {
+      margin-right: 1rem;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-icon,u-markdown');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>u-icon Test Page</h1>
+  </header>
+
+  <main>
+    <h2>Default icon collection</h2>
+    <div class="icon-samples">
+      <u-icon id="config-icon" title="config" use="config"></u-icon>
+      <u-icon id="coffee-icon" title="coffee" use="coffee"></u-icon>
+      <u-icon id="bulb-icon" title="bulb" use="bulb"></u-icon>
+    </div>
+
+    <h2>src attribute</h2>
+    <div class="icon-samples">
+      <u-icon id="src-icon" title="ed-icons#ed-bold" use="ed-bold" src="/ed-icons.svg"></u-icon>
+    </div>
+
+    <h2>CSS variable</h2>
+    <div class="icon-samples" style="--iconsfile:/ed-icons.svg">
+      <u-icon id="css-icon" title="{--iconsfile}#ed-italic" use="ed-italic" ></u-icon>
+    </div>
+
+    <hr />
+    <u-markdown src="../doc/u-icon.md"></u-markdown>
+  </main>
+</body>
+
+</html>

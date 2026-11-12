@@ -1,0 +1,52 @@
+<!--
+
+File: u-icon.sfc
+
+Implementation of an inline icon component using an external SVG symbol collection.
+
+-->
+
+<style>
+  u-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+  }
+
+  u-icon>svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<template light>
+  <svg aria-hidden="true"><use></use></svg>
+</template>
+
+<script>
+  export default class UIcon extends UComponent {
+    static observedAttributes = ["use", "src"];
+
+    #update() {
+      const icon = this.getAttribute('use');
+      const iconsFile = this.getAttribute('src') || getComputedStyle(this).getPropertyValue('--iconsfile').trim() || '/icons.svg';
+      const use = this.querySelector('svg>use');
+
+      if (icon) {
+        use.setAttribute('href', `${iconsFile}#${icon}`);
+      } else {
+        use.removeAttribute('href');
+      }
+    }
+
+    init() {
+      this.#update();
+    }
+
+    attributeChangedCallback() {
+      this.#update();
+    }
+  }
+</script>
