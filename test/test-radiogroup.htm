@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>u-radiogroup Test Page</title>
+
+  <link Content-Type="text/css" href="/docstyle.css" rel="stylesheet" />
+  <style>
+    u-radiogroup {
+      margin: 0.5em 0;
+    }
+
+    u-radiogroup>span[role="radio"] {
+      display: inline-block;
+      padding: 0.2em 0.8em;
+      border: 1px solid grey;
+      border-radius: 1em;
+    }
+
+    u-radiogroup>[checked] {
+      background-color: #203050;
+      color: white;
+    }
+  </style>
+  <script src="/loader.js"></script>
+  <script>
+    var allSFCLoaded = window.loadComponent('u-radiogroup,u-markdown');
+  </script>
+</head>
+
+<body class="sitelayout" style="--main-width: 60em">
+  <header>
+    <h1>u-radiogroup Test Page</h1>
+  </header>
+
+  <main>
+    <form id="myForm">
+      <h3>span elements</h3>
+      <u-radiogroup id="speed" name="speedmode">
+        <span value="1">Option-1</span>
+        <span value="2">Option-2</span>
+        <span value="3">Option-3</span>
+      </u-radiogroup>
+
+      <h3>button elements with initial value</h3>
+      <u-radiogroup id="theme" name="theme" value="light">
+        <button value="system">System</button>
+        <button value="light">Light</button>
+        <button value="dark">Dark</button>
+      </u-radiogroup>
+
+      <h3>input radio elements</h3>
+      <u-radiogroup id="size" name="size">
+        <label>Small:<input type="radio" value="s" aria-label="small"></label>
+        <label for="id662">Medium:</label><input type="radio" id="id662" value="m" aria-label="medium" checked>
+        <label>Large:</label><input type="radio" value="l" aria-label="large">
+      </u-radiogroup>
+
+      <p>
+        <button type="submit">Submit</button>
+        <button type="reset">Reset</button>
+      </p>
+    </form>
+
+    <pre id="data"></pre>
+    <p>submitted: <span id="submitted">0</span></p>
+
+    <hr />
+    <u-markdown src="../doc/u-radiogroup.md"></u-markdown>
+  </main>
+
+  <script>
+    const form = document.getElementById('myForm');
+    const showData = () => {
+      document.getElementById('data').textContent = JSON.stringify(Array.from(new FormData(form)));
+    };
+    form.addEventListener('change', showData);
+    form.addEventListener('reset', () => setTimeout(showData));
+    form.addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      const counter = document.getElementById('submitted');
+      counter.textContent = String(Number(counter.textContent) + 1);
+    });
+    allSFCLoaded.then(() => requestAnimationFrame(showData));
+  </script>
+</body>
+
+</html>

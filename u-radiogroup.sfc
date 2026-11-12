@@ -1,0 +1,164 @@
+<!--
+
+File: u-radiogroup.sfc
+
+Copyright (c) 2025 by Matthias Hertel, http://www.mathertel.de
+This work is licensed under a BSD-3-Clause license. See http://www.mathertel.de/License.aspx
+
+Implementation of a form-associated custom element that groups the direct child elements
+as radio elements where exactly one of them can be checked.
+
+Documentation is available at <https://github.com/mathertel/sfc/blob/main/doc/u-radiogroup.md>
+
+Example:
+<u-radiogroup name="speedmode">
+  <span value="1">Option-1</span>
+  <span value="2">Option-2</span>
+</u-radiogroup>
+
+-->
+
+<style>
+  u-radiogroup {
+    display: block;
+  }
+
+  u-radiogroup>[role="radio"] {
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
+
+<script>
+  export default class URadioGroup extends UComponent {
+    static formAssociated = true;
+
+    static observedAttributes = ["name", "value"];
+
+    _internals = this.attachInternals();
+    _defaultValue = undefined;
+
+    // find the direct child element (radio) that is associated with the given label.
+    #radioControl(label) {
+      if (!(label instanceof HTMLLabelElement)) return null;
+      const control = label.control;
+      if (control instanceof HTMLInputElement && control.type === 'radio' && this.contains(control)) return control;
+      const sibling = label.nextElementSibling;
+      return sibling instanceof HTMLInputElement && sibling.type === 'radio' ? sibling : null;
+    }
+
+    // find the direct child element (radio) that contains the given node.
+    #radioOf(node) {
+      while (node && node.parentElement !== this) node = node.parentElement;
+      return this.#radioControl(node) ?? node;
+    }
+
+    // sync role, name and checked state of all radio elements and the form value.
+    #update() {
+      const name = this.getAttribute('name');
+      const value = this.getAttribute('value');
+      const radios = [...new Set(Array.from(this.children, el => {
+        return this.#radioControl(el) ?? el;
+      }))];
+
+      if ((value === null) && (this._defaultValue === undefined)) {
+        // adopt a radio element that is initially marked as checked.
+        const initial = radios.find(el => el.hasAttribute('checked') && el.hasAttribute('value'));
+        if (initial) {
+          this.setAttribute('value', initial.getAttribute('value'));
+          return;
+        }
+      }
+
+      this.setAttribute('role', 'radiogroup');
+      let checkedEl = null;
+
+      for (const el of radios) {
+        const checked = (value !== null) && (el.getAttribute('value') === value) && !checkedEl;
+        el.setAttribute('role', 'radio');
+        if (name) el.setAttribute('name', name);
+        el.toggleAttribute('checked', checked);
+        el.setAttribute('aria-checked', String(checked));
+        if (el instanceof HTMLInputElement) el.checked = checked;
+        el.tabIndex = -1;
+        if (checked) checkedEl = el;
+      }
+
+      const focusEl = checkedEl ?? radios.find(el => !el.hasAttribute('disabled'));
+      if (focusEl) focusEl.tabIndex = 0;
+
+      // native radio inputs contribute to the form data by themselves.
+      const isNative = (checkedEl instanceof HTMLInputElement) && checkedEl.name;
+      this._internals.setFormValue(isNative ? null : value);
+    } // #update()
+
+    // check the given radio element by user interaction.
+    #select(el) {
+      const v = el.getAttribute('value');
+      if ((v === null) || (v === this.getAttribute('value'))) return;
+
+      this.setAttribute('value', v);
+      this.dispatchEvent(new Event('input', { bubbles: true }));
+      this.dispatchEvent(new Event('change', { bubbles: true }));
+    } // #select()
+
+    onclick(evt) {
+      const el = this.#radioOf(evt.target);
+      if (!el || el.hasAttribute('disabled')) return;
+      console.debug('radiogroup click', el);
+
+      // buttons in forms must not submit the form.
+      if (el instanceof HTMLButtonElement) evt.preventDefault();
+      this.#select(el);
+    } // onclick()
+
+    onkeydown(evt) {
+      const el = this.#radioOf(evt.target);
+      if (!el) return;
+
+      const radios = Array.from(this.children).filter(r => !r.hasAttribute('disabled'));
+      let idx = radios.indexOf(el);
+
+      if ((evt.key === 'ArrowRight') || (evt.key === 'ArrowDown')) {
+        idx = (idx + 1) % radios.length;
+      } else if ((evt.key === 'ArrowLeft') || (evt.key === 'ArrowUp')) {
+        idx = (idx - 1 + radios.length) % radios.length;
+      } else if ((evt.key === ' ') && !(el instanceof HTMLButtonElement) && !(el instanceof HTMLInputElement)) {
+        evt.preventDefault();
+        this.#select(el);
+        return;
+      } else {
+        return;
+      }
+
+      evt.preventDefault();
+      const next = radios[idx];
+      if (next) {
+        this.#select(next);
+        next.focus();
+      }
+    } // onkeydown()
+
+    init() {
+      if (!this.hasAttribute('name')) {
+        console.error('u-radiogroup', 'The name attribute is mandatory.');
+      }
+      this.#update();
+      this._defaultValue = this.getAttribute('value');
+    } // init()
+
+    // Called when form is reset
+    formResetCallback() {
+      if (this._defaultValue == null) {
+        this.removeAttribute('value');
+      } else {
+        this.setAttribute('value', this._defaultValue);
+      }
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.debug("attributeChanged", name, oldValue, newValue);
+      this.#update();
+    } // attributeChangedCallback()
+  }
+</script>

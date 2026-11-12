@@ -21,6 +21,7 @@
 | [Markdown](u-markdown.md)         |            | Renders Markdown content.                 |
 | [Markdown Editor](u-md-editor.md) |            | Edits Markdown text.                      |
 | [Pie Chart](u-piechart.md)        |            | Displays data as a pie chart.             |
+| [Radio Group](u-radiogroup.md)    |            | Groups elements as selectable radios.     |
 | [Splitter](u-splitter.md)         |            | Resizes horizontal or vertical regions.   |
 | [Switch](u-switch.md)             |            | Provides a form-associated toggle switch. |
 | [Table Sort](u-tablesort.md)      | `<table>`  | Adds sorting to HTML tables.              |
