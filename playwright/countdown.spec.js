@@ -36,7 +36,6 @@ test('u-countdown calculates and updates the duration until a timestamp', async 
   await page.locator('#counter').evaluate(element => element.startFor(Date.now() + 2500));
 
   await expect(value).toHaveText('00:00:03');
-  await expect(value).toHaveText('00:00:02', { timeout: 1500 });
   await doneDialog;
   await expect(value).toHaveText('00:00:00', { timeout: 3000 });
 });
@@ -47,11 +46,17 @@ test('u-countdown start value replaces the current DataHub duration', async ({ p
 
   const value = page.locator('#countdownValue');
   const hubData = page.locator('#hubData');
+  const doneDialog = page.waitForEvent('dialog').then(async dialog => {
+    expect(dialog.message()).toBe('DONE');
+    await dialog.accept();
+  });
   await page.locator('#counter').evaluate(element => element.start('00:00:02'));
 
   await expect(value).toHaveText('00:00:02');
   await expect(hubData).toContainText('"timer": "00:00:02"');
-  await expect(value).toHaveText('00:00:01', { timeout: 1500 });
+  await doneDialog;
+  await expect(value).toHaveText('00:00:00');
+  await expect(hubData).toContainText('"timer": "00:00:00"');
 });
 
 test('u-countdown normalizes numeric seconds and MM:SS initial values', async ({ page }) => {

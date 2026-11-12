@@ -8,6 +8,7 @@ test('u-form-json reads, updates, and resets form values', async ({ page }) => {
   const getJsonData = async () => JSON.parse(await jsonView.textContent());
 
   await expect(page.getByRole('heading', { name: 'Form Data and Form Elements Test' })).toBeVisible();
+  await expect(jsonView).not.toBeEmpty();
   await expect.poll(getJsonData).toEqual({
     aInput: 'default',
     aCheckbox: false,
