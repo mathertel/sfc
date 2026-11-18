@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en-US">
+
+<!-- 
+
+## Storytelling approaches
+
+* https://github.com/sjwilliams/scrollstory
+* https://github.com/Nirlah/scrolling-think-different
+
+* https://timeline.knightlab.com/
+* https://cartodb.github.io/odyssey.js/documentation/#javascript-api
+
+
+## Animation libraries, Storytelling
+
+<https://scrollytelling.ai/what-is-scrollytelling/>
+
+<https://github.com/vaitko/awesome-immersive-storytelling>
+
+Examples:
+
+* <https://www.nytimes.com/projects/2012/snow-fall/index.html#/?part=tunnel-creek>
+
+<lottie ??? >
+
+> > Don't put relevant information into the pixels of images only.
+
+The animation components are build on the base of the sfc loader that simply enriches and enhances the
+available html elements with animation specific functionality. The intention here is to start with the
+textual part of the story using a linear story broken down in to steps.
+
+In General the HTML layout of this is a 3 level structured html document
+
+1. The **Story container** is the outer-most part defining the frame inside where the story is told.
+2. The **Story steps** is a building block of a Story with a defined start and stop condition on the storyline of the container.
+   For the simple stories the steps are linear and each step starts when the previous ends.
+   For more complex stories steps can be nested.
+3. The **Story Effects** ...
+
+## Examples
+
+``` html
+<div class="story-container">
+  <section class="story-step" id="s1">step id=s1></section>
+  <section class="story-step" id="s2">step id=s2></section>
+  <section class="story-step" id="s3">step id=s3></section>
+</div>
+```
+
+Every story step should have a different light background color for better visual separation.
+The background-colors to be used: 
+#c1f4c5, #ffd6e0, #ffefcf, #c5d5f4, #e8c5f4
+apply them to the sections using the `style` attribute as inline styles.
+
+
+
+Every story step is sized to fill the entire viewport, ensuring that the user focuses on one step at a time.
+
+By specifying the class "center" on a story step, you can center its content both vertically and horizontally.
+
+
+
+https://github.com/wes337/io-animate
+
+, showing only what the reader needs at that exact moment instead of a wall of text.
+
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Story</title>
+
+  <style>
+    body {
+      --color: #2b2b2b;
+    }
+
+    .story-step {
+      padding: calc(var(--layout-padding)*4);
+      height: 100vh;
+      overflow: hidden;
+
+      &.center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    }
+
+    .cols-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4em;
+      align-items: center;
+    }
+
+    .cols-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4em;
+      align-items: center;
+    }
+
+    .story-fade-1 {
+      transition: opacity 1s ease;
+      opacity: 0;
+
+      &.focus,
+      .focus>& {
+        opacity: 1;
+      }
+    }
+
+    .story-slide-left {
+      transition: transform 1s ease;
+      transform: translateX(-100vw);
+
+      &.focus,
+      .focus>& {
+        transform: translateX(0);
+      }
+    }
+
+    .story-slide-right {
+      transition: transform 1s ease;
+      transform: translateX(100vw);
+
+      &.focus,
+      .focus>& {
+        transform: translateX(0);
+      }
+    }
+
+    .next-step {
+      position: fixed;
+      right: 3em;
+      bottom: 3em;
+      min-width: 3rem;
+      height: 3rem;
+      padding: 0 2em;
+      border-radius: 3em;
+      font-size: 1rem;
+    }
+
+    .colorspot {
+      display: inline-block;
+      min-height: 2em;
+      min-width: 12ch;
+      border: 1px solid black;
+      border-radius: 1em;
+      padding: 2px 8px;
+      text-align: center;
+    }
+  </style>
+
+  <link rel='stylesheet' href='/docstyle.css' media='all' />
+  <script src="/loader.js"></script>
+</head>
+
+<body>
+  <div class="story-container">
+    <section class="story-step cols-3" style="background-color: #EFCFA2;">
+      <div class="story-content story-fade-1" style="grid-column: span 2;">
+        <h1 class="text-color">Effective Implementation for Storytelling</h1>
+
+        <p>Demonstrate a minimal approach to implement storytelling and creating storytelling effects on the web
+          using modern browser technologies best suited to the task.</p>
+
+        <h2>Storytelling is still important</h2>
+
+        <p>Storytelling is still a good approach to tell, demonstrate or teach using well-sized chunks of
+          information and include movie style visuals, animations, illustrations or even audio next to text
+          based content. Visual storytelling is the best way to stand out and grab the attention of users.</p>
+
+        <p>To fit into the economics of the internet the text part of any page or article should not be
+          underestimated. This is the content that gets indexed and highlighted when searching and this is the
+          information that AI agents can understand easily.</p>
+
+        <p>Here I assemble the techniques for an effective storytelling on the web with a minimal set of
+          techniques and tools by leveraging the capabilities of modern web technologies, especially CSS.</p>
+      </div>
+      <div class="story-content story-fade-1">
+        <img src="/test/media/stories-book.webp" alt="Stories Book" style="width: 100%; height: auto;">
+      </div>
+    </section>
+
+    <section id="s2" class="story-step cols-3 " style="background-color: #ffd6e0;">
+      <div class="story-content story-fade-1" style="grid-column: span 2;">
+        <h3>Configuration</h3>
+        <p>The HomeDing library offers more than just a program including powerful configuration feature.</p>
+
+        <p>You can use one of the provided examples without modification to run your device that contains the code
+          required
+          for many use cases. Functionality is activated and orchestrated by configuration. No need to bring your device
+          back to the computer, all can be done from remote:</p>
+
+        <p>The integrated Web Server enables you to reach and interact with your device using a standard modern browser.
+          The built-in WiFi Manager help you connecting the device to your local WiFi.</p>
+        <p>Changing and enhancing the functionality of your device can be done without reprogramming.
+          All the device can do is based on the Elements of the HomeDing library that implement each a very specific
+          functionality.</p>
+        <p>There are Elements for Sensors, digital and analog Signals, Displays, Time and Timing, Logic and Calculation
+          and
+          more. They all "sleep" inside the code and wait to be configured.</p>
+        <p>A Element can be activated by adding configuration properties to the config files e.g. used pins by a sensor.
+        </p>
+      </div>
+      <div class="story-content" style="grid-column: span 1;">
+        Another column content here.
+      </div>
+    </section>
+
+    <section id="s3" class="story-step cols-2" style="background-color: #ffefcf;">
+      <div id="s3c1" class="story-content story-slide-left">
+        <h3>Automation</h3>
+        <p>To react on sensor values or to handle a specific situation the Elements can interact and rules can be
+          applied:
+        </p>
+
+        <p>Events occur within Elements when a new value was given by the sensor, when a timing condition is met or by
+          some
+          calculations.</p>
+        <p>Based on events Elements can send Actions to other elements to start processing in the target element.</p>
+        <p>Combining multiple elements this way enables building complex automations and functionality.</p>
+        <p>The Actions based programming model is not limited to a single device but Actions can be sent over the
+          network to
+          other devices to support even more complex scenario.</p>
+        <p>To integrate a device into a Home Automation server Actions can be used to create and send MQTT messages.</p>
+      </div>
+      <div id="s3c2" class="story-content story-slide-right">
+        <img src="/test/media/stories-book2.webp" alt="Stories Book next to a laptop with Book title" style="width: 100%; height: auto;">
+      </div>
+    </section>
+
+    <section id="s3" class="story-step cols-2" style="background-color: #ffefcf;">
+      <div class="story-content story-slide-right">
+        <h3>Background Colors</h3>
+        <p>Here is a list of usable background colors:
+        </p>
+        <p><span class="colorspot" style="background-color: #efcfa2;">#efcfa2</span>
+        </p>
+        <p><span class="colorspot" style="background-color: #f5e1e8;">#f5e1e8</span>
+        </p>
+        <p><span class="colorspot" style="background-color: #FaF9F6;">#faf9f6</span>
+        </p>
+        <p><span class="colorspot" style="background-color: #efe6d3;">#efe6d3</span>
+        </p>
+        <p><span class="colorspot" style="background-color: #e5ddc8;">#e5ddc8</span>
+        </p>
+        <p><span class="colorspot" style="background-color: #d8c3a5;">#d8c3a5</span>
+        </p>
+
+      </div>
+      <div id="s3c2" class="story-content story-slide-right">
+        <img src="/test/media/red-stars.png" alt="Red Stars" style="width: 200px; height: auto;">
+      </div>
+    </section>
+
+  </div>
+
+  <button class="next-step" type="button" aria-label="Scroll to next section" title="Scroll to next section">Scroll down
+    &#8595;</button>
+
+  <script>
+    const storySteps = document.querySelectorAll(".story-step");
+
+    // Scroll button functionality to navigate to the next story step
+    const getNextStep = () => [...storySteps].find((step) => step.getBoundingClientRect().top > 0);
+    const scrollButton = document.querySelector(".next-step");
+    scrollButton.addEventListener("click", () => {
+      getNextStep()?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    window.addEventListener("scroll", () => {
+      scrollButton.disabled = !getNextStep();
+    }, { passive: true });
+    scrollButton.disabled = !getNextStep();
+
+    // Create a intersection observer that adds or removes the 'focus' class based on visibility
+    const stepObserver = new IntersectionObserver((entries) => {
+      for (const step of entries) {
+        const isVisible = step.isIntersecting;
+        console.log(step.target.className, step.target.id, step.isIntersecting);
+        step.target.classList.toggle('focus', isVisible);
+
+        // // apply the class to the story-content children as well
+        // const contentChildren = step.target.querySelectorAll(".story-content");
+        // contentChildren.forEach((child) => child.classList.toggle('focus', isVisible));
+      }
+    }, { threshold: 0.5 });
+
+    // Apply to all elements with the 'story-step' class:
+    document.querySelectorAll(".story-step").forEach((step) => stepObserver.observe(step));
+  </script>
+</body>
+
+</html>
