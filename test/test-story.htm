@@ -108,7 +108,7 @@ https://github.com/wes337/io-animate
       opacity: 0;
 
       &.focus,
-      .focus>& {
+      .focus & {
         opacity: 1;
       }
     }
@@ -118,7 +118,7 @@ https://github.com/wes337/io-animate
       transform: translateX(-100vw);
 
       &.focus,
-      .focus>& {
+      .focus & {
         transform: translateX(0);
       }
     }
@@ -128,7 +128,7 @@ https://github.com/wes337/io-animate
       transform: translateX(100vw);
 
       &.focus,
-      .focus>& {
+      .focus & {
         transform: translateX(0);
       }
     }
@@ -160,7 +160,7 @@ https://github.com/wes337/io-animate
 </head>
 
 <body>
-  <div class="story-container">
+  <div class="story-container focus">
     <section class="story-step cols-3" style="background-color: #EFCFA2;">
       <div class="story-content story-fade-1" style="grid-column: span 2;">
         <h1 class="text-color">Effective Implementation for Storytelling</h1>
@@ -264,9 +264,29 @@ https://github.com/wes337/io-animate
     &#8595;</button>
 
   <script>
-    const storySteps = document.querySelectorAll(".story-step");
+    const stopMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
+    document.querySelectorAll(".story-container")
+      .forEach((container) => container.classList.toggle("focus", stopMotion));
+
+    if (!stopMotion) {
+      // enable transitions and animations
+
+
+      // Create a intersection observer that adds or removes the 'focus' class based on visibility
+      const stepObserver = new IntersectionObserver((entries) => {
+        for (const step of entries) {
+          const isVisible = step.isIntersecting;
+          console.log(step.target.className, step.target.id, step.isIntersecting);
+          step.target.classList.toggle('focus', isVisible);
+        }
+      }, { threshold: 0.5 });
+
+      // Apply to all story steps:
+      document.querySelectorAll(".story-step").forEach((step) => stepObserver.observe(step));
+    } // if (!stopMotion)
 
     // Scroll button functionality to navigate to the next story step
+    const storySteps = document.querySelectorAll(".story-step");
     const getNextStep = () => [...storySteps].find((step) => step.getBoundingClientRect().top > 0);
     const scrollButton = document.querySelector(".next-step");
     scrollButton.addEventListener("click", () => {
@@ -277,21 +297,6 @@ https://github.com/wes337/io-animate
     }, { passive: true });
     scrollButton.disabled = !getNextStep();
 
-    // Create a intersection observer that adds or removes the 'focus' class based on visibility
-    const stepObserver = new IntersectionObserver((entries) => {
-      for (const step of entries) {
-        const isVisible = step.isIntersecting;
-        console.log(step.target.className, step.target.id, step.isIntersecting);
-        step.target.classList.toggle('focus', isVisible);
-
-        // // apply the class to the story-content children as well
-        // const contentChildren = step.target.querySelectorAll(".story-content");
-        // contentChildren.forEach((child) => child.classList.toggle('focus', isVisible));
-      }
-    }, { threshold: 0.5 });
-
-    // Apply to all elements with the 'story-step' class:
-    document.querySelectorAll(".story-step").forEach((step) => stepObserver.observe(step));
   </script>
 </body>
 

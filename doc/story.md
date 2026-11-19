@@ -83,11 +83,13 @@ IN HTML the story steps are represented by sections with the `story-step` class:
 
 ## Visual Effects
 
-You can find various examples off effects and techniques used in storytelling. Here I show 
+You can find various examples off effects and techniques used in storytelling. Here I show
 some cases to line out the  approaches that are available without massive custom coding.
 
 ### CSS Transitions
+
 ### CSS Animations
+
 ### Sound Effects
 
 
@@ -108,13 +110,14 @@ with an ancestor element or with a top-level document's viewport.
 
 <https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API>
 
-When implementing storytelling effects using simple CSS based transitions and animations a 
+When implementing storytelling effects using simple CSS based transitions and animations a
 simple implementation is to use the Intersection Observer API to set a `focus` class on the story step when it enters the viewport.
 
 All elements flagged with `story-step` or `story-content` will get that class added and removed.
 
 ``` javascript
 // Create a intersection observer that adds or removes the 'focus' class based on visibility
+// Trigger when 50% of the element is visible
 const stepObserver = new IntersectionObserver((entries) => {
   for (const step of entries) {
     step.target.classList.toggle('focus', step.isIntersecting);
@@ -125,12 +128,9 @@ const stepObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.story-step, .story-content').forEach(step => stepObserver.observe(step));
 ```
 
-- `threshold: 0.5` -- // Trigger when 50% of the element is visible
-
-
 ### CSS Transitions
 
-Simnple transitions and animations can be applied to these elements now using CSS only:
+Simple transitions and animations can be applied to these elements now using CSS only:
 
 Example:
 
@@ -145,27 +145,114 @@ Example:
 }
 ```
 
-Now when focus is set on a story step, or a story content element, the CSS transform value changes and
-the transition will be triggered.
+Now when `focus` is set on a story step or a story content element,
+the CSS transform value changes and the transition will be triggered.
 
 This together is already a minimal implementation for creating storytelling effects on the web.
 
 ## CSS Animations
 
+## Respect Reduced Motion Request
+
+As a general rule any storytelling effect MUST NOT block or reduce readability and respect the user’s
+motion preferences. This enable the use of the `prefers-reduced-motion` media query to respect user
+preferences for reduced motion.
+
+Also for AI Agents visual effects are not meaningful and should not interfere with content readability.
+
+Both aspects in mind any Storytelling implementation should provide a version of the content
+that enables all content to be accessible and readable, regardless of visual effects and
+only apply animations or transitions when appropriate.
+
+So on initial loading all content will be displayed using the ending state of all
+transitions and animations because the `focus` class is given to the story container
+element. This results in displaying all content at its best position and readability
+state.
+
+When the page is loaded the `focus` class is added in case the user likes no animations
+and transitions to be shown.
+
+``` javascript
+const stopMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
+document.querySelectorAll(".story-container")
+  .forEach((container) => container.classList.toggle("focus", stopMotion));
+```
+
+To not rely on javascript being enabled you can add the `focus` class to the story
+container element by default:
+
+``` html
+<div class="story-container focus">
+```
+
+<https://natclark.com/tutorials/javascript-reduced-motion/>
+
+To enable reduced motion on your device you can change the setting on OS‑level
+affecting not only the browser. This is what I found on the net
+
+* macOS: System Settings → Accessibility → Display → Reduce Motion.
+* iOS: Settings → Accessibility → Motion → Reduce Motion.
+* Android 9+: Settings → Accessibility → Remove animations.
+* Windows 10/11: Settings → Accessibility → Visual Effects → Animation Effects.
+* GNOME: Settings → Accessibility → Seeing → Reduced animation.
+* KDE: System Settings → Workspace Behavior → Animation speed → Instant
+
+On Windows 11:
+
+![windows motion setting](images/windows-motion-setting.webp)
+
+
+## Storytelling for AI
+
+AI Agents that read content from the web can use the `prefers-reduced-motion` media
+query to get a more clean version of the content.
+
+For storytelling, the key to support AI Agents is:
+
+>> Make the narrative engaging without making its meaning depend on suspense, imagery or
+>> unstated context.
+
+On a technical implementation level:
+
+>> Build the story as readable HTML, then use CSS and JavaScript to enhance its
+>> presentation. Use native elements for their meaning, not merely their appearance. A
+>> `<section>` groups a thematic part of a story; it does not automatically make its
+>> contents more discoverable.
+>> Use JavaScript to enhance, not to gate
+
+Other more generic rules:
+
+| Pattern                    | Best Option                                                                 | Avoid                                                                 |
+| -------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Initial delivery           | Static HTML, build-time rendering, or server rendering containing the story | An empty shell that fetches all substantive text afterward            |
+| Deferred loading           | Defer scripts, below-the-fold images, and optional media                    | Fetching essential paragraphs only when they enter the viewport       |
+| Scrollytelling             | Keep the text in HTML; let scrolling control graphics and emphasis          | Making scrolling trigger the creation of the only textual explanation |
+| Accordions                 | Use `<details><summary>` with content already in HTML                       | Fetching essential answers only after a click                         |
+| Infinite stories           | Provide linked chapter or pagination URLs                                   | Making later content reachable only through endless scrolling         |
+| Interactive charts or maps | Supply a readable summary of the important findings                         | Requiring hovering, dragging, or selecting to discover every fact     |
+
+
+| Implementation                                         | Recommendation                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Facts embedded in images                               | Include the important facts in nearby HTML. OCR support is inconsistent.                                     |
+| Image `alt` text                                       | Describe the image’s purpose. Do not use it as a hidden container for an entire story or dataset.            |
+| Charts                                                 | Provide a caption explaining the conclusion and a table or textual summary for important values.             |
+| Audio and video                                        | Include an HTML transcript for substantive information. Captions alone may not be extracted.                 |
+| SVG text                                               | Do not rely on its extraction. Include essential information in ordinary HTML.                               |
+| Text generated by CSS `::before` or `::after`          | Use only for decoration. Put meaningful labels and statements in HTML.                                       |
+| Story structure                                        | Use `<main>`, `<article>`, logical headings, paragraphs, lists, and `<figure>` with `<figcaption>`.          |
+| Navigation                                             | Use `<a href="…">` for chapters and references, with stable URLs and useful link text.                       |
+| Avoid deferred content                                 | Render the story into the initial loaded HTML at build time or on the server.                                |
+| Avoid content inside Shadow DOM                        | Put the primary story in semantic light DOM. Shadow DOM support varies across crawlers and extraction tools. |
+| Do not use visual position to define the reading order | Keep the DOM order coherent when styles and animations are removed.                                          |
+
+A useful acceptance check is to fetch the URL without JavaScript and ask: **Can a reader
+identify what this story is about, read its important facts in order, and follow its
+links?** Then check the page with JavaScript disabled.
+
 
 ## Interactivity
 
-t.b.d.: story scroll button
+As a hint and also for convenience for readers a button to scroll to the next step can be implemented:
 
-
-
-
-, and the `focus` class
-will trigger them when the element enters the viewport.
-
-that should respond to the viewport visibility need to be observed by the Intersection Observer.
-
-
-
-For simple stories 
-you can use the Intersection Observer API to detect when each story step enters or leaves the viewport and trigger the corresponding animations or effects.
+t.b.d.: story scroll button script
