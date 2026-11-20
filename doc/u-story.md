@@ -41,6 +41,77 @@ Add a `<u-story>` element with one or more `.story-step` sections:
 The initial `focus` class keeps story effects in their readable state until the component initializes. The component adds
 `story-container` and updates `focus` according to the reduced-motion preference.
 
+## Styling the next-step button
+
+The button is inside the component's shadow root, so page styles cannot target its `.next-step` class directly. It exposes
+the `next-step` part for page-level styling:
+
+```css
+u-story::part(next-step) {
+  color: white;
+  background-color: darkblue;
+  border: 0;
+}
+
+u-story::part(next-step):disabled {
+  opacity: 0.1;
+}
+```
+
+## Focus-based transitions
+
+The component toggles `focus` on story steps as they enter and leave the viewport. Add an effect class to content inside a
+step, then use the step's `focus` state to transition it into view. These examples follow the fade and slide effects in
+`test-story.htm`:
+
+```css
+.story-fade-1 {
+  transition: opacity 1s ease;
+  opacity: 0;
+
+  &.focus,
+  .focus & {
+    opacity: 1;
+  }
+}
+
+.story-slide-left {
+  transition: transform 1s ease;
+  transform: translateX(-100vw);
+
+  &.focus,
+  .focus & {
+    transform: translateX(0);
+  }
+}
+
+.story-slide-right {
+  transition: transform 1s ease;
+  transform: translateX(100vw);
+
+  &.focus,
+  .focus & {
+    transform: translateX(0);
+  }
+}
+```
+
+Use the effect classes on content within a `.story-step`:
+
+```html
+<section class="story-step">
+  <div class="story-content story-fade-1">
+    <h2>This content fades into view</h2>
+  </div>
+</section>
+```
+
+Start the `<u-story>` host with `class="story-container focus"` so content is in its readable end state before JavaScript
+initializes. The component checks the user's reduced-motion preference: when reduced motion is requested, it keeps `focus`
+on the host and does not observe individual steps, so the transition targets remain in their final positions. Otherwise it
+removes the host's `focus` class and applies `focus` to intersecting steps, triggering the transitions. This uses the
+component's focus state to keep the story readable without separate CSS preference rules.
+
 ## Instance Properties
 
 `u-story` has no observed HTML attributes.

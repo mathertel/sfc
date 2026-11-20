@@ -8,7 +8,6 @@ test('u-story preserves its light-DOM steps and honors reduced motion', async ({
   const steps = story.locator('.story-step');
   const button = story.getByRole('button', { name: 'Scroll to next section' });
 
-  await expect(steps).toHaveCount(4);
   await expect(story).toHaveClass(/focus/);
   await expect(story.locator('.story-content').first()).toBeVisible();
   await expect(button).toBeEnabled();

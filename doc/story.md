@@ -50,7 +50,7 @@ There are some anti-patterns as well:
 
 ## Story Telling CSS
 
-Here a simple framweork independent CSS only approach is used for showing the steps vertically by
+Here a simple framework independent CSS only approach is used for showing the steps vertically by
 marking a series of sections with the `story-step` class:
 
 ```CSS
