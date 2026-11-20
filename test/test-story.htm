@@ -73,34 +73,30 @@ https://github.com/wes337/io-animate
   <title>Story</title>
 
   <style>
-    body {
-      --color: #2b2b2b;
+    .center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    .story-step {
-      padding: calc(var(--layout-padding)*4);
-      height: 100vh;
-      overflow: hidden;
+    /* common grid based multi-column layout rules */
+    .cols-2,
+    .cols-3 {
+      display: grid;
+      gap: 4em;
 
       &.center {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        align-items: center;
       }
     }
 
     .cols-2 {
-      display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 4em;
-      align-items: center;
+
     }
 
     .cols-3 {
-      display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 4em;
-      align-items: center;
     }
 
     .story-fade-1 {
@@ -133,15 +129,14 @@ https://github.com/wes337/io-animate
       }
     }
 
-    .next-step {
-      position: fixed;
-      right: 3em;
-      bottom: 3em;
-      min-width: 3rem;
-      height: 3rem;
-      padding: 0 2em;
-      border-radius: 3em;
-      font-size: 1rem;
+    u-story::part(next-step) {
+      color: white;
+      background-color: #223050;
+      border: 0;
+    }
+
+    u-story::part(next-step):disabled {
+      opacity: 0.1;
     }
 
     .colorspot {
@@ -157,11 +152,14 @@ https://github.com/wes337/io-animate
 
   <link rel='stylesheet' href='/docstyle.css' media='all' />
   <script src="/loader.js"></script>
+  <script>
+    window.loadComponent('u-story,u-markdown');
+  </script>
 </head>
 
 <body>
-  <div class="story-container focus">
-    <section class="story-step cols-3" style="background-color: #EFCFA2;">
+  <u-story class="story-container focus">
+    <section class="story-step cols-3 center" style="background-color: #EFCFA2;">
       <div class="story-content story-fade-1" style="grid-column: span 2;">
         <h1 class="text-color">Effective Implementation for Storytelling</h1>
 
@@ -186,55 +184,40 @@ https://github.com/wes337/io-animate
       </div>
     </section>
 
-    <section id="s2" class="story-step cols-3 " style="background-color: #ffd6e0;">
-      <div class="story-content story-fade-1" style="grid-column: span 2;">
-        <h3>Configuration</h3>
-        <p>The HomeDing library offers more than just a program including powerful configuration feature.</p>
+    <section class="story-step center" style="background-color: #ffd6e0;">
+      <h2>Storytelling done right from the start</h2>
+      <p>As a general approach I recommend what also is best practice in many frameworks:</p>
 
-        <p>You can use one of the provided examples without modification to run your device that contains the code
-          required
-          for many use cases. Functionality is activated and orchestrated by configuration. No need to bring your device
-          back to the computer, all can be done from remote:</p>
+      <ul>
+        <li>Breaking down the story into discrete steps, each represented by a section or container element.</li>
+        <li>These steps should be visually distinct and can be enhanced with animations or transitions that are triggered as the user scrolls through the story.</li>
+        <li>Trigger animations or transitions when a story step enters (or leaves) the viewport.</li>
+        <li>Annotate the html container objects with appropriate classes or data attributes to indicate their role in the story.</li>
+      </ul>
 
-        <p>The integrated Web Server enables you to reach and interact with your device using a standard modern browser.
-          The built-in WiFi Manager help you connecting the device to your local WiFi.</p>
-        <p>Changing and enhancing the functionality of your device can be done without reprogramming.
-          All the device can do is based on the Elements of the HomeDing library that implement each a very specific
-          functionality.</p>
-        <p>There are Elements for Sensors, digital and analog Signals, Displays, Time and Timing, Logic and Calculation
-          and
-          more. They all "sleep" inside the code and wait to be configured.</p>
-        <p>A Element can be activated by adding configuration properties to the config files e.g. used pins by a sensor.
-        </p>
-      </div>
-      <div class="story-content" style="grid-column: span 1;">
-        Another column content here.
-      </div>
+      <p>This ensures that the user focuses on one piece of content at a time, creating a more engaging and
+        immersive storytelling experience.</p>
+
+      <p>In the age of AI not only humans are reading so I propose to stick to the foillowing rules as well:</p>
+
+      <ul>
+        <li>The steps should use text as the main content, complemented by visuals, animations, or other media to enhance the storytelling experience.</li>
+        <li>visuals like pictures or illustrations should complement the text content only but bring no additional meaningfull information.</li>
+      </ul>
+      <p>So let's bring together:</p>
+      <p>Content, Formatting, Triggers, Effects and Interactivity</p>
     </section>
 
-    <section id="s3" class="story-step cols-2" style="background-color: #ffefcf;">
+    <section id="s3" class="story-step cols-2 center" style="background-color: #ffefcf;">
       <div id="s3c1" class="story-content story-slide-left">
-        <h3>Automation</h3>
-        <p>To react on sensor values or to handle a specific situation the Elements can interact and rules can be
-          applied:
-        </p>
-
-        <p>Events occur within Elements when a new value was given by the sensor, when a timing condition is met or by
-          some
-          calculations.</p>
-        <p>Based on events Elements can send Actions to other elements to start processing in the target element.</p>
-        <p>Combining multiple elements this way enables building complex automations and functionality.</p>
-        <p>The Actions based programming model is not limited to a single device but Actions can be sent over the
-          network to
-          other devices to support even more complex scenario.</p>
-        <p>To integrate a device into a Home Automation server Actions can be used to create and send MQTT messages.</p>
+        <h3>Visual Effects</h3>
       </div>
       <div id="s3c2" class="story-content story-slide-right">
         <img src="/test/media/stories-book2.webp" alt="Stories Book next to a laptop with Book title" style="width: 100%; height: auto;">
       </div>
     </section>
 
-    <section id="s3" class="story-step cols-2" style="background-color: #ffefcf;">
+    <section id="s3" class="story-step cols-2 center" style="background-color: #ffefcf;">
       <div class="story-content story-slide-right">
         <h3>Background Colors</h3>
         <p>Here is a list of usable background colors:
@@ -258,46 +241,8 @@ https://github.com/wes337/io-animate
       </div>
     </section>
 
-  </div>
-
-  <button class="next-step" type="button" aria-label="Scroll to next section" title="Scroll to next section">Scroll down
-    &#8595;</button>
-
-  <script>
-    const stopMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
-    document.querySelectorAll(".story-container")
-      .forEach((container) => container.classList.toggle("focus", stopMotion));
-
-    if (!stopMotion) {
-      // enable transitions and animations
-
-
-      // Create a intersection observer that adds or removes the 'focus' class based on visibility
-      const stepObserver = new IntersectionObserver((entries) => {
-        for (const step of entries) {
-          const isVisible = step.isIntersecting;
-          console.log(step.target.className, step.target.id, step.isIntersecting);
-          step.target.classList.toggle('focus', isVisible);
-        }
-      }, { threshold: 0.5 });
-
-      // Apply to all story steps:
-      document.querySelectorAll(".story-step").forEach((step) => stepObserver.observe(step));
-    } // if (!stopMotion)
-
-    // Scroll button functionality to navigate to the next story step
-    const storySteps = document.querySelectorAll(".story-step");
-    const getNextStep = () => [...storySteps].find((step) => step.getBoundingClientRect().top > 0);
-    const scrollButton = document.querySelector(".next-step");
-    scrollButton.addEventListener("click", () => {
-      getNextStep()?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    window.addEventListener("scroll", () => {
-      scrollButton.disabled = !getNextStep();
-    }, { passive: true });
-    scrollButton.disabled = !getNextStep();
-
-  </script>
+  </u-story>
+  <u-markdown src="../doc/u-story.md"></u-markdown>
 </body>
 
 </html>

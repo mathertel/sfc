@@ -1,0 +1,110 @@
+<!--
+
+File: u-story.sfc
+
+Implementation of a scroll-based story container.
+
+-->
+
+<template>
+  <slot></slot>
+  <button part="next-step" class="next-step" type="button" aria-label="Scroll to next section" title="Scroll to next section">
+    Scroll down &#8595;
+  </button>
+</template>
+
+<style scoped>
+  :host {
+    display: block;
+  }
+
+  ::slotted(.story-step) {
+    box-sizing: border-box;
+    padding: calc(var(--layout-padding, 1em) * 4);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .next-step {
+    position: fixed;
+    right: 3em;
+    bottom: 3em;
+    min-width: 3rem;
+    height: 3rem;
+    padding: 0 2em;
+    border-radius: 3em;
+    font-size: 1rem;
+    background-color: #402020;
+    color: white;
+    &:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+</style>
+
+<script>
+  export default class UStory extends UComponent {
+    #scrollButton;
+    #stepObserver;
+    #initialized = false;
+    #onScroll = () => this.#updateButton();
+
+    constructor() {
+      super();
+      this.#scrollButton = this.shadowRoot.querySelector('.next-step');
+      this.#scrollButton.addEventListener('click', () => this.#scrollNextStep());
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      this.classList.add('story-container', 'focus');
+      this.init();
+    }
+
+    disconnectedCallback() {
+      this.#stepObserver?.disconnect();
+      this.#stepObserver = undefined;
+      window.removeEventListener('scroll', this.#onScroll);
+      this.#initialized = false;
+    }
+
+    init() {
+      if (!this.isConnected || this.#initialized) return;
+      this.#initialized = true;
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.classList.toggle('focus', reduceMotion);
+
+      if (!reduceMotion) {
+        this.#stepObserver = new IntersectionObserver((entries) => {
+          for (const step of entries) {
+            step.target.classList.toggle('focus', step.isIntersecting);
+          }
+        }, { threshold: 0.5 });
+
+        this.querySelectorAll('.story-step').forEach((step) => this.#stepObserver.observe(step));
+      }
+
+      window.addEventListener('scroll', this.#onScroll, { passive: true });
+      this.#updateButton();
+    }
+
+    #getNextStep() {
+      return [...this.querySelectorAll('.story-step')]
+        .find((step) => step.getBoundingClientRect().top > 0);
+    }
+
+    #updateButton() {
+      this.#scrollButton.disabled = !this.#getNextStep();
+    }
+
+    #scrollNextStep() {
+      const nextStep = this.#getNextStep();
+      if (nextStep) {
+        const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+        nextStep.scrollIntoView({ behavior, block: 'start' });
+      }
+    }
+  }
+</script>
