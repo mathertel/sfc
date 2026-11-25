@@ -51,34 +51,37 @@ There are some anti-patterns as well:
 ## Story Telling CSS
 
 Here a simple framework independent CSS only approach is used for showing the steps vertically by
-marking a series of sections with the `story-step` class:
+marking a series of sections within the `u-story` element:
 
 ```CSS
-.story-step {
+::slotted(section) {
   height: 100vh;
   overflow: hidden;
+  box-sizing: border-box;
+  padding: calc(var(--layout-padding, 1em) * 4);
 }
 ```
 
 This results in each story step taking up the full height of the viewport, ensuring that the user
 focuses on one step at a time as they scroll through the story.
 
-In the final CSS you will find also some additional classes for centering content or column layouts,
-but this is all in addition to the basic `story-step` class.
+In the final CSS you will find also some additional classes for centering content or column layouts.
 
-IN HTML the story steps are represented by sections with the `story-step` class:
+In HTML the story steps are represented by sections inside the `<u-story>` element:
 
 ``` html
-<section class="story-step">
-  <div class="story-content">
-    < -- Your content here -- >
-  </div>
-</section>
-<section class="story-step">
-  <div class="story-content">
-    < -- Your content here -- > 
-  </div>
-</section>
+<u-story>
+  <section>
+    <div class="story-content">
+      < -- Your content here -- >
+    </div>
+  </section>
+  <section>
+    <div class="story-content">
+      < -- Your content here -- > 
+    </div>
+  </section>
+</u-story>
 ```
 
 ## Visual Effects
@@ -113,7 +116,7 @@ with an ancestor element or with a top-level document's viewport.
 When implementing storytelling effects using simple CSS based transitions and animations a
 simple implementation is to use the Intersection Observer API to set a `focus` class on the story step when it enters the viewport.
 
-All elements flagged with `story-step` or `story-content` will get that class added and removed.
+All `section` elements will get that class added and removed.
 
 ``` javascript
 // Create a intersection observer that adds or removes the 'focus' class based on visibility
@@ -124,13 +127,15 @@ const stepObserver = new IntersectionObserver((entries) => {
   }
 }, { threshold: 0.5 });
 
-// Apply to all elements with the 'story-step' or 'story-content' class:
-document.querySelectorAll('.story-step, .story-content').forEach(step => stepObserver.observe(step));
+// Apply to all section elements:
+document.querySelectorAll('section').forEach(step => stepObserver.observe(step));
 ```
 
 ### CSS Transitions
 
-Simple transitions and animations can be applied to these elements now using CSS only:
+CSS only Transitions animations can be applied to these elements now using CSS only:
+
+<!-- Animations and Timeline -->
 
 Example:
 
@@ -139,18 +144,23 @@ Example:
   transition: transform 1s ease;
   transform: translateX(100vw);
 
-  &.focus, .focus > & {
+  u-story.focus &, section.story-step.focus &, &.focus {
     transform: translateX(0);
   }
 }
 ```
 
-Now when `focus` is set on a story step or a story content element,
+Now when `.focus` is set on the `<u-story>` or any contained `<section>` element marked with `.story-step`,
 the CSS transform value changes and the transition will be triggered.
+
+Assigning the `.focus` class to elements embedded inside of `<section>` not marked with `.story-step`
+will also get the transition. This is is used for extended story sections using the `<u-timeline>` element.
 
 This together is already a minimal implementation for creating storytelling effects on the web.
 
 ## CSS Animations
+
+t.b.d example.
 
 ## Respect Reduced Motion Request
 
@@ -169,20 +179,14 @@ transitions and animations because the `focus` class is given to the story conta
 element. This results in displaying all content at its best position and readability
 state.
 
-When the page is loaded the `focus` class is added in case the user likes no animations
-and transitions to be shown.
+When the page is loaded the `focus` class is added to the `<u-story>` element in case
+the user likes no animations and transitions to be shown.
 
-``` javascript
-const stopMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
-document.querySelectorAll(".story-container")
-  .forEach((container) => container.classList.toggle("focus", stopMotion));
-```
-
-To not rely on javascript being enabled you can add the `focus` class to the story
-container element by default:
+To not rely on javascript being enabled you can add the `focus` class to the `<u-story>`
+element by default:
 
 ``` html
-<div class="story-container focus">
+<u-story class="focus">
 ```
 
 <https://natclark.com/tutorials/javascript-reduced-motion/>
@@ -256,3 +260,7 @@ links?** Then check the page with JavaScript disabled.
 As a hint and also for convenience for readers a button to scroll to the next step can be implemented:
 
 t.b.d.: story scroll button script
+
+## TimeLines
+
+See `<u-timeline>`

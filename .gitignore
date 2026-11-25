@@ -12,3 +12,4 @@ loader.min.js
 .gitignore
 *.js.map
 test-results/.last-run.json
+.agents/skills/modern-web-guidance/

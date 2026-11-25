@@ -1,0 +1,98 @@
+<script>
+  export default class UTimeline extends UComponent {
+    container = null;
+    steps = [];
+    targets = [];
+    current = -1;
+    #focusObserver;
+    #focused = false;
+    #running = false;
+
+    init() {
+      this.container = this.parentElement?.closest("section") || null;
+      if (!this.container) return;
+      this.steps = [...this.container.querySelectorAll("u-timeline-step")];
+
+      if (this.steps.length === 0) return;
+
+      this.#focused = this.container.classList.contains("focus");
+
+      this.#focusObserver = new MutationObserver(() => {
+        const focused = this.container.classList.contains("focus");
+        if (focused !== this.#focused) {
+          this.#focused = focused;
+          this.trigger();
+        }
+      }).observe(this.container, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+
+      this.targets = this.steps.map((step) => {
+        const q = step.getAttribute('query');
+        const el = this.container.querySelector(q)
+        return (el)
+      })
+
+      this.trigger();
+    } // init()
+
+    // remove focus from all elements
+    cleanup() {
+      // debugger;
+      // console.log(this.targets)
+      this.targets.forEach((el) => { el.classList.remove("focus") });
+      this.steps.forEach((st) => { st.classList.remove("active") });
+    }
+
+
+
+    startStep(n) {
+      const stepDone = function(e) {
+        console.log("transitionend", e);
+        e.target.removeEventListener("transitionend", stepDone)
+        if (this.current < this.steps.length) {
+          this.startStep(this.current + 1)
+        }
+      }.bind(this);
+
+      const step = this.steps[n]
+      const tar = this.targets[n];
+      if ((!step) || (!tar)) return;
+
+      console.log("startStep", n);
+      this.current = n;
+
+      step.classList.add('active');
+      tar.addEventListener("transitionend", stepDone);
+      tar.classList.add('focus');
+    } // startStep()
+
+
+    // start/stop timeline processing
+    trigger() {
+      console.log(`u-timeline.trigger focus:${this.#focused} running:${this.#running}`);
+      if (this.#focused && !this.#running) {
+        // start
+        console.log(`u-timeline.trigger start`);
+        this.cleanup();
+        this.startStep(0);
+
+        this.#running = true;
+      } else if (!this.#focused && this.#running) {
+        // stop
+        console.log(`u-timeline.trigger stop`);
+        this.cleanup();
+        this.steps.forEach((e) => {
+          e.classList.remove("active")
+        })
+        this.#running = false;
+        this.current = -1;
+      }
+    }
+
+    disconnectedCallback() {
+      this.#focusObserver?.disconnect();
+    }
+  }
+</script>

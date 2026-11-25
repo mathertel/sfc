@@ -32,7 +32,8 @@ textual part of the story using a linear story broken down in to steps.
 
 In General the HTML layout of this is a 3 level structured html document
 
-1. The **Story container** is the outer-most part defining the frame inside where the story is told.
+1. The <u-story> element is the outer-most part of the sections telling the story.
+
 2. The **Story steps** is a building block of a Story with a defined start and stop condition on the storyline of the container.
    For the simple stories the steps are linear and each step starts when the previous ends.
    For more complex stories steps can be nested.
@@ -41,9 +42,13 @@ In General the HTML layout of this is a 3 level structured html document
 ## Examples
 
 ``` html
-<div class="story-container">
+<u-story class="">
   <section class="story-step" id="s1">step id=s1></section>
-  <section class="story-step" id="s2">step id=s2></section>
+  <section id="s2">step id=s2>
+    <h2 class="story-step" ></h2>
+    <p class="story-step" ></p>
+    <p class="story-step" ></p>
+  </section>
   <section class="story-step" id="s3">step id=s3></section>
 </div>
 ```
@@ -103,8 +108,9 @@ https://github.com/wes337/io-animate
       transition: opacity 1s ease;
       opacity: 0;
 
-      &.focus,
-      .focus & {
+      u-story.focus &,
+      section.story-step.focus &,
+      &.focus {
         opacity: 1;
       }
     }
@@ -113,8 +119,9 @@ https://github.com/wes337/io-animate
       transition: transform 1s ease;
       transform: translateX(-100vw);
 
-      &.focus,
-      .focus & {
+      u-story.focus &,
+      section.story-step.focus &,
+      &.focus {
         transform: translateX(0);
       }
     }
@@ -123,19 +130,20 @@ https://github.com/wes337/io-animate
       transition: transform 1s ease;
       transform: translateX(100vw);
 
-      &.focus,
-      .focus & {
+      u-story.focus &,
+      section.story-step.focus &,
+      &.focus {
         transform: translateX(0);
       }
     }
 
-    u-story::part(next-step) {
+    u-story::part(go-next) {
       color: white;
       background-color: #223050;
       border: 0;
     }
 
-    u-story::part(next-step):disabled {
+    u-story::part(go-next):disabled {
       opacity: 0.1;
     }
 
@@ -148,17 +156,43 @@ https://github.com/wes337/io-animate
       padding: 2px 8px;
       text-align: center;
     }
+
+    section:has(u-timeline) {
+      position: relative;
+    }
+
+    u-timeline {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 300px;
+      background-color: #cccccc;
+      padding: 0 4px;
+
+      u-timeline-step {
+        display: block;
+        background-color: #dddddd;
+        color: black !important;
+        border: 1px solid #223050;
+        margin: 4px 0;
+        padding: 2px;
+
+        &.active {
+          background-color: #c1f4c5;
+        }
+      }
+    }
   </style>
 
   <link rel='stylesheet' href='/docstyle.css' media='all' />
   <script src="/loader.js"></script>
   <script>
-    window.loadComponent('u-story,u-markdown');
+    window.loadComponent('u-story,u-timeline,u-markdown');
   </script>
 </head>
 
 <body>
-  <u-story class="story-container focus">
+  <u-story class="focus">
     <section class="story-step cols-3 center" style="background-color: #EFCFA2;">
       <div class="story-content story-fade-1" style="grid-column: span 2;">
         <h1 class="text-color">Effective Implementation for Storytelling</h1>
@@ -184,7 +218,7 @@ https://github.com/wes337/io-animate
       </div>
     </section>
 
-    <section class="story-step center" style="background-color: #ffd6e0;">
+    <section class="center" style="background-color: #ffd6e0;">
       <h2>Storytelling done right from the start</h2>
       <p>As a general approach I recommend what also is best practice in many frameworks:</p>
 
@@ -195,10 +229,10 @@ https://github.com/wes337/io-animate
         <li>Annotate the html container objects with appropriate classes or data attributes to indicate their role in the story.</li>
       </ul>
 
-      <p>This ensures that the user focuses on one piece of content at a time, creating a more engaging and
+      <p class="story-step story-slide-right">This ensures that the user focuses on one piece of content at a time, creating a more engaging and
         immersive storytelling experience.</p>
 
-      <p>In the age of AI not only humans are reading so I propose to stick to the foillowing rules as well:</p>
+      <p class="story-step story-slide-right">In the age of AI not only humans are reading so I propose to stick to the foillowing rules as well:</p>
 
       <ul>
         <li>The steps should use text as the main content, complemented by visuals, animations, or other media to enhance the storytelling experience.</li>
@@ -206,6 +240,12 @@ https://github.com/wes337/io-animate
       </ul>
       <p>So let's bring together:</p>
       <p>Content, Formatting, Triggers, Effects and Interactivity</p>
+
+      <u-timeline>
+        <u-timeline-step query="p:nth-of-type(2)">Define the first animation here</u-timeline-step>
+        <u-timeline-step query="p:nth-of-type(3)">Define the next animation here</u-timeline-step>
+      </u-timeline>
+
     </section>
 
     <section id="s3" class="story-step cols-2 center" style="background-color: #ffefcf;">

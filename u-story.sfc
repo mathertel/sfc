@@ -8,7 +8,7 @@ Implementation of a scroll-based story container.
 
 <template>
   <slot></slot>
-  <button part="next-step" class="next-step" type="button" aria-label="Scroll to next section" title="Scroll to next section">
+  <button part="go-next" class="go-next" type="button" aria-label="Scroll to next section" title="Scroll to next section">
     Scroll down &#8595;
   </button>
 </template>
@@ -18,14 +18,14 @@ Implementation of a scroll-based story container.
     display: block;
   }
 
-  ::slotted(.story-step) {
+  ::slotted(section) {
     box-sizing: border-box;
     padding: calc(var(--layout-padding, 1em) * 4);
     height: 100vh;
     overflow: hidden;
   }
 
-  .next-step {
+  .go-next {
     position: fixed;
     right: 3em;
     bottom: 3em;
@@ -52,13 +52,13 @@ Implementation of a scroll-based story container.
 
     constructor() {
       super();
-      this.#scrollButton = this.shadowRoot.querySelector('.next-step');
+      this.#scrollButton = this.shadowRoot.querySelector('.go-next');
       this.#scrollButton.addEventListener('click', () => this.#scrollNextStep());
     }
 
     connectedCallback() {
       super.connectedCallback();
-      this.classList.add('story-container', 'focus');
+      this.classList.add('focus');
       this.init();
     }
 
@@ -81,9 +81,8 @@ Implementation of a scroll-based story container.
           for (const step of entries) {
             step.target.classList.toggle('focus', step.isIntersecting);
           }
-        }, { threshold: 0.5 });
-
-        this.querySelectorAll('.story-step').forEach((step) => this.#stepObserver.observe(step));
+        }, { threshold: 0.75 });
+        this.querySelectorAll('section').forEach((step) => this.#stepObserver.observe(step));
       }
 
       window.addEventListener('scroll', this.#onScroll, { passive: true });
@@ -91,7 +90,7 @@ Implementation of a scroll-based story container.
     }
 
     #getNextStep() {
-      return [...this.querySelectorAll('.story-step')]
+      return [...this.querySelectorAll('section')]
         .find((step) => step.getBoundingClientRect().top > 0);
     }
 

@@ -26,7 +26,7 @@ Load the SFC loader and component:
 Add a `<u-story>` element with one or more `.story-step` sections:
 
 ```html
-<u-story class="story-container focus">
+<u-story class="focus">
   <section class="story-step" style="background-color: #c1f4c5;">
     <h2>First step</h2>
     <p>Story content goes here.</p>
@@ -38,22 +38,23 @@ Add a `<u-story>` element with one or more `.story-step` sections:
 </u-story>
 ```
 
-The initial `focus` class keeps story effects in their readable state until the component initializes. The component adds
-`story-container` and updates `focus` according to the reduced-motion preference.
+The initial `focus` class keeps story effects in their readable state until the
+component initializes. The component updates the `focus` classname according to the
+reduced-motion preference.
 
-## Styling the next-step button
+## Styling the go-next button
 
-The button is inside the component's shadow root, so page styles cannot target its `.next-step` class directly. It exposes
-the `next-step` part for page-level styling:
+The button is inside the component's shadow root, so page styles cannot target its `.go-next` class directly. It exposes
+the `go-next` part for page-level styling:
 
 ```css
-u-story::part(next-step) {
+u-story::part(go-next) {
   color: white;
   background-color: darkblue;
   border: 0;
 }
 
-u-story::part(next-step):disabled {
+u-story::part(go-next):disabled {
   opacity: 0.1;
 }
 ```
@@ -106,7 +107,7 @@ Use the effect classes on content within a `.story-step`:
 </section>
 ```
 
-Start the `<u-story>` host with `class="story-container focus"` so content is in its readable end state before JavaScript
+Start the `<u-story>` host with `class="focus"` so content is in its readable end state before JavaScript
 initializes. The component checks the user's reduced-motion preference: when reduced motion is requested, it keeps `focus`
 on the host and does not observe individual steps, so the transition targets remain in their final positions. Otherwise it
 removes the host's `focus` class and applies `focus` to intersecting steps, triggering the transitions. This uses the

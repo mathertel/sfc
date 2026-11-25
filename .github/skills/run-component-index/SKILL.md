@@ -1,9 +1,8 @@
 ---
-file: prompts/run-component-index.prompt.md
-name: Run Component Index
+name: run-component-index
 description: "Refresh the component overview table in doc/index.md from the currently implemented SFC components."
+disable-model-invocation: true
 argument-hint: "Optional constraints for this index refresh"
-agent: "Component Index"
 ---
 Refresh the SFC component overview table in [doc/index.md](../../doc/index.md) using the
 current root-level `.sfc` components.
