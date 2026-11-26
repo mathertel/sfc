@@ -115,7 +115,9 @@ component's focus state to keep the story readable without separate CSS preferen
 
 ## Instance Properties
 
+<div class="info-box success">
 `u-story` has no observed HTML attributes.
+</div>
 
 ## Instance Methods
 

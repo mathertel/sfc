@@ -42,19 +42,32 @@ So let's bring together:
 
 Content, Formatting, Triggers, Effects and Interactivity
 
-<!--
-There are some anti-patterns as well:
-* Don't put relevant information into the pixels of images only.
--->
 
+## Content Structure
+
+In HTML the steps of the story are defined using `<section>` elements inside the `<u-story>` element:
+
+``` html
+<u-story>
+  <section>
+    < -- Your content here -- >
+  </section>
+  <section>
+    < -- Your content here -- > 
+  </section>
+</u-story>
+```
 
 ## Story Telling CSS
 
-Here a simple framework independent CSS only approach is used for showing the steps vertically by
-marking a series of sections within the `u-story` element:
+Using `<section>` elements inside the `u-story` element allows for defining discrete steps of the story.E
+Even without CSS styling, the sections will shown full width ui the right order.
+
+Here a CSS only approach is used for showing the steps vertically by marking a series of sections
+within the `u-story` element:
 
 ```CSS
-::slotted(section) {
+u-story>section, ::slotted(section) {
   height: 100vh;
   overflow: hidden;
   box-sizing: border-box;
@@ -66,23 +79,6 @@ This results in each story step taking up the full height of the viewport, ensur
 focuses on one step at a time as they scroll through the story.
 
 In the final CSS you will find also some additional classes for centering content or column layouts.
-
-In HTML the story steps are represented by sections inside the `<u-story>` element:
-
-``` html
-<u-story>
-  <section>
-    <div class="story-content">
-      < -- Your content here -- >
-    </div>
-  </section>
-  <section>
-    <div class="story-content">
-      < -- Your content here -- > 
-    </div>
-  </section>
-</u-story>
-```
 
 ## Visual Effects
 
@@ -208,32 +204,35 @@ On Windows 11:
 
 ## Storytelling for AI
 
-AI Agents that read content from the web can use the `prefers-reduced-motion` media
-query to get a more clean version of the content.
+AI Agents that read content from the web can use the `prefers-reduced-motion` media query to get a
+more clean version of the content.
 
-For storytelling, the key to support AI Agents is:
+For technical storytelling implementations, the key to support AI Agents is:
 
->> Make the narrative engaging without making its meaning depend on suspense, imagery or
->> unstated context.
+> Make the narrative engaging without making its meaning depend on suspense, imagery or
+> unstated context.
 
 On a technical implementation level:
 
->> Build the story as readable HTML, then use CSS and JavaScript to enhance its
->> presentation. Use native elements for their meaning, not merely their appearance. A
->> `<section>` groups a thematic part of a story; it does not automatically make its
->> contents more discoverable.
->> Use JavaScript to enhance, not to gate
+> Text is preferred over images, video, or other non-textual content for conveying essential
+> information.
+>
+> Build the story as readable HTML, then use CSS and JavaScript to enhance its presentation. Use
+> native elements for their meaning, not merely their appearance. A `<section>` groups a thematic
+> part of a story; it does not automatically make its contents more discoverable.
+>
+> Use JavaScript to enhance, not to gate.
 
 Other more generic rules:
 
-| Pattern                    | Best Option                                                                 | Avoid                                                                 |
-| -------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Initial delivery           | Static HTML, build-time rendering, or server rendering containing the story | An empty shell that fetches all substantive text afterward            |
-| Deferred loading           | Defer scripts, below-the-fold images, and optional media                    | Fetching essential paragraphs only when they enter the viewport       |
-| Scrollytelling             | Keep the text in HTML; let scrolling control graphics and emphasis          | Making scrolling trigger the creation of the only textual explanation |
-| Accordions                 | Use `<details><summary>` with content already in HTML                       | Fetching essential answers only after a click                         |
-| Infinite stories           | Provide linked chapter or pagination URLs                                   | Making later content reachable only through endless scrolling         |
-| Interactive charts or maps | Supply a readable summary of the important findings                         | Requiring hovering, dragging, or selecting to discover every fact     |
+| Pattern                    | Best Option                                                        | Avoid                                                             |
+| -------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Initial delivery           | Use static HTML, build-time rendering or server rendering          | An empty shell that fetches all substantive text afterwards       |
+| Deferred loading           | Defer scripts, below-the-fold images and optional media            | Fetching essential paragraphs only when they enter the viewport   |
+| Scrollytelling             | Keep the text in HTML; let scrolling control graphics and emphasis | Use scrolling triggers to create the textual explanation          |
+| Accordions                 | Use `<details><summary>` with content already in HTML              | Fetching essential answers only after a click                     |
+| Infinite stories           | Provide linked chapter or pagination URLs                          | Making later content reachable only through endless scrolling     |
+| Interactive charts or maps | Supply a readable summary of the important findings                | Requiring hovering, dragging, or selecting to discover every fact |
 
 
 | Implementation                                         | Recommendation                                                                                               |
@@ -250,16 +249,18 @@ Other more generic rules:
 | Avoid content inside Shadow DOM                        | Put the primary story in semantic light DOM. Shadow DOM support varies across crawlers and extraction tools. |
 | Do not use visual position to define the reading order | Keep the DOM order coherent when styles and animations are removed.                                          |
 
-A useful acceptance check is to fetch the URL without JavaScript and ask: **Can a reader
-identify what this story is about, read its important facts in order, and follow its
-links?** Then check the page with JavaScript disabled.
+A useful acceptance check is to fetch the URL without JavaScript and ask:
 
+* Can a reader identify what this story is about, read its important facts in order, and follow its links?
+* Does the page show all relevant content with `prefers-reduced-motion` enabled?
+* Disable the sfc loader by commenting out or removing the `window.loadComponent` call in the HTML.
+* Then also check the page with JavaScript disabled.
 
 ## Interactivity
 
-As a hint and also for convenience for readers a button to scroll to the next step can be implemented:
+As a hint and also for convenience for readers a button to scroll to the next step can be implemented.
 
-t.b.d.: story scroll button script
+TODO: implement story scroll buttons right and left too.
 
 ## TimeLines
 
